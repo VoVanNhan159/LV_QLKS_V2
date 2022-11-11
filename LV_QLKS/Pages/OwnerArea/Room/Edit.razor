@@ -1,0 +1,193 @@
+﻿@page "/room/edit/{id:int}"
+@using ShareModel.Custom
+@layout Layout_Owner
+@using Radzen
+@using Tewr.Blazor.FileReader
+@inject IFileReaderService fileReader
+@inject HttpClient client
+
+<div>
+    <div class="section__content section__content--p30">
+        <div class="container">
+            <div class="row">
+                <div class="col">
+                    <RadzenTemplateForm TItem="Room_Custom" Data=@room_Custom>
+                        <RadzenFieldset Text="Cập nhật phòng của bạn">
+                            <div class="row mb-5">
+                                <div class="col-md-4">
+                                    <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Chọn Loại phòng</RadzenText>
+                                </div>
+                                <div class="col">
+                                    <RadzenDropDown TValue="int" Class="w-100" 
+                                        AllowFiltering="true" Data=@typeofrooms TextProperty="TorName" ValueProperty="TorId"
+                                        FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" @bind-Value="room_Custom.TorId" 
+                                        />
+                                </div>
+                            </div>
+                            <div class="row mb-5">
+                                <div class="col-md-4">
+                                    <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Tên phòng</RadzenText>
+                                </div>
+                                <div class="col">
+                                    <RadzenTextBox style="display: block" Placeholder="Nhập tên phòng của bạn" Name="RoomName" @bind-Value=@room_Custom.RoomName  Class="w-100" AutoComplete="false" />
+                                    <RadzenRequiredValidator Component="RoomName" Text="Vui lòng nhập tên phòng" Popup="true" Style="position: absolute"/>
+                                </div>
+                            </div>
+                            <div class="row mb-5">
+                                <div class="col-md-4">
+                                    <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Mô tả</RadzenText>
+                                </div>
+                                <div class="col">
+                                    <RadzenTextArea style="display: block" Placeholder="Nhập mô tả" Name="RoomDescription" @bind-Value=@room_Custom.RoomDescription  Class="w-100" AutoComplete="false" />
+                                    <RadzenRequiredValidator Component="RoomDescription" Text="Vui lòng nhập mô tả phòng của bạn" Popup="true" Style="position: absolute"/>
+                                </div>
+                            </div>
+                            <div class="row mb-5">
+                                <div class="col-md-4">
+                                    <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Thêm ảnh cho khách sạn</RadzenText>
+                                </div>
+                                <div class="col">
+                                    <input type="file" @ref=elementReference multiple/>
+                                </div>
+                            </div>
+                            <div class="row mb-5">
+                                <div class="col-md-4">
+                                    <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Trạng thái phòng</RadzenText>
+                                </div>
+                                <div class="col">
+                                    <RadzenRadioButtonList @bind-Value=room_Custom.RoomStatus Orientation="Orientation.Vertical" TValue="bool?">
+                                        <Items>
+                                            <RadzenRadioButtonListItem Text="Đang sử dụng" Value="true" TValue="bool?" />
+                                            <RadzenRadioButtonListItem Text="Tạm ngưng sử dụng" Value="false" TValue="bool?" />
+                                        </Items>
+                                    </RadzenRadioButtonList>
+                                </div>
+                            </div>
+                            <RadzenButton ButtonType="ButtonType.Submit" Text="Cập nhật" Click="UpdateRoom"></RadzenButton>
+                        </RadzenFieldset>
+                    </RadzenTemplateForm>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@code {
+    [Parameter]
+    public int id{ get; set; }
+
+    //Lưu ảnh
+    ElementReference elementReference;
+    string imagePath = "";
+    string fileName = "";
+    string type = "";
+    string size = "";
+    Stream fileStream = null;
+
+
+    Room_Custom room_Custom = new Room_Custom();
+    User owner = new User();
+    List<Typeofroom> typeofrooms = new List<Typeofroom>();
+
+    TypeOfRoomService typeOfRoomService = new TypeOfRoomService();
+    RoomService roomService = new RoomService();
+    UserService userService = new UserService();
+    ImageService imageService = new ImageService();
+    ImageRoomService imageRoomService = new ImageRoomService();
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var phone = await sessionStorage.GetItemAsync<string>("owner_phone");
+            owner = await userService.GetUser(phone);
+            var roomTemp = await roomService.GetRoom(id);
+            room_Custom.FloorId = roomTemp.FloorId;
+            room_Custom.HotelId = roomTemp.HotelId;
+            room_Custom.RoomDescription = roomTemp.RoomDescription;
+            room_Custom.RoomId = roomTemp.RoomId;
+            room_Custom.RoomName = roomTemp.RoomName;
+            room_Custom.RoomStatus = roomTemp.RoomStatus;
+            room_Custom.TorId = roomTemp.TorId;
+            typeofrooms = await typeOfRoomService.GetAllTypeofroomOfOwner(owner.UserPhone);
+            StateHasChanged();
+        }
+    }
+    protected async void UpdateRoom()
+    {
+        var res = await roomService.UpdateRoom(room_Custom);
+        if (res != null)
+        {
+            UploadFileAsync(res);
+        }
+    }
+    async Task UploadFileAsync(Room_Custom resRooom)
+    {
+        var files = (await fileReader.CreateReference(elementReference).EnumerateFilesAsync()).ToList();
+        if (files.Count > 0)
+        {
+            int checkAddImg = 0;
+            foreach(var file in files)
+            {
+                var fileInfo = await file.ReadFileInfoAsync();
+                fileName = fileInfo.Name;
+                size = $"{fileInfo.Size}b";
+                type = fileInfo.Type;
+
+                using(var memoryStream = await file.CreateMemoryStreamAsync((int)fileInfo.Size))
+                {
+                    fileStream = new MemoryStream(memoryStream.ToArray());
+                }
+                try
+                {
+                    string fileNameNew = "";
+                    string url = "https://localhost:7129";
+                    var content = new MultipartFormDataContent();
+                    content.Headers.ContentDisposition = new System.Net.Http.Headers.ContentDispositionHeaderValue("form-data");
+                    string extension = Path.GetExtension(fileName);
+                    string[] allow = { ".jpg", ".png" };
+                    if (allow.Contains(extension.ToLower()))
+                        fileNameNew = $"{Guid.NewGuid()}{extension}";
+                    content.Add(new StreamContent(fileStream, (int)fileStream.Length), "image", fileNameNew);
+                    var respone = await client.PostAsync($"{url}/api/Image/PostImage", content);
+                    if(respone.IsSuccessStatusCode){
+                        //Thêm Image vào CSDL
+                        var image = new Image();
+                        image.ImageName = fileNameNew;
+                        var resimg = await imageService.AddImage(image);
+                        if(resimg != null)
+                        {
+                            ImageRoom_Custom imageRoom_Custom = new ImageRoom_Custom();
+                            imageRoom_Custom.RoomId = resRooom.RoomId;
+                            imageRoom_Custom.ImageId = resimg.ImageId;
+
+                            try
+                            {
+                                var resImgHotel = await imageRoomService.AddImageRoom(imageRoom_Custom);
+                                checkAddImg++;
+                            }
+                            catch(Exception ex)
+                            {
+                                Console.WriteLine(ex.ToString());
+                            }
+                        }
+                    }
+                }
+                catch(Exception ex)
+                {
+                    Console.WriteLine(ex.ToString());
+                }
+            }
+            if(checkAddImg == files.Count){
+                NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Thành công", Detail = "Sửa thành công", Duration = 4000 });
+                this.DialogService.Close(true);
+            }
+        }
+        else
+        {
+            NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Thành công", Detail = "Sửa thành công", Duration = 4000 });
+            this.DialogService.Close(true);
+        }
+    }
+}

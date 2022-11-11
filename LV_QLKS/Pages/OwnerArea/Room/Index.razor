@@ -1,0 +1,154 @@
+﻿@page "/room/index"
+@page "/room"
+@using System.Globalization
+@using LV_QLKS.Pages.OwnerArea.Hotel
+@layout Layout_Owner
+
+<div class="main-content">
+    <div class="section__content section__content--p30">
+        <RadzenDataGrid EmptyText="Không có dữ liệu, vui lòng kiểm tra lại" Data="@rooms" TItem="Room" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Center" AllowSorting="true" 
+            PageSizeOptions="@pageSizeOptions" PageSize="0" PageSizeText="mẫu tin/trang" ShowPagingSummary="@showPagerSummary" PagingSummaryFormat="@pagingSummaryFormat" Page="@OnPage">
+            <Columns>
+                <RadzenDataGridColumn TItem="Room" Property="RoomName" Title="Tên phòng" />
+                <RadzenDataGridColumn TItem="Room" Property="Hotel.HotelName" Title="Tên khách sạn">
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn Width="10%" TItem="Room" Property="Floor.FloorName" Title="Thuộc tầng">
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn Width="10%" TItem="Room" Property="Tor.TorCapacity" Title="Sức chứa">
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="Room" Width="15%"Title="Trạng thái">
+                    <Template Context="data">
+                        @if (data.RoomStatus == true)
+                        {
+                            <p style="color:limegreen">Đang sử dụng</p>
+                        }
+                        else
+                        {
+                            <p style="color:gray">Tạm ngưng sử dụng</p>
+                        } 
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="Room" Width="10%" Title="Xem ảnh">
+                    <Template Context="data">
+                         <RadzenButton ButtonStyle="ButtonStyle.Success" Icon="group_work" Class="m-1" Click=@(() => PopupImage(data.RoomId)) />
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn Width="10%" TItem="Room" Title="Chỉnh sửa">
+                    <Template Context="data">
+                        <RadzenButton ButtonStyle="ButtonStyle.Info" Icon="build" Class="m-1" Click=@(() => ShowEditRoom(data.RoomId)) />
+                    </Template>
+                </RadzenDataGridColumn>
+            </Columns>
+        </RadzenDataGrid>
+    </div>
+</div>
+@code {
+
+    string pagingSummaryFormat = "Trang hiển thị {0}/{1} (tổng cộng {2} mẫu tin)";
+
+    IEnumerable<int> pageSizeOptions = new int[] { 5, 10, 15, 20 };
+    bool showPagerSummary = true;
+
+    void OnPage(PagerEventArgs args)
+    {
+        StateHasChanged();
+    }
+    //Khai báo các biến
+    List<Room> rooms = new List<Room>();
+    List<ShareModel.Hotel> hotels = new List<ShareModel.Hotel>();
+    ShareModel.User owner = new ShareModel.User();
+    List<Floor> floors = new List<Floor>();
+    List<Typeofroom> typeofrooms = new List<Typeofroom>();
+
+    //Khai báo các service
+    HotelService hotelService = new HotelService();
+    UserService userService = new UserService();
+    RoomService roomService = new RoomService();
+    FloorService floorService = new FloorService();
+    TypeOfRoomService typeOfRoomService = new TypeOfRoomService();
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            try
+            {
+                var phone = await sessionStorage.GetItemAsync<string>("owner_phone");
+                owner = await userService.GetUser(phone);
+                var roomTemps = await roomService.GetAllRoomOfOwner(owner.UserPhone);
+                foreach (var item in roomTemps)
+                {
+                    var tor = await typeOfRoomService.GetTypeOfRoom(item.TorId);
+                    var hotel = await hotelService.GetHotel(item.HotelId);
+                    var floor = await floorService.GetFloor(item.FloorId);
+                    var roomAdd = item;
+                    roomAdd.Tor = tor;
+                    roomAdd.Hotel = hotel;
+                    roomAdd.Floor = floor;
+                    rooms.Add(roomAdd);
+                }
+                StateHasChanged();
+            }
+            catch(Exception ex)
+            {
+                Console.Write(ex.ToString());
+            }
+        }
+    }
+    public async void PopupImage(int id)
+    {
+        {
+            await DialogService.OpenAsync<OwnerArea.Room.Image_Room>("",
+                new Dictionary<string, object>() { { "id", id } },
+                new DialogOptions() { Width = "700px", Height = "570px", Resizable = true, Draggable = true });
+        }
+    }
+    protected string GetAddressHotel(int hotel_id)
+    {
+        return hotelService.GetAddressHotel(hotel_id);
+    }
+    protected async void ShowEditRoom(int id)
+    {
+        var res = await DialogService.OpenAsync<OwnerArea.Room.Edit>("",
+             new Dictionary<string, object>() { { "id", id } },
+             new DialogOptions() { Width = "700px", Height = "500px", Resizable = true, Draggable = true });
+        if(res == true)
+        {
+            NavigationManager.NavigateTo("/room/create");
+            NavigationManager.NavigateTo("/room/index");
+        }
+    }
+    protected Typeofroom GetTypeofroom(Room item)
+    {
+        foreach(var tor in typeofrooms)
+        {
+            if(tor.TorId == item.TorId)
+            {
+                return tor;
+            }
+        }
+        return null;
+    }
+    protected Hotel GetHotel(Room item)
+    {
+        foreach(var hotel in hotels)
+        {
+            if(hotel.HotelId == item.HotelId)
+            {
+                return hotel;
+            }
+        }
+        return null;
+    }
+    protected Floor GetFloor(Room item)
+    {
+        foreach(var floor in floors)
+        {
+            if(floor.FloorId == item.FloorId)
+            {
+                return floor;
+            }
+        }
+        return null;
+    }
+}

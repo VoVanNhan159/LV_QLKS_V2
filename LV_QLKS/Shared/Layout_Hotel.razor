@@ -1,0 +1,349 @@
+﻿@inherits LayoutComponentBase
+@inject IJSRuntime JS
+@using Blazored.Toast
+@using Blazored.Toast.Configuration;
+@using LV_QLKS.Pages
+@using ShareModel
+<PageTitle>LV_QLKS_FE</PageTitle>
+
+
+<RadzenDialog/>
+<RadzenNotification/>
+<RadzenContextMenu/>
+<RadzenTooltip/>
+    
+    
+    <link href='https://fonts.googleapis.com/css?family=Lato:300,400%7COpen+Sans:300,400,600' rel='stylesheet' type='text/css'>
+    <!-- End Font Google -->
+    <!-- Library CSS -->
+    <link rel="stylesheet" href="/home/css/library/font-awesome.min.css">
+    <link rel="stylesheet" href="/home/css/library/bootstrap.min.css">
+    <link rel="stylesheet" href="/home/css/library/jquery-ui.min.css">
+    
+    <!-- End Library CSS -->
+    <link rel="stylesheet" href="/home/css/style.css">
+
+
+
+
+<div class="page">
+    <main>
+        <article class="content px-4">
+        <!-- Preloader -->
+       <div id="preloader" style="display: @none;">
+            <div class="tb-cell">
+                <div id="page-loading">
+                    <div></div>
+                    <p>Đang tải</p>
+                </div>
+            </div>
+        </div>
+        <!-- Wrap -->
+        <div id="wrap">
+
+            <!-- Header -->
+            <Header />
+            <!-- End Header -->
+            <!--Banner-->
+            <section class="banner">
+
+                <!--Background-->
+                <div class="bg-parallax bg-1"></div>
+                <!--End Background-->
+
+                <div class="container">
+                    
+                    <div class="logo-banner text-center">
+                        <a href="" title="">
+                            <img src="/home/images/logo-banner.png" alt="">
+                        </a>
+                    </div>
+                    <!-- Banner Content -->
+                    <div class="banner-cn" id="form-banner-cn">
+
+                        <!-- Tabs Cat Form -->
+                        <ul class="tabs-cat text-center row">
+                        </ul>
+                        <!-- End Tabs Cat -->
+                        <!-- Tabs Content -->
+                        <div class="tab-content">
+                            <!-- Search Hotel -->
+                            <div class="form-cn">
+                                <h2>Bạn muốn tìm khách sạn ở đâu?</h2>
+                                <div class="form-search clearfix row">
+                                    <div class="form-field">
+                                        <div class="row">
+                                            <div class="col-lg-3">
+                                                <div class="row-md-5">
+                                                    Điểm đến
+                                                </div>
+                                                <div class="row-md-7">
+                                                    <RadzenTextBox class="w-100" Placeholder="Nhập điểm đến của bạn" @bind-Value=destination></RadzenTextBox>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-4" style="border-left: outset;">
+                                                <div class="row">
+                                                    <div class="col-lg-5">
+                                                        Ngày đến
+                                                    </div>
+                                                    <div class="col-lg-7">
+                                                        <RadzenDatePicker Class="w-100" @bind-Value="dayStartFilter" DateFormat="dd/MM/yyyy" Min="DateTime.Now" onkeydown="return false" style="display: block" Change="@DayStartChange" />
+                                                    </div>
+                                                </div>
+                                                <br />
+                                                <div class="row">
+                                                    <div class="col-lg-5">
+                                                        Ngày đi
+                                                    </div>
+                                                    <div class="col-lg-7">
+                                                        <RadzenDatePicker Class="w-100" @bind-Value="dayEndFilter" DateFormat="dd/MM/yyyy" Min="dayStartFilter.AddDays(1)" onkeydown="return false" style="display: block"/>  
+                                                    </div>
+                                                </div>
+                                                
+                                            </div>
+                                            <div class="col-lg-3" style="border-left: outset;">
+                                                <div class="col-lg-5">
+                                                    Số lượng
+                                                </div>
+                                                <div class="col-lg-7">
+                                                    <RadzenNumeric @bind-Value=capacity></RadzenNumeric>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-2" style="border-left: outset;">
+                                                <div class="col">
+                                                  <RadzenButton Text="Tìm kiếm" Click="ShowHotelFillterPopup" ButtonStyle="ButtonStyle.Success"></RadzenButton>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                <!-- End Search Hotel -->
+
+                                </div>
+                            <!-- End Tabs Content -->
+
+                            </div>
+                        <!-- End Banner Content -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <!--End Banner-->
+            <!-- Sales -->
+            <section class="sales">
+                <!-- Title -->
+                <div class="title-wrap">
+                    <div class="container">
+                            <div class="travel-title float-left">
+                                <h2>Danh sách khách sạn của chúng tôi</h2>
+                            </div>
+                    </div>
+                </div>
+                <!-- End Title -->
+                <!-- Hot Sales Content -->
+                @Body
+                <!-- End Travel Destinations -->
+                <section class="destinations">
+
+                <!-- Title -->
+                <div class="title-wrap">
+                    <div class="container">
+                        <div class="travel-title float-left">
+                            <h2>Danh sách các điểm đến thú vị</h2>
+                        </div>
+                    </div>
+                </div>
+                <!-- End Title -->
+
+                <!-- Destinations Content -->
+                <div class="destinations-cn">
+
+                    <!-- Background -->
+                    <div class="bg-parallax bg-2"></div>
+                    <!-- End Background -->
+                        <div class="container">
+                            <div class="row">
+                                <!-- Destinations Filter -->
+                                <div class="col-md-4 col-lg-3">
+                                    <div class="intro-filter">
+                                        <div class="intro">
+                                            <p>
+                                                <small>Với</small><br>
+                                                <span>@provinces.Count</span> Tỉnh/Thành phố
+                                            </p>
+                                            <p>
+                                                <small>Và</small><br>
+                                                <span>@hotelActives.Count</span> khách sạn
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <!-- End Destinations Filter -->
+                                <!-- Destinations Grid -->
+                                <div class="col-md-8 col-lg-9">
+                                    <div class="tab-content destinations-grid">
+                                        <!-- Tab One -->
+                                        <div id="destinations-1" class="clearfix tab-pane fade active in ">
+                                            <!-- Destinations Item -->
+                                            @if(hotelActives.Count > 0)
+                                            {
+
+                                                foreach (var item in provincesDestination)
+                                                {
+                                                    <div class="col-xs-6 col-sm-4 col-md-6 col-lg-4">
+                                                        <div class="destinations-item ">
+                                                            <div class="destinations-text">
+                                                                <div class="destinations-name">
+                                                                    <a style="cursor:default" @onclick="() => ShowHotelOfProvincePopup(item)" title="">@item.ProvinceName</a>
+                                                                </div>
+                                                                <span class="properties-nb">
+                                                                    <ins>@CountHotelOfProvince(item)</ins> khách sạn
+                                                                </span>
+                                                            </div>
+                                                            <figure class="destinations-img">
+                                                                <a @onclick="() => ShowHotelOfProvincePopup(item)" title="">
+                                                                    <img src="/images/@GetRandomImageHotelOfProvince(item)" alt="">
+                                                                </a>
+                                                            </figure>
+                                                        </div>
+                                                    </div>
+                                                }
+                                            }
+                                            <!-- End Destinations Item -->
+                                        </div>
+                                        <!-- End Tab One -->
+
+                                    </div>
+                                </div>
+                                <!-- ENd Destinations Grid -->
+                            </div>
+                        </div>
+                    </div>
+                    <!-- End Destinations Content -->
+                </section>
+                <!-- Travel Magazine -->
+                <section class="magazine">
+                    <!-- Title -->
+                    <div class="title-wrap">
+                    </div>
+                    <!-- End Title -->
+                </section>
+                </section>
+                <!-- End Travel Magazine -->
+                <!-- Footer -->
+                <Footer />
+                <!-- End Footer -->
+
+        </div>
+            </article>
+    </main>
+</div>
+@code{
+    private IJSObjectReference module;
+
+    //Khai báo các biến
+    List<Province> provinces = new List<Province>();
+    List<District> districts = new List<District>();
+    List<Hotel> hotelActives = new List<Hotel>();
+    List<Province> provincesDestination = new List<Province>();
+
+    //Khai báo các service
+    ProvinceService provinceService = new ProvinceService();
+    DistrictService districtService = new DistrictService();
+    HotelService hotelService = new HotelService();
+    WardService wardService = new WardService();
+    ImageService imageService = new ImageService();
+
+    //Điều kiện lọc
+    DateTime dayStartFilter = new DateTime();
+    DateTime dayEndFilter = new DateTime();
+    private int capacity;
+    private string destination = "";
+
+    //Tắt preloading
+    private string none = "";
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        none = "";
+        capacity = 1;
+        dayStartFilter = DateTime.Today;
+        dayEndFilter = DateTime.Today.AddDays(1);
+        provinces = await provinceService.GetAllProvine();
+        districts = await districtService.GetAllDistrict();
+        hotelActives = await hotelService.GetAllHotelIsActive();
+        //Lấy tỉnh/tp có khách sạn
+        foreach (var item in hotelActives)
+        {
+            if(!provincesDestination.Contains(provinces.Single(p => p.ProvinceId == item.ProvinceId)))
+                provincesDestination.Add(provinces.Single(p => p.ProvinceId == item.ProvinceId));
+        }
+        //Lấy ngẫu nhiên 6 tỉnh/tp
+        provincesDestination = provincesDestination.OrderBy(pd => Guid.NewGuid()).Take(6).ToList();
+        StateHasChanged();
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            module = await JS.InvokeAsync<IJSObjectReference>("import", "./Shared/Layout_Hotel.razor.js");
+            none = "none";
+            StateHasChanged();
+        }
+
+    }
+    //Thay đổi ngày kết thúc khi ngày bắt đầu thay đổi
+    protected void DayStartChange()
+    {
+        dayEndFilter = dayStartFilter.AddDays(1);
+        StateHasChanged();
+    }
+
+    protected int CountHotelOfProvince(Province province)
+    {
+        int res = 0;
+        foreach (var item in hotelActives)
+        {
+            if (item.ProvinceId == province.ProvinceId)
+                res++;
+        }
+        return res;
+    }
+    protected string GetRandomImageHotelOfProvince(Province province)
+    {
+        string res = "";
+        if(hotelActives.Select(p=>p.ProvinceId).Contains(province.ProvinceId)){
+            var temp = hotelActives.Where(h => h.Ward.ProvinceId == province.ProvinceId).ToList()
+            .OrderBy(pd => Guid.NewGuid()).Take(1)
+            .Select(h=>h.ImageHotels.OrderBy(pd => Guid.NewGuid()).Take(1));
+            res = imageService.GetURLImage(temp.First().First().ImageId);
+        }
+        return res;
+    }
+    protected async void ShowHotelOfProvincePopup(Province province)
+    {
+        var res = await DialogService.OpenAsync<HotelOfProvince>("",
+             new Dictionary<string, object>() { { "id", province.ProvinceId } },
+             new DialogOptions() { Width = "800px", Height = "500px", Resizable = true, Draggable = true });
+
+    }
+    protected async void ShowHotelFillterPopup()
+    {
+        if(destination.Length > 0){
+            var res = await DialogService.OpenAsync<HotelFillter>("",
+            new Dictionary<string, object>() { 
+                { "destination", destination },
+                { "dayStartFilter", dayStartFilter },
+                { "dayEndFilter",dayEndFilter },
+                { "capacity", capacity }
+            },
+            new DialogOptions() { Width = "800px", Height = "500px", Resizable = true, Draggable = true });
+
+        }
+        else
+        {
+             NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Thông báo", Detail = "Vui lòng điền nơi bạn muốn đến", Duration = 4000 });
+        }
+    }
+}

@@ -1,0 +1,206 @@
+﻿
+@if(hotels.Count > 0)
+{
+    <div class="container">
+    <div class="sales-cn">
+        <div class="row">
+            <!-- HostSales Item -->
+            @foreach (var (item, index) in hotels.Select((v, i) => (v, i)))
+            {
+                if(hotelService.CountRoomOfHotel(item.HotelId) > 0)
+                {
+                     <div class="col-xs-6 col-md-3" style="padding-right:20px;padding-bottom: 20px;">
+                        <div class="sales-item">
+                            <figure class="home-sales-img" alt="Nhấn vào để xem ảnh"> 
+                                <a>
+                                    @{
+                                        // Thêm list ảnh khách sạn
+                                        try{
+                                            string urlImage = GetURLImage(item.ImageHotels.FirstOrDefault().ImageId);
+                                            if(urlImage != null)
+                                            {
+                                                <img src="/images/@urlImage" @onclick="() =>PopupImage(item.HotelId)"  />
+                                            }
+                                        }
+                                        catch(Exception ex)
+                                        {
+                                            Console.WriteLine(ex.ToString());
+                                        }
+                                    }
+                                </a>
+
+                                @if(listDiscountPercent.Single(ldp=>ldp.Key == item.HotelId).Value != 0){
+                                    <figcaption>
+                                        Giảm đến <span>@listDiscountPercent.Single(ldp=>ldp.Key == item.HotelId).Value</span>%
+                                    </figcaption>
+                                }
+                                else
+                                {
+                                    <figcaption>
+                                        Chưa có khuyến mãi
+                                    </figcaption>
+                                }
+                            </figure>
+
+                            <div class="home-sales-text">
+                                <div class="home-sales-name-places">
+                                    <div class="home-sales-name">
+                                        <a href="/HotelDetail/@accountService.Encrypt(item.HotelId.ToString())" title="" style="font-weight:bold; font-size:20px">@item.HotelName</a>
+                                    </div>
+                                    <div class="home-sales-places">
+                                        <a>@hotelService.GetAddressHotel(item.HotelId)</a>
+                                    </div>
+                                </div>
+                                <style>
+                                                                    .glyphicon-star {
+                                                                      font-size: 17px;
+                                                                      color: #e67e22;
+                                                                    }
+                                                                    .glyphicon-star.half::after {
+                                                                      position: absolute;
+                                                                      z-index: 8;
+                                                                      top: 0;
+                                                                      left: 0;
+                                                                      color: #bdc3c7;
+                                                                      content: '\e006';
+                                                                      clip-path: inset(0 0 0 47%);
+                                                                    }
+                                                                </style>
+                                <span class="star">
+                                            @{
+                                                double starTemph = GetStartOfHotel(item.HotelId);
+                                                int temph = (int)starTemph;
+                                                for(int i = 0; i < temph; i++)
+                                                {
+                                                    <i class="glyphicon glyphicon-star"></i>
+                                                }
+                                                if(starTemph - (double) temph > 0)
+                                                {
+                                                     <i class="glyphicon glyphicon-star half"></i>
+                                                }
+                                            }
+                                            </span>
+                                <hr class="hr">
+                                <div class="price-box">
+                                    <span class="price old-price">Từ <del>@hotelService.FormatVND(hotelService.GetFakePriceHotel(item.HotelId))</del></span>
+                                    <span class="price special-price">@hotelService.FormatVND(hotelService.GetRealPriceHotel(item.HotelId))</span>
+                                </div>
+                                <div></div>
+                            </div>
+                        </div>
+                    </div>
+                    <br />
+                }
+            }
+        </div>
+    </div>
+
+    </div>
+}
+else
+{
+    <p>Hiện tại chưa có khách sạn ở tỉnh này.</p>
+}
+
+@code{
+    [Parameter]
+    public string id{ get; set; }
+
+    List<Hotel> hotels = new List<Hotel>();
+    HotelService hotelService = new HotelService();
+
+    List<Image> listImageHotel = new List<Image>();
+    ImageService imageService = new ImageService();
+    RoomService roomService = new RoomService();
+    DiscountdetailService discountdetailService = new DiscountdetailService();
+    AccountService accountService = new AccountService();
+    Dictionary<int, int> listDiscountPercent = new Dictionary<int,int>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            // Lấy tất cả khách sạn
+            hotels = await hotelService.GetAllHotelOfProvince(id);
+            var hotelTemp = await hotelService.GetAllHotelIsActive();
+            foreach (var item in hotels)
+            {
+                if(hotelTemp.Select(hT => hT.HotelId).Contains(item.HotelId))
+                    await GetMaxPercentDiscountOfHotel(item.HotelId);
+                else
+                {
+                    var hotelTempSelect = hotels.FirstOrDefault(h=>h.HotelId == item.HotelId);
+                    hotels.Remove(hotelTempSelect);
+                }
+            }
+            StateHasChanged();
+        }
+        catch(Exception ex)
+        {
+            Console.WriteLine(ex.ToString());
+        }
+
+    }
+    protected double GetStartOfHotel(int id)
+    {
+        return hotelService.GetRateOfHotel(id);
+    }
+
+    // Lấy 1 ảnh của khách sạn
+    public string GetURLImage(int id)
+    {
+        return imageService.GetURLImage(id);
+    }
+
+    public async void PopupImage(int hotelID)
+    {
+        {
+            await DialogService.OpenAsync<OwnerArea.Hotel.Image_Hotel>("",
+                new Dictionary<string, object>() { { "id", hotelID } },
+                new DialogOptions() { Width = "700px", Height = "570px", Resizable = true, Draggable = true });
+        }
+    }
+    protected async Task GetMaxPercentDiscountOfHotel(int hotelId)
+    {
+        int res = 0;
+        try
+        {
+            List<Room> rooms = await hotelService.GetAllRoomOfHotel(hotelId);
+            var discountDetails = await discountdetailService.GetAllDiscountdetailActive();
+            foreach (var item in discountDetails)
+            {
+                if (rooms.Select(r => r.RoomId).Contains(item.RoomId))
+                    if (res <= item.Percent)
+                        res = (int)item.Percent;
+            }
+        }
+        catch(Exception ex)
+        {
+            Console.Write(ex.ToString());
+        }
+        listDiscountPercent.Add(hotelId, res);
+    }
+    protected async Task<int?> GetMinPriceOfHotel(int hotelId)
+    {
+        int? res = 123456789;
+        try
+        {
+            List<Room> rooms = await hotelService.GetAllRoomOfHotel(hotelId);
+            var discountDetails = await discountdetailService.GetAllDiscountdetailActive();
+            foreach (var room in rooms)
+            {
+                foreach (var item in discountDetails)
+                {
+                    if (room.RoomId == item.RoomId)
+                        if (res >= (int)room.Tor.TorPrice / 100 * (100 - item.Percent))
+                            res = (int)room.Tor.TorPrice / 100 * (100 - item.Percent);
+                }
+            }
+        }
+        catch(Exception ex)
+        {
+            Console.Write(ex.ToString());
+        }
+        return res;
+    }
+}

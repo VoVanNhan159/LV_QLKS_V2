@@ -1,0 +1,87 @@
+﻿@page "/maphotel"
+@inject DialogService DialogService
+@inject IJSRuntime JS
+@using BrowserInterop.Extensions
+@using BrowserInterop.Geolocation
+
+<div class="row">
+    <div class="col">
+        <RadzenGoogleMap ApiKey="" style="height: 400px" Options=@(new Dictionary<string, object> { { "disableDoubleClickZoom", true } })
+             Zoom=@zoom Center=@(new GoogleMapPosition() { Lat = 10.02933493084327, Lng = 105.76947927474976 }) MapClick=@OnMapClick MarkerClick=@OnMarkerClick>
+            <Markers>
+                <RadzenGoogleMapMarker Title="Vị trí của bạn" Label="Vị trí của bạn" Position=@(new GoogleMapPosition() { Lat = markerReturn.Lat, Lng = markerReturn.Lng }) />
+            </Markers>
+        </RadzenGoogleMap>
+        <RadzenButton Text="Lấy vị trí hiện tại của bạn" Click="GetGeolocation"></RadzenButton>
+    </div>
+</div>
+
+
+
+@code {
+    string keyAPIGGM = "AIzaSyDWTx7bREpM5B6JKdbzOvMW-RRlhkukmVE";
+    int zoom = 10;
+    bool showMadridMarker;
+    Marker markerReturn = new Marker();
+
+    private WindowNavigatorGeolocation geolocationWrapper;
+    private GeolocationResult currentPosition;
+    protected override async Task OnInitializedAsync(){
+        var window = await JS.Window();
+        var navigator = await window.Navigator();
+        geolocationWrapper = navigator.Geolocation;
+        currentPosition = await geolocationWrapper.GetCurrentPosition();
+        markerReturn.Lat = currentPosition.Location.Coords.Latitude;
+        markerReturn.Lng = currentPosition.Location.Coords.Longitude;
+        StateHasChanged();
+    }
+    public async Task GetGeolocation()
+    {
+        if(await ShowInlineDialogLocation() == true)
+        {
+            Return();
+        }
+    }
+
+    async void OnMapClick(GoogleMapClickEventArgs args)
+    {
+        markerReturn.Lat = args.Position.Lat;
+        markerReturn.Lng = args.Position.Lng;
+        if(await ShowInlineDialog() == true)
+        {
+            Return();
+        }
+    }
+
+    async void OnMarkerClick(RadzenGoogleMapMarker marker)
+    {
+        markerReturn.Lat = marker.Position.Lat;
+        markerReturn.Lng = marker.Position.Lng;
+        if(await ShowInlineDialog() == true)
+        {
+            Return();
+        }
+    }
+    void Return()
+    {
+        this.DialogService.Close(markerReturn);
+    }
+    protected async Task<bool> ShowInlineDialog()
+    {
+        var confirmationResult = await this.DialogService.Confirm("Bạn có muốn chọn này là vị trí khách sạn của bạn không?", "Thông báo", new ConfirmOptions { OkButtonText = "Xác nhận", CancelButtonText = "Trở về" });
+        if (confirmationResult == true)
+        {
+            return true;
+        }
+        return false;
+    }
+    protected async Task<bool> ShowInlineDialogLocation()
+    {
+        var confirmationResult = await this.DialogService.Confirm("Bạn có muốn chọn vị trí hiện tại của bạn là vị trí khách sạn của bạn không?", "Thông báo", new ConfirmOptions { OkButtonText = "Xác nhận", CancelButtonText = "Trở về" });
+        if (confirmationResult == true)
+        {
+            return true;
+        }
+        return false;
+    }
+}

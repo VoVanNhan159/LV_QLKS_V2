@@ -1,0 +1,108 @@
+﻿@page "/floor/index"
+@layout Layout_Owner
+<div class="main-content">
+    <div class="section__content section__content--p30">
+        <RadzenDataGrid EmptyText="Không có dữ liệu, vui lòng kiểm tra lại" Data="@floors" TItem="Floor" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Center" AllowSorting="true" 
+            PageSizeOptions="@pageSizeOptions" PageSize="5" PageSizeText="mẫu tin/trang" ShowPagingSummary="@showPagerSummary" PagingSummaryFormat="@pagingSummaryFormat" Page="@OnPage">
+            <Columns>
+                <RadzenDataGridColumn TItem="Floor" Property="FloorName" Title="Tên tầng" />
+                <RadzenDataGridColumn TItem="Floor" Title="Tên khách sạn">
+                    <Template Context="data">
+                        @GetNameHotelOfFloor((int)data.HotelId)
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn Width="10%" TItem="Floor" Title="Số phòng">
+                    <Template Context="data">
+                        @CountAllRoomOfFloor(data.FloorId)
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="Floor" Title="Mô tả">
+                    <Template Context="data">
+                        @if(data.FloorDescription != null)
+                        {
+                            <p>@data.FloorDescription</p>
+                        }
+                        else
+                        {
+                            <p>Chưa có mô tả</p>
+                        }
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn Width="10%" TItem="Floor">
+                    <Template Context="data">
+                        <RadzenButton ButtonStyle="ButtonStyle.Info" Icon="build" Class="m-1" Click=@(() => EditFloor(data.FloorId)) />
+                    </Template>
+                </RadzenDataGridColumn>
+            </Columns>
+        </RadzenDataGrid>
+    </div>
+</div>
+@code {
+    User owner = new User();
+    List<Floor> floors = new List<Floor>();
+    List<Hotel> hotels = new List<Hotel>();
+    List<Room> rooms = new List<Room>();
+
+    UserService userService = new UserService();
+    FloorService floorService = new FloorService();
+    HotelService hotelService = new HotelService();
+    RoomService roomService = new RoomService();
+
+    //Phân trang
+    string pagingSummaryFormat = "Trang hiển thị {0}/{1} (tổng cộng {2} mẫu tin)";
+
+    IEnumerable<int> pageSizeOptions = new int[] { 5, 10, 15, 20 };
+    bool showPagerSummary = true;
+
+    void OnPage(PagerEventArgs args)
+    {
+        StateHasChanged();
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var phone = await sessionStorage.GetItemAsync<string>("owner_phone");
+            owner = await userService.GetUser(phone);
+            hotels = await hotelService.GetAllHotelOfOwner(owner.UserPhone);
+            rooms = await roomService.GetAllRoomOfOwner(owner.UserPhone);
+            floors = await floorService.GetAllFloorOfOwner(owner.UserPhone);
+            StateHasChanged();
+        }
+    }
+    protected int CountAllRoomOfFloor(int id)
+    {
+        int res = 0;
+        foreach(var item in rooms)
+        {
+            if (id == item.FloorId)
+                res++;
+        }
+        return res;
+    }
+    protected string GetNameHotelOfFloor(int id)
+    {
+        string res = "";
+        foreach(var item in hotels)
+        {
+            if (id == item.HotelId)
+            {
+                res = item.HotelName;
+                break;
+            }
+        }
+        return res;
+    }
+    protected async void EditFloor(int id)
+    {
+        
+        var res = await DialogService.OpenAsync<OwnerArea.Floor.Edit>("",
+             new Dictionary<string, object>() { { "id", id } },
+             new DialogOptions() { Width = "700px", Height = "570px", Resizable = true, Draggable = true });
+        if(res == 1)
+        {
+            NavigationManager.NavigateTo("/floor/create");
+            NavigationManager.NavigateTo("/floor/index");
+        }
+    }
+}

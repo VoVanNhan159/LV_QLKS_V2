@@ -1,0 +1,150 @@
+﻿@page "/owner/orderroom/index"
+@layout Layout_Owner
+@using ShareModel;
+@using ShareModel.Custom
+
+<div class="main-content">
+    <div class="section__content section__content--p30">
+        <RadzenDataGrid EmptyText="Không có dữ liệu, vui lòng kiểm tra lại" Data="@listOrderrooms" FilterMode="FilterMode.Simple" AllowFiltering="true" TItem="Orderroom" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Center" AllowSorting="true" 
+            PageSizeOptions="@pageSizeOptions" PageSize="5" PageSizeText="mẫu tin/trang" ShowPagingSummary="@showPagerSummary" PagingSummaryFormat="@pagingSummaryFormat" Page="@OnPage">
+            <Columns>
+                <RadzenDataGridColumn TItem="Orderroom" Title="Tên khách hàng">
+                    <FilterTemplate>
+                        <RadzenTextBox @oninput=@(args => OnNameChange(args.Value.ToString())) Style="width:100%;" />
+                    </FilterTemplate>
+                    <Template Context="data">
+                        @data.UserPhoneNavigation.UserName
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn Width="10%" TItem="Orderroom" Title="SĐT">
+                    <FilterTemplate>
+                        <RadzenTextBox @oninput=@(args => OnPhoneChange(args.Value.ToString())) Style="width:100%;" />
+                    </FilterTemplate>
+                    <Template Context="data">
+                        @data.UserPhone
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="Orderroom" Title="Tên khách sạn">
+                    <Template Context="data">
+                        @data.Orderroomdetails.First().Room.Hotel.HotelName
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="Orderroom" Title="Ngày đặt">
+                    <Template Context="data">
+                        @DateTime.Parse(data.OrderroomDate.ToString()).ToString("dd, MMMM, yyyy", new System.Globalization.CultureInfo("vi-VN"))
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn Width="13%" TItem="Orderroom" Title="Tổng tiền">
+                    <Template Context="data">
+                        @hotelService.FormatVND((int)data.OrderroomTotalprice)
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="Orderroom" Title="Trạng thái">
+                    <Template Context="data">
+                        @if(data.OrderroomStatus == "1")
+                        {
+                            <p style="color:red">Chưa thanh toán</p>
+                        }
+                        
+                        else if(data.OrderroomStatus == "2")
+                        {
+                            <p style="color:limegreen">Đã thanh toán</p>
+                        } 
+                            
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn Width="10%" TItem="Orderroom">
+                    <Template Context="data">
+                        <RadzenButton ButtonStyle="ButtonStyle.Info" Icon="build" Class="m-1" Click=@(() => ShowOrderroomDetailPopup(data.OrderroomId)) />
+                    </Template>
+                </RadzenDataGridColumn>
+            </Columns>
+        </RadzenDataGrid>
+    </div>
+</div>
+
+
+@code {
+    List<ShareModel.Orderroom> listOrderrooms = new List<ShareModel.Orderroom>();
+
+    OrderroomService orderroomService = new OrderroomService();
+    HotelService hotelService = new HotelService();
+    UserService userService = new UserService();
+    User owner = new User();
+    string phone = "";
+
+    //Phân trang
+    string pagingSummaryFormat = "Trang hiển thị {0}/{1} (tổng cộng {2} mẫu tin)";
+
+    IEnumerable<int> pageSizeOptions = new int[] { 5, 10, 15, 20 };
+    bool showPagerSummary = true;
+
+    void OnPage(PagerEventArgs args)
+    {
+        StateHasChanged();
+    }
+    protected async void OnNameChange(string value)
+    {
+        var orderroomsTemp = await orderroomService.GetAllOrderroomOfOwner(owner.UserPhone);
+        if (value != "")
+        {
+            listOrderrooms.Clear();
+            listOrderrooms.AddRange(orderroomsTemp.Where(odt=>odt.OrderroomStatus != "3").ToList());
+            listOrderrooms = listOrderrooms.Where(lo=>userService.RemoveSign4VietnameseString(lo.UserPhoneNavigation.UserName.ToLower()).Contains(userService.RemoveSign4VietnameseString(value).ToLower())).ToList();
+            StateHasChanged();
+        }
+        else
+        {
+            listOrderrooms.Clear();
+            listOrderrooms.AddRange(orderroomsTemp.Where(odt=>odt.OrderroomStatus != "3").ToList());
+            StateHasChanged();
+        }
+    }
+    protected async void OnPhoneChange(string value)
+    {
+        var orderroomsTemp = await orderroomService.GetAllOrderroomOfOwner(owner.UserPhone);
+        if (value != "")
+        {
+            listOrderrooms.Clear();
+            listOrderrooms.AddRange(orderroomsTemp.Where(odt=>odt.OrderroomStatus != "3").ToList());
+            listOrderrooms = listOrderrooms.Where(lo=>lo.UserPhone.Contains(value)).ToList();
+            StateHasChanged();
+        }
+        else
+        {
+            listOrderrooms.Clear();
+            listOrderrooms.AddRange(orderroomsTemp.Where(odt=>odt.OrderroomStatus != "3").ToList());
+            StateHasChanged();
+        }
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if(firstRender){
+            try
+            {
+                phone = await sessionStorage.GetItemAsync<string>("owner_phone");
+                owner = await userService.GetUser(phone);
+                var orderroomsTemp = await orderroomService.GetAllOrderroomOfOwner(owner.UserPhone);
+                listOrderrooms.AddRange(orderroomsTemp.Where(odt=>odt.OrderroomStatus != "3").ToList());
+                StateHasChanged();
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
+        }
+
+    }
+
+    protected async void ShowOrderroomDetailPopup(int id)
+    {
+        var res = await DialogService.OpenAsync<OwnerArea.OrderroomDetail.Index>("",
+             new Dictionary<string, object>() { { "id", id } },
+             new DialogOptions() { Width = "800px", Height = "500px", Resizable = true, Draggable = true });
+        if(res != null)
+        {
+            NavigationManager.NavigateTo("/owner/orderroomdetail/"+id);
+            NavigationManager.NavigateTo("/owner/orderroom/index");
+        }
+    }
+}

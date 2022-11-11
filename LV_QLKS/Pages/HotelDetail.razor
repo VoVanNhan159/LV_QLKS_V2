@@ -1,0 +1,980 @@
+﻿@page "/hoteldetail/{idTemp}"
+@page "/hoteldetail"
+@using System.Text.Json
+@using System.Text.Json.Serialization
+@using Blazored.Modal.Services
+@using LV_QLKS.Service
+@using Microsoft.AspNetCore.SignalR.Client
+@using Pages
+@using ShareModel;
+@using ShareModel.Custom
+@using System.Collections
+@using System.Globalization
+@layout Layout_HotelDetail
+
+                    <!-- Header Detail -->
+                    <section class="head-detail">
+                        <div class="head-dt-cn">
+                            <div class="row">
+                                <div class="col-sm-7">
+                                    <h1>@hoTel.HotelName</h1>
+                                    <div class="start-address">
+                                        <span class="star">
+                                        @{
+                                            double starTemph = GetStartOfHotel(id);
+                                            int temph = (int)starTemph;
+                                            for(int i = 0; i < temph; i++)
+                                            {
+                                                                <i class="glyphicon glyphicon-star"></i>
+                                            }
+                                            if(starTemph - (double) temph > 0)
+                                            {
+                                                                 <i class="glyphicon glyphicon-star half"></i>
+                                            }
+                                        }
+                                        </span>
+                                        <address class="address">
+                                            @hotelService.GetAddressHotel(id)
+                                        </address>
+
+                                    </div>
+                                </div>
+                                <div class="col-sm-5 text-right">
+                                    <p class="price-book">
+                                        Từ <span>@hotelService.FormatVND(hotelService.GetRealPriceHotel(id))</span>/đêm
+                                       
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                    <!-- End Header Detail -->
+
+                    <!-- Detail Slide -->
+                    <section>
+                        <!-- Lager Image -->
+                        <div>
+                            @{
+                                    // Thêm list ảnh khách sạn
+                                    try{
+                                        if(urlImageHotel != null)
+                                        {
+                                                            <img class="w-100" src="/images/@urlImageHotel" alt="@urlImageHotel">
+                                        }
+                                    }
+                                    catch(Exception ex)
+                                    {
+                                        Console.WriteLine(ex.ToString());
+                                    }
+                                }
+                        </div>
+                        <!-- End Lager Image -->
+                        <!-- Thumnail Image -->
+                        <!-- End Thumnail Image -->
+                    </section>
+                    <!-- End Detail Slide -->
+
+                    <!-- Hotel Content One -->
+                    <section class="hotel-content detail-cn" id="hotel-content">
+                        <div class="row">                        
+                            <div class="col-lg-3 detail-sidebar">
+                                <!-- Hight Light -->
+                                <div class="hight-light">
+
+                                    <h2>Tuyệt vời</h2>
+                                    <!-- Vote Text -->
+                                    <div class="row">
+                                        <!-- Recommend -->
+                                        <div class="col-xs-6 col-sm-6 col-md-3 col-lg-6 vote-text">
+                                            
+
+                                        </div>
+                                        <!-- End Recommend -->
+                                        <!-- Tripadvitsor -->
+                                        <div class="col-xs-6 col-sm-6 col-md-3 col-lg-6  vote-text">
+                                            
+                                        </div>
+                                        <!-- End Tripadvitsor -->
+                                        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-12">
+
+                                            <!-- Quote -->
+                                            <blockquote class="quote-sidebar">
+                                            @{
+                                                if(customerreview.Count != 0)
+                                                {
+                                                    var customerRV = customerreview.First();
+                                                                        <p>@customerRV.CrComment
+                                                                            .<br>
+                                                                            <span><b>@customerRV.UserPhoneNavigation.UserName</b> - @customerRV.CrDate</span>
+                                                                        </p>
+                                                }
+                                                else{
+                                                                <span>Chưa có đánh giá</span>
+                                                }
+                                            }
+                                            </blockquote>
+                                            <!-- End Quote -->
+                                        </div>
+                                    </div>
+                                    <!-- End Vote Text -->
+
+                                    
+
+                                </div>
+                                <!-- End Hight Light -->
+                            </div>
+
+                            <!-- Description -->
+                            <div class="col-lg-9 hl-customer-like">
+
+                                <div class="col-lg-7">
+                                    <h2>Tại sao bạn nên chọn khách sạn này?</h2>
+                                    @if(hotelServiceCss.Count > 0)
+                                    {
+                                        foreach (var item in hotelServiceCss.Select((value, i) => new { i, value }))
+                                        {
+                                            <div class="customer-like">
+                                                @{
+                                                    var stt= item.i + 1;
+                                                }
+                                                
+                                                <span class="cs-like-label">
+                                                    @stt. @GetService(item.value.ServiceId).ServiceName
+                                                 </span>
+                                                <ul>
+                                                    <li>@GetService(item.value.ServiceId).ServiceDescription</li>
+                                                </ul>
+                                            </div>
+                                        }
+                                    }
+                                </div>
+                                <div class="col-lg-5">
+                                    @if(hoTel.HotelX != null && hoTel.HotelY != null)
+                                    {
+                                        <div style="height:60%;padding-top: 100px;">
+                                            <RadzenGoogleMap ApiKey="" style="height: 400px" Options=@(new Dictionary<string, object> { { "disableDoubleClickZoom", true } })
+                                                Zoom="13" Center=@(new GoogleMapPosition() { Lat = double.Parse(hoTel.HotelY), Lng = double.Parse(hoTel.HotelX) }) MarkerClick=@OnMarkerClick>
+                                                <Markers>
+                                                    <RadzenGoogleMapMarker Title="@hoTel.HotelName" Label="@hoTel.HotelName" Position=@(new GoogleMapPosition() { Lat = double.Parse(hoTel.HotelY), Lng = double.Parse(hoTel.HotelX) }) />
+                                                </Markers>
+                                            </RadzenGoogleMap>    
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                            <!-- End Description -->
+                        </div>
+
+                    </section>
+                    <!-- End Hotel Content One -->
+
+                    <!-- Check Rates-->
+                    <section class="check-rates detail-cn" id="check-rates">
+                        <div class="row">
+                            <div class="col-lg-3 detail-sidebar">
+                                <!-- chổ nhúng map-->
+                            </div>
+                            <div class="col-lg-9 check-rates-cn">
+
+                                <!-- Form Check Hotel Availability -->
+                                <div class="check-rates-form">
+
+                                    <h3>Nhập thông tin để tìm kiếm phòng</h3>
+                                    <div class="form-search clearfix">
+                                        <div class="form-field w-50">
+                                            <div>
+                                                <span>Ngày nhận phòng: </span>
+                                                <RadzenDatePicker Class="w-100" @bind-Value="dayStartFilter" DateFormat="dd/MM/yyyy" Min="DateTime.Now" onkeydown="return false" style="display: block" Change="@DayStartChange" />
+                                            </div>
+                                            <div>
+                                                <span>Ngày trả phòng: </span>
+                                                <RadzenDatePicker Class="w-100" @bind-Value="dayEndFilter" DateFormat="dd/MM/yyyy" Min="dayStartFilter.AddDays(1)" onkeydown="return false" style="display: block"/>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-field w-25">
+                                            <span>Số người: </span>
+                                            <input @bind=capacityFilter class="field-input" type="number" min="1" onkeypress="return false"/>
+                                            <br />
+                                                <span>Giá: </span>
+                                            <br />
+                                            <div>
+                                                <RadzenNumeric Change="@(args => PriceOnChange(args))" Step="50000" Format="@String.Format("#,### đ")" Min="@minTor" Max="@maxTor" TValue="int" @bind-Value=priceStart></RadzenNumeric>
+                                                <RadzenNumeric Change="@(args => PriceOnChange(args))" Step="50000" Format="@String.Format("#,### đ")" Min="@minTor" Max="@maxTor" TValue="int" @bind-Value=priceEnd></RadzenNumeric>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="form-submit">
+                                            @*<button @onclick=FilterListRoom class="awe-btn awe-btn-4 arrow-right awe-btn-medium">Tìm</button>*@
+                                            <button @onclick=FilterListRoom class="awe-btn awe-btn-4 arrow-right">Tìm</button>
+                                            <br />
+                                            <br />
+                                            <button @onclick=GetAllListRoom class="awe-btn awe-btn-4">Xóa bộ lọc</button>
+                                        </div>
+                                        
+                                    </div>
+                                </div>
+                                <!-- Form Check Hotel Availability -->
+                                                                <!-- Hotel Availability -->
+                                <div class="hl-availability">
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered">
+                                            <thead>
+                                                <tr>
+                                                    <th>Phòng</th>
+                                                    <th style="width:15%">Loại phòng</th>
+                                                    <th style="width:10%">Sức chứa</th>
+                                                    <th style="width:20%">Giá <span>(/đêm)</span></th>
+                                                    <th style="width:5%">
+                                                        <select value=@filterSelect @onchange=FilterSelect>
+                                                            <option value="" selected disabled hidden>Xếp theo</option>
+                                                            <option value="1">Giá thấp đến cao</option>
+                                                            <option value="2">Giá cao đến thấp</option>
+                                                            <option value="3">Đánh giá</option>
+                                                        </select>
+                                                    </th>
+                                                </tr>
+                                            </thead>
+
+                                            <tbody>
+                                                @if(listRoom.Count > 0)
+                                                {
+                                                    foreach (var item in listRoom)
+                                                    {
+                                                        if(item.RoomStatus != false)
+                                                        {
+                                                        <tr>
+                                                                        <td class="avai-td-text">
+                                                                            <figure>
+                                                                                @{
+                                                                                    try{
+                                                                                        string urlImageRoom = GetURLImage(item.ImageRooms.FirstOrDefault().ImageId);
+                                                                                                        <img src="/images/@urlImageRoom" alt="@urlImageRoom" @onclick="() =>PopupImage(item.RoomId)">
+                                                                                    }
+                                                                                    catch(Exception ex)
+                                                                                    {
+                                                                                        Console.WriteLine(ex.ToString());
+                                                                                    }
+                                                                                }   
+                                                                            </figure>
+                                                                            <h3>@item.RoomName</h3>
+                                                                            @*<p>@item.RoomDescription</p>*@
+                                                                            <style>
+                                                                                .glyphicon-star {
+                                                                                  font-size: 17px;
+                                                                                  color: #e67e22;
+                                                                                }
+                                                                                .glyphicon-star.half::after {
+                                                                                  position: absolute;
+                                                                                  z-index: 8;
+                                                                                  top: 0;
+                                                                                  left: 0;
+                                                                                  color: #bdc3c7;
+                                                                                  content: '\e006';
+                                                                                  clip-path: inset(0 0 0 47%);
+                                                                                }
+                                                                            </style>
+                                                                            <span class="start">
+                                                                            @{
+                                                                                double starTemp = GetStartOfRoom(item.RoomId);
+                                                                                int temp = (int)starTemp;
+                                                                                for(int i = 0; i < temp; i++)
+                                                                                {
+                                                                                                    <i class="glyphicon glyphicon-star"></i>
+                                                                                }
+                                                                                if(starTemp - (double) temp > 0)
+                                                                                {
+                                                                                                <i class="glyphicon glyphicon-star half"></i>
+                                                                                }
+                                                                                if(starTemp > 0){
+                                                                                                <p>(@starTemp/5.0) đánh giá <a style="cursor:pointer;color:blue" @onclick="()=>ShowReviewPopup(item.RoomId)">Xem đánh giá</a></p>
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                                <p>Chưa có đánh giá</p>
+                                                                                }
+                                                                            
+
+                                                                            }
+                                                                            </span>
+                                                                            <a style="cursor:pointer;color:blue" @onclick="() => ShowDescriptionOfRoom(item.RoomId)">Xem mô tả</a>
+                                                                        </td>
+                                                                        <td>
+                                                                            <p>
+                                                                                @item.Tor.TorName
+                                                                            </p>
+                                                                        </td>
+                                                                        <td>
+                                                                            <p>
+                                                                                @item.Tor.TorCapacity
+                                                                            </p>
+                                                                        </td>
+                                                                        <td class="avai-td-price">
+                                                                            @{
+                                                                                if(GetPriceAfterMinus(item) == item.Tor.TorPrice.Value)
+                                                                                {
+                                                                                                <h4 class="price">@hotelService.FormatVND(GetPriceAfterMinus(item))/đêm</h4>
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                                <h4 class="price" style="text-decoration: line-through">@hotelService.FormatVND(item.Tor.TorPrice.Value)/đêm</h4>
+                                                                                                <h4 class="price" style="color:red">@hotelService.FormatVND(GetPriceAfterMinus(item))/đêm</h4>
+                                                                                }
+                                                                                int countTor = 0;
+                                                                                if(keyValuePairTors.Count > 0)
+                                                                                    countTor = keyValuePairTors[item.TorId];
+                                                                                if(countTor <= 1 ){
+                                                                                                <p style="color:red">Chỉ còn @countTor phòng loại này hôm nay</p>
+                                                                                }
+                                                                                else if(countTor > 1 && countTor < 3){
+                                                                                                <p style="color:orange">Còn @countTor phòng loại này hôm nay</p>
+                                                                                }
+                                                                                else{
+                                                                                                <p style="color:limegreen">Còn @countTor phòng loại này hôm nay</p>
+                                                                                }
+                                                                            }
+                                                                        </td>
+                                                                        <td class="avai-td-book">
+                                                                            <button type="button" class="btn btn-success m-1" @onclick="(() => BookRoomNow(item.RoomId))">Đặt ngay</button>
+                                                                            <button type="button" class="btn btn-danger m-1" @onclick="(() => AddOrderroomDetail(item.RoomId))">Thêm vào giỏ</button>
+                                                                        </td>
+                                                                    </tr>
+                                                        }
+                                                    }
+                                                }
+                                            </tbody>
+
+                                        </table>
+                                    </div>
+                                </div>
+                                <!-- Hotel Availability -->
+                            </div>
+                        </div>
+                    </section>
+                    <section class="detail-footer detail-cn">
+                        <div class="row">
+                            <div class="col-lg-3"></div>
+                            <div class="col-lg-9 detail-footer-cn">
+                                <!-- Show More Book -->
+                                <div class="row">
+                                    <div class="col-xs-5 ">
+                                        <div class="review-more">
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- End Show More Book -->
+                            </div>
+                        </div>
+                    </section>
+
+@code {
+        [Parameter]
+        public string idTemp { get; set; }
+    private int id;
+
+    private IJSObjectReference module;
+
+    //Khai báo các Service
+    HotelService hotelService = new HotelService();
+    RoomService roomService = new RoomService();
+    ServiceService serviceService = new ServiceService();
+    TypeOfRoomService typeOfRoomService = new TypeOfRoomService();
+    UserService userService = new UserService();
+    string urlImageHotel = "";
+    ImageService imageService = new ImageService();
+    ImageHotelService imageHotelService = new ImageHotelService();
+    ImageRoomService imageRoomService = new ImageRoomService();
+    CustomerReviewService customerReviewService = new CustomerReviewService();
+    OrderroomService orderroomService = new OrderroomService();
+    OrderroomDetailService orderroomDetailService = new OrderroomDetailService();
+    DiscountdetailService discountdetailService = new DiscountdetailService();
+    AccountService accountService = new AccountService();
+    HotelServiceService hotelServiceService = new HotelServiceService();
+
+    //Khai báo các biến
+    List<ShareModel.HotelServiceCs> hotelServiceCss = new List<ShareModel.HotelServiceCs>();
+    List<ShareModel.Service> services = new List<ShareModel.Service>();
+    ShareModel.Hotel hoTel = new ShareModel.Hotel();
+    List<ShareModel.Room> listRoom = new List<ShareModel.Room>();
+    List<ShareModel.Orderroom> orderrooms = new List<ShareModel.Orderroom>();
+    List<Orderroomdetail> orderroomdetails = new List<Orderroomdetail>();
+    List<Typeofroom> listTor = new List<Typeofroom>();
+    User user = new User();
+    List<Customerreview> customerreview = new List<Customerreview>();
+    List<Discountdetail> discountdetails = new List<Discountdetail>();
+
+    Dictionary<int, int> keyValuePairTors = new Dictionary<int, int>();
+
+    string filterSelect = "";
+    string phone = "";
+    //Điều kiện lọc
+    DateTime dayStartFilter = new DateTime();
+    DateTime dayEndFilter = new DateTime();
+    int capacityFilter = 1;
+    int step = 0;
+    int priceStart = 0;
+    int priceEnd = 0;
+    int minTor = 0;
+    int maxTor = 0;
+
+    //hub
+    private HubConnection hubConnection;
+
+    protected override async Task OnInitializedAsync()
+    {
+        id = int.Parse(accountService.Decrypt(idTemp));
+        var listRoomTemp = await hotelService.GetAllRoomOfHotel(id);
+        hoTel = await hotelService.GetHotel(id);
+        hoTel.ImageHotels = await imageHotelService.GetAllImageHotel(id);
+        urlImageHotel = GetURLImage(hoTel.ImageHotels.FirstOrDefault().ImageId);
+        listTor = await typeOfRoomService.GetAllTypeOfRoom();
+        listTor = listTor.OrderBy(t => t.TorCapacity).ToList();
+        orderrooms = await orderroomService.GetAllOrderrom();
+        orderroomdetails = await orderroomDetailService.GetAllOrderromDetail();
+
+        //Lọc giá
+        minTor = (int)listTor.Min(lt=>lt.TorPrice);
+        maxTor = (int)listTor.Max(lt=>lt.TorPrice);
+        priceStart = minTor;
+        priceEnd = maxTor;
+        //Tính số lượng loại phòng còn trống trong hôm nay
+        foreach (var item in listRoomTemp)
+        {
+            if(CheckBooked(item) == false)
+            {
+                listRoom.Add(item);
+                if (keyValuePairTors.ContainsKey(item.TorId))
+                {
+                    var value = keyValuePairTors.Single(kvpt=>kvpt.Key == item.TorId).Value + 1;
+                    keyValuePairTors[item.TorId] = value;
+                }
+                else
+                {
+                    keyValuePairTors.Add(item.TorId, 1);
+                }
+            }
+        }
+        hubConnection = new HubConnectionBuilder()
+            .WithUrl(NavigationManager.ToAbsoluteUri("/HotelBrHub"))
+            .Build();
+        hubConnection.On("ReceiveMessage", () =>
+        {
+            ReloadData();
+        });
+        await hubConnection.StartAsync();
+        StateHasChanged();
+    }
+    public async void ReloadData()
+    {
+        id = int.Parse(accountService.Decrypt(idTemp));
+        var listRoomTemp = await hotelService.GetAllRoomOfHotel(id);
+        hoTel = await hotelService.GetHotel(id);
+        hoTel.ImageHotels = await imageHotelService.GetAllImageHotel(id);
+        urlImageHotel = GetURLImage(hoTel.ImageHotels.FirstOrDefault().ImageId);
+        listTor = await typeOfRoomService.GetAllTypeOfRoom();
+        listTor = listTor.OrderBy(t => t.TorCapacity).ToList();
+        services = await serviceService.GetAllService();
+        hotelServiceCss = await hotelServiceService.GetAllHotelServiceOfHotel(hoTel.HotelId);
+        customerreview = await customerReviewService.GetAllCustomerReviewOfHotel(hoTel.HotelId);
+        customerreview = customerreview.OrderBy(cr => cr.CrStar).ToList();
+        dayStartFilter = DateTime.Today;
+        dayEndFilter = DateTime.Today.AddDays(1);
+        discountdetails = await discountdetailService.GetAllDiscountdetailActive();
+        orderrooms = await orderroomService.GetAllOrderrom();
+        orderroomdetails = await orderroomDetailService.GetAllOrderromDetail();
+
+        //Lọc giá
+        minTor = (int)listTor.First().TorPrice;
+        maxTor = (int)listTor.Last().TorPrice;
+        priceStart = minTor;
+        priceEnd = maxTor;
+
+        //Tính số lượng loại phòng còn trống trong hôm nay
+        keyValuePairTors.Clear();
+        listRoom.Clear();
+        foreach (var item in listRoomTemp)
+        {
+            if(CheckBooked(item) == false)
+            {
+                listRoom.Add(item);
+                if (keyValuePairTors.ContainsKey(item.TorId))
+                {
+                    var value = keyValuePairTors.Single(kvpt=>kvpt.Key == item.TorId).Value + 1;
+                    keyValuePairTors[item.TorId] = value;
+                }
+                else
+                {
+                    keyValuePairTors.Add(item.TorId, 1);
+                }
+            }
+        }
+        await InvokeAsync(() => {
+            StateHasChanged();
+        });
+    }
+    protected async override Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            module = await JS.InvokeAsync<IJSObjectReference>("import", "./Shared/Layout_Hotel.razor.js");
+            try{
+                phone = await sessionStorage.GetItemAsync<string>("customer_phone");
+                if(phone != null)
+                {
+                    user = await userService.GetUser(phone);
+                }
+                services = await serviceService.GetAllService();
+                hotelServiceCss = await hotelServiceService.GetAllHotelServiceOfHotel(hoTel.HotelId);
+                customerreview = await customerReviewService.GetAllCustomerReviewOfHotel(hoTel.HotelId);
+                customerreview = customerreview.OrderBy(cr => cr.CrStar).ToList();
+                dayStartFilter = DateTime.Today;
+                dayEndFilter = DateTime.Today.AddDays(1);
+                discountdetails = await discountdetailService.GetAllDiscountdetailActive();
+                orderrooms = await orderroomService.GetAllOrderrom();
+                orderroomdetails = await orderroomDetailService.GetAllOrderromDetail();
+            }
+            catch(Exception ex){
+                Console.WriteLine(ex.ToString());
+            }
+            StateHasChanged();
+        }
+    }
+    //Check xem phòng hôm nay có trống không
+    protected bool CheckBooked(Room room)
+    {
+        var orderroomTemp = GetLastestOrderroomOfRoom(room.RoomId);
+        if(orderroomTemp != null && (orderroomTemp.OrderroomStatus == "2" || orderroomTemp.OrderroomStatus == "1"))
+        {
+            if (orderroomTemp.OrderroomDatestart <= DateTime.Today && orderroomTemp.OrderroomDateend > DateTime.Today)
+                return true;
+            else
+                return false;
+        }
+        return false;
+    }
+    protected Orderroom GetLastestOrderroomOfRoom(int id)
+    {
+        if (orderroomdetails.Select(od => od.RoomId).Contains(id))
+        {
+            var orderroomLastestId = orderroomdetails.Where(od => od.RoomId == id).Max(od=>od.OrderroomId);
+            var orderroom = orderrooms.First(o => o.OrderroomId == orderroomLastestId);
+            return orderroom;
+        }
+        else{
+            return null;
+        }
+        
+    }
+    protected void CancelModal()
+    {
+        this.DialogService.Close();
+    }
+    protected async void BookRoomNow(int room_id)
+    {
+        if(phone == null)
+        {
+            NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Thông báo", Detail = "Bạn phải đăng nhập để đặt phòng", Duration = 4000 });
+            phone = await DialogService.OpenAsync<Login>
+               (
+                   "Đăng nhập để đặt phòng",
+                      new Dictionary<string, object>() {},
+                      new DialogOptions() { ShowTitle = true, Width = "450px", Height = "", Resizable = true, Draggable = true, AutoFocusFirstElement = true }
+               );
+            if (phone != null)
+            {
+                StateHasChanged();
+            }
+        }
+        else
+        {
+            await sessionStorage.SetItemAsync("room_id", room_id);
+            if(dayStartFilter!= null && dayEndFilter != null){
+                if(dayStartFilter.Month < 10)
+                {
+                    await sessionStorage.SetItemAsync("dayStartOrder", "0"+dayStartFilter.ToString());
+                }
+                if(dayEndFilter.Month < 10)
+                {
+                    await sessionStorage.SetItemAsync("dayEndOrder", "0"+dayEndFilter.ToString());
+                }
+                else{
+                    await sessionStorage.SetItemAsync("dayStartOrder", dayStartFilter.ToString());
+                    await sessionStorage.SetItemAsync("dayEndOrder", dayEndFilter.ToString());
+                }
+            }
+            else
+            {
+                await sessionStorage.SetItemAsync("dayStartOrder", "");
+                await sessionStorage.SetItemAsync("dayEndOrder", "");
+            }
+            await DialogService.OpenAsync<BookRoom>
+            (
+                "",
+                   new Dictionary<string, object>() {},
+                   new DialogOptions() { ShowTitle = true, Width = "1300px", Height = "", Resizable = true, Draggable = true, AutoFocusFirstElement = true }
+            );
+        }
+    }
+    //Get giá sau khi khuyến mãi
+    public int GetPriceAfterMinus(Room room)
+    {
+        int res = 0;
+        int percent = 0;
+        foreach (var item in discountdetails)
+        {
+            if(item.RoomId == room.RoomId)
+                if (percent <= item.Percent)
+                    percent = (int)item.Percent;
+        }
+        res = (int)room.Tor.TorPrice / 100 * (100 - percent);
+        return res;
+    }
+    //Get tỉ lệ khuyến mãi
+    public int GetPercentOfRoom(Room room)
+    {
+        int percent = 0;
+        foreach (var item in discountdetails)
+        {
+            if(item.RoomId == room.RoomId)
+                if (percent <= item.Percent)
+                    percent = (int)item.Percent;
+        }
+        return percent;
+    }
+    //Get start of hotel
+    protected double GetStartOfHotel(int id)
+    {
+        return hotelService.GetRateOfHotel(id);
+    }
+
+    //Get start of room
+    protected double GetStartOfRoom(int id)
+    {
+        return roomService.GetRateOfRoom(id);
+    }
+
+    //Lọc theo giá
+    void PriceOnChange(dynamic value)
+    {
+        listRoom = listRoom.Where(lr => lr.Tor.TorPrice >= priceStart && lr.Tor.TorPrice <= priceEnd).ToList();
+        StateHasChanged();
+    }
+
+    //Filter room
+    protected async void FilterListRoom()
+    {
+        var listRoomTemp = await roomService.GetListRoomFilter(hoTel.HotelId, DateTime.Parse(dayStartFilter.ToString()), DateTime.Parse(dayEndFilter.ToString()), capacityFilter);
+        listRoom.Clear();
+        keyValuePairTors.Clear();
+        foreach (var item in listRoomTemp)
+        {
+            if(CheckBooked(item) == false)
+            {
+                listRoom.Add(item);
+                if (keyValuePairTors.ContainsKey(item.TorId))
+                {
+                    var value = keyValuePairTors.Single(kvpt=>kvpt.Key == item.TorId).Value + 1;
+                    keyValuePairTors[item.TorId] = value;
+                }
+                else
+                {
+                    keyValuePairTors.Add(item.TorId, 1);
+                }
+            }
+        }
+        if(listRoom.Count > 0){
+            NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Thành công", Detail = "Tìm phòng thành công", Duration = 4000 });
+        }
+        else{
+            NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Thông báo", Detail = "Không tìm thấy phòng phù hợp", Duration = 4000 });
+        }
+        StateHasChanged();
+    }
+
+    //Get all room
+    protected async void GetAllListRoom()
+    {
+        ReloadData();
+        capacityFilter = 1;
+        priceStart = minTor;
+        priceEnd = maxTor;
+        NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Thành công", Detail = "Xóa lọc thành công", Duration = 4000 });
+        StateHasChanged();
+    }
+
+    //Get 1 image of hotel
+    public string GetURLImage(int id)
+    {
+        return imageService.GetURLImage(id);
+    }
+
+    public List<ImageRoom> GetAllImageOfRoom(int id)
+    {
+        return imageRoomService.GetAllImageRoom(id).Result.ToList();
+    }
+
+    public void FilterSelect(ChangeEventArgs args)
+    {
+        filterSelect = args.Value.ToString();
+        if(filterSelect == "1")
+        {
+            listRoom = listRoom.OrderBy(lr => lr.Tor.TorPrice.Value).ToList();
+            StateHasChanged();
+        }
+        else if(filterSelect == "2")
+        {
+            listRoom = listRoom.OrderByDescending(lr => lr.Tor.TorPrice.Value).ToList();
+            StateHasChanged();
+        }
+        else if(filterSelect == "3")
+        {
+            listRoom = listRoom.OrderByDescending(lr => GetStartOfRoom(lr.RoomId)).ToList();
+            StateHasChanged();
+        }
+    }
+    protected async void PopupImage(int roomID)
+    {
+        {
+            await DialogService.OpenAsync<OwnerArea.Room.Image_Room>("",
+                new Dictionary<string, object>() { { "id", roomID } },
+                new DialogOptions() { Width = "700px", Height = "570px", Resizable = true, Draggable = true });
+        }
+    }
+    protected async void ShowReviewPopup(int roomID)
+    {
+        {
+            await DialogService.OpenAsync<OwnerArea.Room.CustomerReview>("",
+                new Dictionary<string, object>() { { "id", roomID } },
+                new DialogOptions() { Width = "700px", Height = "570px", Resizable = true, Draggable = true });
+        }
+    }
+
+    protected async void AddOrderroomDetail(int room_id)
+    {
+        if(phone == null)
+        {
+            NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Thông báo", Detail = "Bạn phải đăng nhập để đặt phòng", Duration = 4000 });
+            var res = await DialogService.OpenAsync<Login>
+                (
+                    "Đăng nhập để thêm phòng",
+                       new Dictionary<string, object>() {},
+                       new DialogOptions() { ShowTitle = true, Width = "450px", Height = "", Resizable = true, Draggable = true, AutoFocusFirstElement = true }
+                );
+            if (res != null)
+            {
+                phone = res;
+                user = await userService.GetUser(phone);
+            }
+
+        }
+        else
+        {
+            var room = await roomService.GetRoom(room_id);
+            var listOrderroom = await orderroomService.GetAllOrderromOfUser(user.UserPhone);
+            //tính tổng giá phòng
+            var totalDay = (DateTime.Parse(dayEndFilter.ToString()) - DateTime.Parse(dayStartFilter.ToString())).TotalDays;
+            var totalPrice = totalDay * (double)GetPriceAfterMinus(room);
+            if(listOrderroom.Count > 0)
+            {
+                var orderroomCheck = listOrderroom.FirstOrDefault(lod=>lod.OrderroomStatus == "3");
+                if(orderroomCheck != null){
+                    var orderroomDetailCheck = await orderroomDetailService.GetAllOrderromDetailOfOrderrom(orderroomCheck.OrderroomId);
+                    if(orderroomDetailCheck.Count > 0){
+                        var roomCheck = await roomService.GetRoom(orderroomDetailCheck.FirstOrDefault().RoomId);
+
+                        if(roomCheck.HotelId != hoTel.HotelId)
+                        {
+                            var confirmationResult = await this.DialogService.Confirm("Bạn đang có đơn đặt phòng ở khách sạn khách chưa hoàn thành. Nếu bạn thêm phòng này, những phòng trước đó sẽ bị xóa. Bạn có chắc muốn thêm phòng này không?", "Thông báo", new ConfirmOptions { OkButtonText = "Xác nhận", CancelButtonText = "Trở về" });
+                            if (confirmationResult == true)
+                            {
+                                await orderroomService.DeleteOrderrom(orderroomCheck.OrderroomId);
+
+                                ShareModel.Orderroom orderroom = new ShareModel.Orderroom();
+                                OrderroomDetail_Custom orderroomdetail = new OrderroomDetail_Custom();
+
+
+                                orderroom.OrderroomDate = DateTime.Now;
+                                orderroom.OrderroomDatestart = DateTime.Parse(dayStartFilter.ToShortDateString());
+                                orderroom.OrderroomDateend = DateTime.Parse(dayEndFilter.ToShortDateString());
+                                orderroom.UserPhone = user.UserPhone;
+                                orderroom.UserPhoneNavigation = user;
+                                orderroom.OrderroomStatus = "3";//Giỏ hàng
+
+                                orderroom.OrderroomTotalprice = (int)totalPrice;
+                                var res = await orderroomService.AddOrderroom(orderroom);
+
+                                orderroomdetail.OrderroomId = res.OrderroomId;
+                                orderroomdetail.RoomId = room.RoomId;
+                                var resodd = await orderroomDetailService.AddOrderroomdetail(orderroomdetail);
+                                if(resodd.RoomId != null){
+                                    NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Thành công", Detail = "Thêm vào giỏ thành công", Duration = 4000 });
+                                }
+                            }
+                            else if(confirmationResult != true)
+                            {
+                                OrderroomDetail_Custom orderroomdetail = new OrderroomDetail_Custom();
+                                orderroomdetail.OrderroomId = orderroomCheck.OrderroomId;
+                                orderroomdetail.RoomId = room.RoomId;
+
+                                var odcheckcustom = new Orderroom_Custom();
+                                odcheckcustom.OrderroomId = orderroomCheck.OrderroomId;
+                                odcheckcustom.OrderroomStatus = "3";
+                                odcheckcustom.OrderroomTotalprice = orderroomCheck.OrderroomTotalprice;
+
+                                var ressod = await orderroomService.UpdateOrderroomAfterPayment(odcheckcustom);
+                                var resodd = await orderroomDetailService.AddOrderroomdetail(orderroomdetail);
+
+                                if(resodd.RoomId != null){
+                                    NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Thành công", Detail = "Thêm vào giỏ thành công", Duration = 4000 });
+                                }
+                            }
+                        }
+                        else
+                        {
+                            OrderroomDetail_Custom orderroomdetail = new OrderroomDetail_Custom();
+                            orderroomdetail.OrderroomId = orderroomCheck.OrderroomId;
+                            orderroomdetail.RoomId = room.RoomId;
+
+                            var odcheckcustom = new Orderroom_Custom();
+                            odcheckcustom.OrderroomId = orderroomCheck.OrderroomId;
+                            odcheckcustom.OrderroomDate = orderroomCheck.OrderroomDate;
+                            odcheckcustom.OrderroomDatestart = orderroomCheck.OrderroomDatestart;
+                            odcheckcustom.OrderroomDateend = orderroomCheck.OrderroomDateend;
+                            odcheckcustom.UserPhone = orderroomCheck.UserPhone;
+                            odcheckcustom.OrderroomStatus = "3";
+                            odcheckcustom.OrderroomTotalprice = orderroomCheck.OrderroomTotalprice;
+
+                            odcheckcustom.OrderroomTotalprice += (int)totalPrice;
+
+                            var resodd = await orderroomDetailService.AddOrderroomdetail(orderroomdetail);
+                            if(resodd.RoomId > 0){
+                                var ressod = await orderroomService.UpdateOrderroomAfterPayment(odcheckcustom);
+                                if(ressod.OrderroomId > 0)
+                                    NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Thành công", Detail = "Thêm vào giỏ thành công", Duration = 4000 });
+                            }
+                            else
+                            {
+                                NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Thông báo", Detail = "Phòng đã có trong giỏ của bạn", Duration = 4000 });
+                            }
+                        }
+                    }
+                    else
+                    {
+                        OrderroomDetail_Custom orderroomdetail = new OrderroomDetail_Custom();
+                        orderroomdetail.OrderroomId = orderroomCheck.OrderroomId;
+                        orderroomdetail.RoomId = room.RoomId;
+                        var odcheckcustom = new Orderroom_Custom();
+                        odcheckcustom.OrderroomId = orderroomCheck.OrderroomId;
+                        odcheckcustom.OrderroomDate = orderroomCheck.OrderroomDate;
+                        odcheckcustom.OrderroomDatestart = orderroomCheck.OrderroomDatestart;
+                        odcheckcustom.OrderroomDateend = orderroomCheck.OrderroomDateend;
+                        odcheckcustom.UserPhone = orderroomCheck.UserPhone;
+                        odcheckcustom.OrderroomStatus = "3";
+                        odcheckcustom.OrderroomTotalprice = orderroomCheck.OrderroomTotalprice;
+
+                        odcheckcustom.OrderroomTotalprice += (int)totalPrice;
+
+                        var resodd = await orderroomDetailService.AddOrderroomdetail(orderroomdetail);
+                        if(resodd.RoomId > 0){
+                            var ressod = await orderroomService.UpdateOrderroomAfterPayment(odcheckcustom);
+                            if(ressod.OrderroomId > 0)
+                                NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Thành công", Detail = "Thêm vào giỏ thành công", Duration = 4000 });
+                        }
+                        else
+                        {
+                            NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Thông báo", Detail = "Phòng đã có trong giỏ của bạn", Duration = 4000 });
+                        }
+                    }
+                }
+                else
+                {
+                    ShareModel.Orderroom orderroom = new ShareModel.Orderroom();
+                    OrderroomDetail_Custom orderroomdetail = new OrderroomDetail_Custom();
+
+                    orderroom.OrderroomDate = DateTime.Now;
+                    orderroom.OrderroomDatestart = DateTime.Parse(dayStartFilter.ToShortDateString());
+                    orderroom.OrderroomDateend = DateTime.Parse(dayEndFilter.ToShortDateString());
+                    orderroom.UserPhone = user.UserPhone;
+                    orderroom.UserPhoneNavigation = user;
+                    orderroom.OrderroomStatus = "3";//Giỏ hàng
+
+                    orderroom.OrderroomTotalprice = (int)totalPrice;
+                    var resod = await orderroomService.AddOrderroom(orderroom);
+
+                    orderroomdetail.OrderroomId = resod.OrderroomId;
+                    orderroomdetail.RoomId = room.RoomId;
+                    var resodd = await orderroomDetailService.AddOrderroomdetail(orderroomdetail);
+                    if(resodd.RoomId != null){
+                        NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Thành công", Detail = "Thêm vào giỏ thành công", Duration = 4000 });
+                    }
+                }
+            }
+            else
+            {
+                ShareModel.Orderroom orderroom = new ShareModel.Orderroom();
+                OrderroomDetail_Custom orderroomdetail = new OrderroomDetail_Custom();
+
+                orderroom.OrderroomDate = DateTime.Now;
+                orderroom.OrderroomDatestart = DateTime.Parse(dayStartFilter.ToShortDateString());
+                orderroom.OrderroomDateend = DateTime.Parse(dayEndFilter.ToShortDateString());
+                orderroom.UserPhone = user.UserPhone;
+                orderroom.UserPhoneNavigation = user;
+                orderroom.OrderroomStatus = "3";//Giỏ hàng
+
+
+                orderroom.OrderroomTotalprice = (int)totalPrice;
+                var resod = await orderroomService.AddOrderroom(orderroom);
+
+                orderroomdetail.OrderroomId = resod.OrderroomId;
+                orderroomdetail.RoomId = room.RoomId;
+                var resodd = await orderroomDetailService.AddOrderroomdetail(orderroomdetail);
+                if(resodd.RoomId != null){
+                    NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Thành công", Detail = "Thêm vào giỏ thành công", Duration = 4000 });
+                }
+            }
+        }
+
+    }
+    //Thay đổi ngày kết thúc khi ngày bắt đầu thay đổi
+    protected void DayStartChange()
+    {
+        dayEndFilter = dayStartFilter.AddDays(1);
+        StateHasChanged();
+    }
+    //Khi người dùng lọc giá
+    void OnChange(dynamic value)
+    {
+        string str = value is IEnumerable ? string.Join(",", value) : value;
+        // "20,57"
+        var resTemp = str.Split(",");
+        priceStart = int.Parse(resTemp[0]) * 10000;
+        priceEnd = int.Parse(resTemp[1]) * 20000;
+    }
+    async void OnMarkerClick(RadzenGoogleMapMarker marker)
+    {
+        var confirmationResult = await this.DialogService.Confirm("Bạn có muốn tìm đường đến khách sạn này không?", "Thông báo", new ConfirmOptions { OkButtonText = "Xác nhận", CancelButtonText = "Trở về" });
+        if (confirmationResult == true)
+        {
+            var url = "https://www.google.com/maps/place/" + marker.Position.Lat + "," + marker.Position.Lng;
+            await JS.InvokeVoidAsync("open", url, "_blank");
+        }
+    }
+
+    //Get Service
+    protected Service GetService(int id){
+        foreach (var item in services)
+        {
+            if (item.ServiceId == id)
+                return item;
+        }
+        return null;
+    }
+
+    //Show Description Room
+    protected async void ShowDescriptionOfRoom(int id)
+    {
+        await DialogService.OpenAsync<OwnerArea.Room.Description>("",
+            new Dictionary<string, object>() { { "id", id } },
+            new DialogOptions() { Width = "700px", Height = "570px", Resizable = true, Draggable = true });
+    }
+}

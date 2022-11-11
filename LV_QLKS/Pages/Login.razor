@@ -1,0 +1,168 @@
+﻿@page "/login"
+@using LV_QLKS.Service
+@using ShareModel
+
+
+<EditForm Model="acc" style="width:400px">
+  <!-- Email input -->
+  <div class="form-outline mb-4">
+    <label class="form-label" for="form2Example1">Số điện thoại</label>
+    <InputText type="tel" @bind-Value="acc.AccountUsername" @ref=phone class="form-control" />
+  </div>
+
+  <!-- Password input -->
+  <div class="form-outline mb-4">
+    <label class="form-label" for="form2Example2">Mật khẩu</label>
+    <InputText type="password" @bind-Value="acc.AccountPassword" @ref=password class="form-control" />
+  </div>
+
+  <!-- Submit button -->
+  <button style="width:50%;margin-inline: auto;" type="button" class="btn btn-primary btn-block mb-4" @onclick="CheckLogin">Đăng nhập</button>
+
+  <!-- Register buttons -->
+  <div class="text-center">
+          <div class="col">
+      <!-- Simple link -->
+      <a style="color:mediumblue;cursor:pointer" @onclick="ForgetPassword" >Quên mật khẩu?</a>
+    </div>
+    <p>Bạn chưa có tài khoản? <a style="color:mediumblue;cursor:pointer" @onclick="Register" >Đăng ký ngay</a></p>
+  </div>
+</EditForm>
+
+	
+@code {
+    AccountService accountService = new AccountService();
+    UserService userService = new UserService();
+
+    Account acc = new Account();
+    User user = new User();
+
+    private InputText phone;
+    private InputText password;
+
+
+    public async void CheckLogin()
+    {
+        Account newAcc = new Account();
+
+        try
+        {
+            if (phone.Value == null || !IsPhoneNumber(phone.Value) || password.Value == null)
+                NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Thông báo", Detail = "Vui lòng nhập thông tin hợp lệ", Duration = 4000 });
+            else
+            {
+                newAcc = await accountService.GetAccount(acc.AccountUsername, accountService.Encrypt(acc.AccountPassword));
+                if(newAcc.AccountUsername != null)
+                {
+                    var role = newAcc.Toa.ToaPower;
+                    var phone = newAcc.AccountUsername;
+                    await sessionStorage.SetItemAsync("phone", phone);
+                    try
+                    {
+                        user = await userService.GetUser(phone);
+                        if(role == "Customer")
+                        {
+                            await sessionStorage.SetItemAsync("customer_phone", phone);
+                            await sessionStorage.SetItemAsync("customer_name", user.UserName);
+                            this.DialogService.Close(phone);
+                        }
+                        else if(role == "Owner")
+                        {
+                            await sessionStorage.SetItemAsync("owner_phone", phone);
+                            await sessionStorage.SetItemAsync("owner_name", user.UserName);
+                            NavigationManager.NavigateTo("/owner/index");
+                        }
+                        else
+                        {
+                            await sessionStorage.SetItemAsync("admin_phone", phone);
+                            await sessionStorage.SetItemAsync("admin_name", user.UserName);
+                            NavigationManager.NavigateTo("/admin/index");
+                        }
+
+
+                    }
+                    catch(Exception ex)
+                    {
+                        if(role == "Customer")
+                        {
+                            await sessionStorage.SetItemAsync("customer_phone", phone);
+                        }
+                        else if(role == "Owner")
+                        {
+                            await sessionStorage.SetItemAsync("owner_phone", phone);
+                            NavigationManager.NavigateTo("/owner/index");
+                        }
+                        else
+                        {
+                            await sessionStorage.SetItemAsync("admin_phone", phone);
+                            NavigationManager.NavigateTo("admin/index");
+                        }
+
+                    }
+
+
+                    NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Thành công", Detail = "Đăng nhập thành công", Duration = 4000 });
+                    this.DialogService.Close(phone);
+                }
+                else
+                {
+                    NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Lỗi", Detail = "Sai số điện thoại hoặc mật khẩu", Duration = 4000 });
+                }
+            }
+        }
+        catch(Exception Ex)
+        {
+            Console.WriteLine(Ex.ToString());
+        }
+
+    }
+    public static bool IsPhoneNumber(string number)
+    {
+        if (number == null)
+            return false;
+        try{
+            string temp = number.Substring(0, 2);
+            if(temp == "09" || temp == "03" ||temp == "07" ||temp == "08" ||temp == "05")
+            {
+                if (number.Length == 10) return true;
+            }
+            return false;
+        }catch(Exception e)
+        {
+            return false;
+        }
+    }
+
+    public async void ForgetPassword()
+    {
+        this.DialogService.Close();
+        Thread.Sleep(500);
+        var res = await DialogService.OpenAsync<ForgetPassword>
+        (
+            "Khôi phục mật khẩu",
+               new Dictionary<string, object>() {},
+               new DialogOptions() { ShowTitle = true, Width = "550px", Height = "", Resizable = true, Draggable = true, AutoFocusFirstElement = true }
+        );
+        if (res != null)
+        {
+            await DialogService.OpenAsync<Login>
+            (
+                "Đăng nhập",
+                   new Dictionary<string, object>() {},
+                   new DialogOptions() { ShowTitle = true, Width = "450px", Height = "", Resizable = true, Draggable = true, AutoFocusFirstElement = true }
+            );
+        }
+    }
+
+    public async void Register()
+    {
+        this.DialogService.Close();
+        Thread.Sleep(500);
+        await DialogService.OpenAsync<Register>
+        (
+            "Đăng ký tài khoản mới",
+               new Dictionary<string, object>() {},
+               new DialogOptions() { ShowTitle = true, Width = "450px", Height = "", Resizable = true, Draggable = true, AutoFocusFirstElement = true }
+        );
+    }
+}

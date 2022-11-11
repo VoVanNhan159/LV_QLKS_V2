@@ -1,0 +1,201 @@
+﻿@page "/orderroom/index"
+@layout Layout_Customer
+@using ShareModel;
+@using ShareModel.Custom
+@using Microsoft.AspNetCore.SignalR.Client
+
+<div class="main-content">
+    <div class="section__content section__content--p30">
+        <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    STT
+                </th>
+                <th>
+                    Tên khách sạn
+                </th>
+                <th>
+                    Ngày đặt
+                </th>
+                <th>
+                    Tổng tiền
+                </th>
+                <th>
+                    Hình thức thanh toán
+                </th>
+                <th>
+                    Chỉ đường
+                </th>
+                <th>
+                    Chi tiết
+                </th>
+                <th>
+
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @if(listOrderroomOrderroomdetailRoom.Count > 0){
+                var stt = 1;
+                @foreach (var item in listOrderroomOrderroomdetailRoom) {
+                    if(item.OrderroomStatus != "3")
+                    {
+                        <tr>
+                        @{
+                            <td>
+                                @stt
+                                @{stt++;}
+                            </td>
+                            <td>
+                                @item.Rooms.First().Hotel.HotelName
+                            </td>
+                            <td>
+                                @DateTime.Parse(item.OrderroomDate.ToString()).ToString("dd MMMM yyyy", new System.Globalization.CultureInfo("vi-VN"))                            </td>
+                            <td>
+                                @hotelService.FormatVND((int)item.OrderroomTotalprice)
+                            </td>
+                            <td>
+                                @{
+                                    var status = "";
+                                    if(item.OrderroomStatus == "1")
+                                        status = "Thanh toán khi nhận phòng";
+                                    else if(item.OrderroomStatus == "2")
+                                        status = "Thanh toán trực tuyến";
+                                }
+                                @status
+                            </td>
+                            <td>
+                            @{
+                                Hotel hotel = GetHotelOfOrderroom(item);
+                                var url = "https://www.google.com/maps/place/"+hotel.HotelY+","+hotel.HotelX;
+                                <a target="_blank" href=@url>
+                                    <i class="fa fa-location-arrow"></i>  
+                                </a>
+                            }
+                            </td>
+                            <td>
+                                <button style="color:blue" @onclick="() => ShowOrderroomDetailPopup(item.OrderroomId)">
+                                    <i class="fa fa-list"></i>
+                                </button>
+                            </td>
+                            <td>
+                            @if(item.OrderroomStatus == "1")
+                            {
+                                <button @onclick="() => DeleteOrderroom(item.OrderroomId)">
+                                    <i class="fa fa-trash" aria-hidden="true"></i>
+                                    Hủy đặt phòng
+                                </button>
+                            }
+                            </td>
+
+                        }
+                    
+                    </tr>
+                    }
+                }
+            }
+        </tbody>
+    </table>
+    </div>
+</div>
+
+
+@code {
+    List<Hotel> hotels = new List<Hotel>();
+    List<ShareModel.Orderroom> listOrderroom = new List<ShareModel.Orderroom>();
+    ShareModel.Orderroom orderroom = new ShareModel.Orderroom();
+    List<Orderroomdetail> orderroomdetails = new List<Orderroomdetail>();
+    List<Orderroom_Orderroomdetail_Room> listOrderroomOrderroomdetailRoom = new List<Orderroom_Orderroomdetail_Room>();
+
+    OrderroomService orderroomService = new OrderroomService();
+    OrderroomDetailService orderroomdetailService = new OrderroomDetailService();
+    RoomService roomService = new RoomService();
+    HotelService hotelService = new HotelService();
+    UserService userService = new UserService();
+    User customer;
+    string phone = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            phone = await sessionStorage.GetItemAsync<string>("customer_phone");
+            customer = await userService.GetUser(phone);
+            listOrderroom = await orderroomService.GetAllOrderromOfUser(customer.UserPhone);
+            hotels = await hotelService.GetAllHotel();
+            @foreach (var item in listOrderroom)
+            {
+                var orderroomOrderroomdetailRoom = new Orderroom_Orderroomdetail_Room();
+                orderroomOrderroomdetailRoom.OrderroomId = item.OrderroomId;
+                orderroomOrderroomdetailRoom.OrderroomDate = item.OrderroomDate;
+                orderroomOrderroomdetailRoom.OrderroomDatestart = item.OrderroomDatestart;
+                orderroomOrderroomdetailRoom.OrderroomDateend = item.OrderroomDateend;
+                orderroomOrderroomdetailRoom.Orderroomdetails = item.Orderroomdetails;
+                orderroomOrderroomdetailRoom.OrderroomTotalprice = item.OrderroomTotalprice;
+                orderroomOrderroomdetailRoom.OrderroomStatus = item.OrderroomStatus;
+                foreach (var odd in item.Orderroomdetails)
+                {
+                    var room = await roomService.GetRoom(odd.RoomId);
+                    orderroomOrderroomdetailRoom.Rooms.Add(room);
+                }
+
+                listOrderroomOrderroomdetailRoom.Add(orderroomOrderroomdetailRoom);
+            }
+            hubConnection = new HubConnectionBuilder()
+            .WithUrl(NavigationManager.ToAbsoluteUri("/HotelBrHub"))
+            .Build();
+            await hubConnection.StartAsync();
+            StateHasChanged();
+
+        }
+        catch(Exception ex)
+        {
+            Console.WriteLine(ex.ToString());
+        }
+    }
+    //Hub
+    private HubConnection hubConnection;
+
+    public bool IsConnected => hubConnection.State == HubConnectionState.Connected;
+    Task SendMessage() => hubConnection.SendAsync("SendMessage");
+    //end hub
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if(firstRender){
+
+        }
+
+    }
+    protected Hotel GetHotelOfOrderroom(Orderroom_Orderroomdetail_Room orderroom)
+    {
+        foreach (var item in hotels)
+        {
+            if (orderroom.Rooms.First().HotelId == item.HotelId)
+                return item;
+        }
+        return null;
+    } 
+    protected async void ShowOrderroomDetailPopup(int id)
+    {
+        await DialogService.OpenAsync<OrderroomDetail.Index>("",
+             new Dictionary<string, object>() { { "id", id } },
+             new DialogOptions() { Width = "800px", Height = "500px", Resizable = true, Draggable = true });
+    }
+    protected async void DeleteOrderroom(int id)
+    {
+        var confirmationResult = await this.DialogService.Confirm("Bạn có chắc muốn hủy đặt phòng không? Sau khi xác nhận sẽ không thể hoàn tác", "Thông báo", new ConfirmOptions { OkButtonText = "Xác nhận", CancelButtonText = "Trở về" });
+        if (confirmationResult == true)
+        {
+            var res = await orderroomService.DeleteOrderrom(id);
+            if(res == 1)
+            {
+                if (IsConnected)
+                    await SendMessage();
+                NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Thành công", Detail = "Hủy đặt phòng thành công", Duration = 4000 });
+                NavigationManager.NavigateTo("/orderroom/create");
+                NavigationManager.NavigateTo("/orderroom/index");
+            }
+        }
+    }
+}

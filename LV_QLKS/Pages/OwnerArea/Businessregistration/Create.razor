@@ -1,0 +1,235 @@
+﻿@page "/businessregistration/create/{statusTemp}"
+@page "/businessregistration/create"
+@using LV_QLKS.Data
+@using Microsoft.AspNetCore.SignalR.Client
+@using ShareModel.Custom
+@using System.Net.Mail
+@layout Layout_Owner
+
+<div class="main-content">
+    <div class="section__content section__content--p30">
+        <div class="container w-75">
+            <div class="row">
+                <div class="col">
+                    <RadzenTemplateForm TItem="Businessregistration_Custom" Data=@businessregistration_Custom>
+                        <RadzenFieldset Text="Đăng ký đăng tin cho khách sạn của bạn">
+                            <div class="row mb-5">
+                                <div class="col-md-4">
+                                    <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Chọn Khách sạn</RadzenText>
+                                </div>
+                                <div class="col">
+                                    <RadzenDropDown TValue="int" Class="w-100" 
+                                        AllowFiltering="true" Data=@hotels Name="Hotel" TextProperty="HotelName" ValueProperty="HotelId"
+                                        FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" @bind-Value="businessregistration_Custom.HotelId" 
+                                        Change="HotelChange"/>
+                                        <RadzenRequiredValidator Component="Hotel" Text="Vui lòng chọn khách sạn đăng ký" Popup="true" Style="position: absolute"/>
+                                </div>
+                            </div>
+                            <div class="row mb-5">
+                                <div class="col-md-4">
+                                    <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Chọn Gói đăng ký</RadzenText>
+                                </div>
+                                <div class="col">
+                                    <RadzenDropDown TValue="int" Class="w-100" 
+                                        AllowFiltering="true" Data=@pricelistbrs Name="Pricelistbr" TextProperty="PricelistbrName" ValueProperty="PricelistbrId"
+                                        FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" @bind-Value="businessregistration_Custom.PricelistbrId" 
+                                        Change="PricelistbrChange"/>
+                                        <RadzenRequiredValidator Component="Pricelistbr" Text="Vui lòng chọn gói đăng ký" Popup="true" Style="position: absolute"/>
+                                </div>
+                            </div>
+                            <div class="row mb-5">
+                                <div class="col-md-4">
+                                    <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Giá Gói đăng ký</RadzenText>
+                                </div>
+                                <div class="col">
+                                    <RadzenText>@price</RadzenText>
+                                </div>
+                            </div>
+                            <RadzenButton ButtonType="ButtonType.Submit" Text="Đăng ký" Click="PayForBusinessregistration"></RadzenButton>
+                        </RadzenFieldset>
+                    </RadzenTemplateForm>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public UserInfo UserInfo { get; set; }
+
+    public string status { get; set; }
+    [Parameter]
+    public string statusTemp { get; set; }
+
+    Businessregistration_Custom businessregistration_Custom = new Businessregistration_Custom();
+    User owner = new User();
+    List<Hotel> hotels = new List<Hotel>();
+    List<Pricelistbr> pricelistbrs = new List<Pricelistbr>();
+    Pricelistbr pricelistbr = new Pricelistbr();
+
+    UserService userService = new UserService();
+    HotelService hotelService = new HotelService();
+    PricelistbrService pricelistbrService = new PricelistbrService();
+    BusinessregistrationService businessregistrationService = new BusinessregistrationService();
+    AccountService accountService = new AccountService();
+
+
+    //Giá của gói đăng ký
+    string price = "";
+
+    //start hub
+    private HubConnection hubConnection;
+    protected override async Task OnInitializedAsync()
+    {
+        hubConnection = new HubConnectionBuilder()
+            .WithUrl(NavigationManager.ToAbsoluteUri("/HotelBrHub"))
+            .Build();
+        await hubConnection.StartAsync();
+    }
+
+    public bool IsConnected => hubConnection.State == HubConnectionState.Connected;
+    Task SendMessage() => hubConnection.SendAsync("SendMessage");
+    //end hub
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var phone = await sessionStorage.GetItemAsync<string>("owner_phone");
+            owner = await userService.GetUser(phone);
+            var hotelsTemp = await hotelService.GetAllHotelOfOwner(owner.UserPhone);
+            var hotelTemp = await hotelService.GetAllHotelIsActiveOfOwner(owner.UserPhone);
+            foreach (var item in hotelsTemp)
+            {
+                if (!hotelTemp.Select(h=>h.HotelId).Contains(item.HotelId))
+                    hotels.Add(item);
+            }
+            pricelistbrs = await pricelistbrService.GetAllPricelistbr();
+            StateHasChanged();
+            if (statusTemp != null)
+                status = accountService.Decrypt(statusTemp);
+            if(status == "00")
+            {
+                var brAdd = new Businessregistration_Custom();
+                var hotelid = await sessionStorage.GetItemAsync<string>("br_hotel_id");
+                var pricelistid = await sessionStorage.GetItemAsync<string>("br_pricelist_id");
+                brAdd.HotelId = int.Parse(hotelid);
+                brAdd.PricelistbrId = int.Parse(pricelistid);
+                brAdd.UserPhone = owner.UserPhone;
+                brAdd.BrStatus = true;
+                brAdd.BrDate = DateTime.Now;
+                var res = await businessregistrationService.AddBusinessregistration(brAdd);
+                if(res != null)
+                {
+                    if (IsConnected)
+                        await SendMessage();
+                    //SendMail(res);
+                    NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Thành công", Detail = "Đăng ký thành công. Khách sạn của bạn đã được hiển thị trên Website của chúng tôi", Duration = 4000 });
+                    NavigationManager.NavigateTo("/businessregistration/index");
+                }
+            }
+        }
+    }
+    private async void SendMail(Businessregistration_Custom businessregistration)
+    {
+        try
+        {
+            var hotel = await hotelService.GetHotel(businessregistration.HotelId);
+            var priceList = await pricelistbrService.GetPricelistbr(businessregistration.PricelistbrId);
+            using (MailMessage mail = new MailMessage())
+            {
+                mail.From = new MailAddress("vovannhan2727bc@outlook.com");
+                mail.To.Add(owner.UserEmail);
+                mail.Subject = "Xác nhận đăng ký đăng tin khách sạn";
+                mail.Body = "Kính chào khách hàng: " + owner.UserName.ToUpper();
+                mail.Body += "<p>Chúng tôi xin xác nhận lại thông tin đăng ký đăng tin như sau:<p/>";
+                mail.Body += "<p>Khách sạn đăng ký: " + hotel.HotelName + "</p>";
+                mail.Body += "<p>Địa chỉ: " + hotelService.GetAddressHotel(hotel.HotelId) + "</p>";
+                mail.Body += "<p>Gói đăng ký: " + priceList.PricelistbrName + "</p>";
+                mail.Body += "<p>Thời gian đăng ký: " + businessregistration.BrDate + "</p>";
+                mail.Body += "<p>Giá tiền: " + hotelService.FormatVND((int)priceList.PricelistbrPrice) + "</p>";
+                mail.Body += "<p>Trạng thái thanh toán: Đã thanh toán thành công</p>";
+
+                mail.Body += "<p>Xin cảm chân thành ơn quý khách hàng đã tin tưởng và sử dụng dịch vụ của chúng tôi</p>";
+
+                mail.Body += "<br>Trân trọng,<br>";
+                mail.IsBodyHtml = true;
+
+                using (SmtpClient smtp = new SmtpClient("smtp.office365.com", 587))
+                {
+                    smtp.Credentials = new System.Net.NetworkCredential("vovannhan2727bc@outlook.com", "8vxzX$PS123");
+                    smtp.EnableSsl = true;
+                    smtp.Send(mail);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            throw;
+        }
+
+    }
+    protected async void PayForBusinessregistration()
+    {
+        if(businessregistration_Custom.HotelId > 0 && businessregistration_Custom.PricelistbrId > 0)
+        {
+            Payment();
+        }
+    }
+    protected async void HotelChange()
+    {
+        businessregistration_Custom.PricelistbrId = 0;
+        StateHasChanged();
+    }
+    protected async void PricelistbrChange()
+    {
+        pricelistbr = await pricelistbrService.GetPricelistbr(businessregistration_Custom.PricelistbrId);
+        price = hotelService.FormatVND((int)pricelistbr.PricelistbrPrice).ToString();
+        StateHasChanged();
+    }
+    //Thanh toán trực tuyền
+    bool paying = false;
+    public async void Payment()
+    {
+        Pages.Index index = new Pages.Index();
+        string url = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
+        string returnUrl = index.UrlPluginFB + "/PaymentConfirmOfBusinessregistration";
+        string tmnCode = "M4SI0GQK";
+        string hashSecret = "TEPHMKQSDCNVKDFCAMUICRAJVMMXNQFF";
+
+        PayLib pay = new PayLib();
+
+        pay.AddRequestData("vnp_Version", "2.0.0"); //Phiên bản api mà merchant kết nối. Phiên bản hiện tại là 2.0.0
+        pay.AddRequestData("vnp_Command", "pay"); //Mã API sử dụng, mã cho giao dịch thanh toán là 'pay'
+        pay.AddRequestData("vnp_TmnCode", tmnCode); //Mã website của merchant trên hệ thống của VNPAY (khi đăng ký tài khoản sẽ có trong mail VNPAY gửi về)
+        pay.AddRequestData("vnp_Amount", (pricelistbr.PricelistbrPrice*100).ToString()); //số tiền cần thanh toán, công thức: số tiền * 100 - ví dụ 10.000 (mười nghìn đồng) --> 1000000
+        pay.AddRequestData("vnp_BankCode", ""); //Mã Ngân hàng thanh toán (tham khảo: https://sandbox.vnpayment.vn/apis/danh-sach-ngan-hang/), có thể để trống, người dùng có thể chọn trên cổng thanh toán VNPAY
+        pay.AddRequestData("vnp_CreateDate", DateTime.Now.ToString("yyyyMMddHHmmss")); //ngày thanh toán theo định dạng yyyyMMddHHmmss
+        pay.AddRequestData("vnp_CurrCode", "VND"); //Đơn vị tiền tệ sử dụng thanh toán. Hiện tại chỉ hỗ trợ VND
+        pay.AddRequestData("vnp_IpAddr", GetIp()); //Địa chỉ IP của khách hàng thực hiện giao dịch
+        pay.AddRequestData("vnp_Locale", "vn"); //Ngôn ngữ giao diện hiển thị - Tiếng Việt (vn), Tiếng Anh (en)
+        pay.AddRequestData("vnp_OrderInfo", "Thanh toan don hang"); //Thông tin mô tả nội dung thanh toán
+        pay.AddRequestData("vnp_OrderType", "other"); //topup: Nạp tiền điện thoại - billpayment: Thanh toán hóa đơn - fashion: Thời trang - other: Thanh toán trực tuyến
+        pay.AddRequestData("vnp_ReturnUrl", returnUrl); //URL thông báo kết quả giao dịch khi Khách hàng kết thúc thanh toán
+        pay.AddRequestData("vnp_TxnRef", DateTime.Now.Ticks.ToString()); //mã hóa đơn
+
+        string paymentUrl = pay.CreateRequestUrl(url, hashSecret);
+        await sessionStorage.SetItemAsync<string>("owner_phone", owner.UserPhone);
+
+        if(paying == false){
+            await sessionStorage.SetItemAsStringAsync("br_hotel_id", businessregistration_Custom.HotelId.ToString());
+            await sessionStorage.SetItemAsStringAsync("br_pricelist_id", businessregistration_Custom.PricelistbrId.ToString());
+            await JS.InvokeVoidAsync("open", paymentUrl, "_self");
+            paying = true;
+        }
+        else
+        {
+            await JS.InvokeVoidAsync("alert", "Bạn đang thanh toán! Vui lòng tải lại trang nếu đã tắt giao diện thanh toán.");
+        }
+    }
+    public string GetIp()
+    {
+        UserInfo = new UserInfo();
+        return UserInfo.IPAddress;
+    }
+}
