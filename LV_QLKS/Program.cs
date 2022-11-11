@@ -9,9 +9,32 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.ResponseCompression;
 using Radzen;
+using System.Security.Claims;
 using Tewr.Blazor.FileReader;
 var builder = WebApplication.CreateBuilder(args);
 
+//Add GG 
+Microsoft.Extensions.Configuration.ConfigurationManager configuration = builder.Configuration;
+builder.Services.AddAuthentication("Cookies")
+    .AddCookie(opt =>
+    {
+        opt.Cookie.Name = "TryingoutGooogleOAuth";
+        opt.LoginPath = "/auth/google-login";
+    })
+    .AddGoogle(opt =>
+    {
+
+        opt.ClientId = configuration["Authentication:Google:ClientId"];
+        opt.ClientSecret = configuration["Authentication:Google:ClientSecret"];
+        opt.Scope.Add("profile");
+        opt.Events.OnCreatingTicket = context =>
+        {
+            string picurl = context.User.GetProperty("picture").GetString();
+            context.Identity.AddClaim(new Claim("picture", picurl));
+            return Task.CompletedTask;
+        };
+
+    });
 // Add services to the container.
 
 builder.Services.AddRazorPages();
@@ -69,6 +92,10 @@ if (!app.Environment.IsDevelopment())
 app.UseResponseCompression();
 app.UseHttpsRedirection();
 
+//GG
+app.UseAuthentication();
+app.UseAuthorization();
+//GG
 app.UseStaticFiles();
 
 app.UseRouting();
@@ -77,8 +104,12 @@ app.UseRouting();
 app.MapHub<HotelBrHub>("/HotelBrHub");
 //hub
 
-app.MapBlazorHub();
-app.MapFallbackToPage("/_Host");
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapControllers();
+    endpoints.MapBlazorHub();
+    endpoints.MapFallbackToPage("/_Host");
+});
 app.UseMvcWithDefaultRoute();
 
 app.Run();

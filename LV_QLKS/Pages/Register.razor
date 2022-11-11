@@ -37,9 +37,23 @@
 
   <!-- Submit button -->
   <button style="width:50%;margin-inline: auto;" type="button" class="btn btn-primary btn-block mb-4" @onclick="CheckRegister">Đăng ký</button>
-
+  <div class="form-outline mb-4" style="text-align: center;">
+      Hoặc đăng nhập bằng
+      <div class="login100-social-item">
+          <a href="https://localhost:7129/api/auth/google-login">
+              <img style="width:10%;height:10%" src="/home/images/google.png" />
+          </a>
+      </div>
+  </div>
 </EditForm>
-	
+<AuthorizeView>
+    <Authorized>
+        @foreach(var item in context.User.Claims)
+        {
+            <h2>@item.Type    @item.Value</h2>
+        }
+    </Authorized>
+</AuthorizeView>
 	
 @code {
     [Parameter]

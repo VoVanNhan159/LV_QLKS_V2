@@ -47,7 +47,7 @@
 
         try
         {
-            if (phone.Value == null || !IsPhoneNumber(phone.Value) || password.Value == null)
+            if (phone.Value == null || password.Value == null)
                 NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Thông báo", Detail = "Vui lòng nhập thông tin hợp lệ", Duration = 4000 });
             else
             {
@@ -106,7 +106,7 @@
                 }
                 else
                 {
-                    NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Lỗi", Detail = "Sai số điện thoại hoặc mật khẩu", Duration = 4000 });
+                    NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Lỗi", Detail = "Sai thông tin tài khoản", Duration = 4000 });
                 }
             }
         }

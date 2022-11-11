@@ -1,5 +1,6 @@
 ﻿@page "/createwithgoogle"
 @using ShareModel.Custom
+@layout Layout_Null
 
 <AuthorizeView>
     <Authorized>
@@ -20,7 +21,7 @@
         }
     </Authorized>
 </AuthorizeView>
-<div class="container">
+<div class="container w-75">
         <div class="row">
             <div class="col">
                 <RadzenTemplateForm TItem="User" Data=@customer>
@@ -177,8 +178,8 @@
                 if (res != null)
                 {
                     NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Thành công", Detail = "Cập nhật thành công", Duration = 4000 });
+                    NavigationManager.NavigateTo("/");
                 }
-                this.DialogService.Close(res);
             }
         }
     }
