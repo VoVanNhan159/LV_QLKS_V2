@@ -168,7 +168,7 @@
                                         <div class="intro">
                                             <p>
                                                 <small>Với</small><br>
-                                                <span>@provinces.Count</span> Tỉnh/Thành phố
+                                                <span>@provincesDestination.Count/@provinces.Count</span> Tỉnh/Thành phố
                                             </p>
                                             <p>
                                                 <small>Và</small><br>
@@ -272,6 +272,7 @@
         dayEndFilter = DateTime.Today.AddDays(1);
         provinces = await provinceService.GetAllProvine();
         districts = await districtService.GetAllDistrict();
+        
         hotelActives = await hotelService.GetAllHotelIsActive();
         //Lấy tỉnh/tp có khách sạn
         foreach (var item in hotelActives)

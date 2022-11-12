@@ -60,7 +60,7 @@ namespace ShareModel
                 entity.HasIndex(e => e.ToaId, "RELATIONSHIP_7_FK");
 
                 entity.Property(e => e.AccountUsername)
-                    .HasMaxLength(15)
+                    .HasMaxLength(100)
                     .HasColumnName("ACCOUNT_USERNAME");
 
                 entity.Property(e => e.AccountPassword)
@@ -102,7 +102,7 @@ namespace ShareModel
                 entity.Property(e => e.PricelistbrId).HasColumnName("PRICELISTBR_ID");
 
                 entity.Property(e => e.UserPhone)
-                    .HasMaxLength(15)
+                    .HasMaxLength(100)
                     .HasColumnName("USER_PHONE");
 
                 entity.HasOne(d => d.Hotel)
@@ -126,7 +126,7 @@ namespace ShareModel
 
             modelBuilder.Entity<Customerreview>(entity =>
             {
-                entity.HasKey(e => new { e.RoomId, e.UserPhone });
+                entity.HasKey(e => new { e.RoomId, e.UserPhone, e.Id });
 
                 entity.ToTable("CUSTOMERREVIEW");
 
@@ -137,15 +137,19 @@ namespace ShareModel
                 entity.Property(e => e.RoomId).HasColumnName("ROOM_ID");
 
                 entity.Property(e => e.UserPhone)
-                    .HasMaxLength(15)
+                    .HasMaxLength(100)
                     .HasColumnName("USER_PHONE");
+
+                entity.Property(e => e.Id)
+                    .ValueGeneratedOnAdd()
+                    .HasColumnName("ID");
 
                 entity.Property(e => e.CrComment)
                     .HasMaxLength(200)
                     .HasColumnName("CR_COMMENT");
 
                 entity.Property(e => e.CrDate)
-                    .HasColumnType("date")
+                    .HasColumnType("datetime")
                     .HasColumnName("CR_DATE");
 
                 entity.Property(e => e.CrStar).HasColumnName("CR_STAR");
@@ -191,7 +195,7 @@ namespace ShareModel
                     .HasColumnName("DISCOUNT_NAME");
 
                 entity.Property(e => e.UserPhone)
-                    .HasMaxLength(15)
+                    .HasMaxLength(100)
                     .HasColumnName("USER_PHONE");
 
                 entity.HasOne(d => d.UserPhoneNavigation)
@@ -318,7 +322,7 @@ namespace ShareModel
                     .HasColumnName("PROVINCE_ID");
 
                 entity.Property(e => e.UserPhone)
-                    .HasMaxLength(15)
+                    .HasMaxLength(100)
                     .HasColumnName("USER_PHONE");
 
                 entity.Property(e => e.WardId)
@@ -357,13 +361,13 @@ namespace ShareModel
                     .HasColumnName("ID");
 
                 entity.HasOne(d => d.Hotel)
-                    .WithMany(p => p.HotelServices)
+                    .WithMany(p => p.HotelServiceCss)
                     .HasForeignKey(d => d.HotelId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_HOTEL_SE_HOTEL_SER_HOTEL");
 
                 entity.HasOne(d => d.Service)
-                    .WithMany(p => p.HotelServices)
+                    .WithMany(p => p.HotelServiceCss)
                     .HasForeignKey(d => d.ServiceId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_HOTEL_SE_HOTEL_SER_SERVICE");
@@ -477,7 +481,7 @@ namespace ShareModel
                 entity.Property(e => e.OrderroomTotalprice).HasColumnName("ORDERROOM_TOTALPRICE");
 
                 entity.Property(e => e.UserPhone)
-                    .HasMaxLength(15)
+                    .HasMaxLength(100)
                     .HasColumnName("USER_PHONE");
 
                 entity.HasOne(d => d.UserPhoneNavigation)
@@ -622,7 +626,7 @@ namespace ShareModel
                     .HasColumnName("SERVICE_NAME");
 
                 entity.Property(e => e.UserPhone)
-                    .HasMaxLength(15)
+                    .HasMaxLength(100)
                     .HasColumnName("USER_PHONE");
 
                 entity.HasOne(d => d.UserPhoneNavigation)
@@ -666,7 +670,7 @@ namespace ShareModel
                 entity.Property(e => e.TorPrice).HasColumnName("TOR_PRICE");
 
                 entity.Property(e => e.UserPhone)
-                    .HasMaxLength(15)
+                    .HasMaxLength(100)
                     .HasColumnName("USER_PHONE");
 
                 entity.HasOne(d => d.UserPhoneNavigation)
@@ -686,11 +690,11 @@ namespace ShareModel
                 entity.HasIndex(e => e.AccountUsername, "RELATIONSHIP_10_FK");
 
                 entity.Property(e => e.UserPhone)
-                    .HasMaxLength(15)
+                    .HasMaxLength(100)
                     .HasColumnName("USER_PHONE");
 
                 entity.Property(e => e.AccountUsername)
-                    .HasMaxLength(15)
+                    .HasMaxLength(100)
                     .HasColumnName("ACCOUNT_USERNAME");
 
                 entity.Property(e => e.UserAddress)

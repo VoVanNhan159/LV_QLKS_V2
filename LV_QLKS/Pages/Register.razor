@@ -46,14 +46,6 @@
       </div>
   </div>
 </EditForm>
-<AuthorizeView>
-    <Authorized>
-        @foreach(var item in context.User.Claims)
-        {
-            <h2>@item.Type    @item.Value</h2>
-        }
-    </Authorized>
-</AuthorizeView>
 	
 @code {
     [Parameter]

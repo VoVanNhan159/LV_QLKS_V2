@@ -7,7 +7,7 @@ namespace ShareModel
     {
         public Service()
         {
-            HotelServices = new HashSet<HotelServiceCs>();
+            HotelServiceCss = new HashSet<HotelServiceCs>();
         }
 
         public int ServiceId { get; set; }
@@ -16,6 +16,6 @@ namespace ShareModel
         public string? ServiceDescription { get; set; }
 
         public virtual User UserPhoneNavigation { get; set; } = null!;
-        public virtual ICollection<HotelServiceCs> HotelServices { get; set; }
+        public virtual ICollection<HotelServiceCs> HotelServiceCss { get; set; }
     }
 }

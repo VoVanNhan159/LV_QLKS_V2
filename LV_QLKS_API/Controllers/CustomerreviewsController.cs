@@ -44,6 +44,18 @@ namespace WebApplication1.Controllers
 
             return customerreview;
         }
+        [HttpGet("{id}")]
+        public async Task<Customerreview> GetCustomerreview(int id)
+        {
+            var customerreview = await _context.Customerreviews.Include(cr => cr.UserPhoneNavigation).FirstOrDefaultAsync(cr => cr.Id == id);
+
+            if (customerreview == null)
+            {
+                return null;
+            }
+
+            return customerreview;
+        }
         [HttpGet("GetAllCustomerreviewOfHotel/{id}")]
         public async Task<List<Customerreview>> GetAllCustomerreviewOfHotel(int id)
         {
@@ -101,7 +113,7 @@ namespace WebApplication1.Controllers
                 }
             }
 
-            return CreatedAtAction("GetCustomerreview", new { id = customerreviewTemp.RoomId, phone = customerreviewTemp.UserPhone }, customerreviewTemp);
+            return CreatedAtAction("GetCustomerreview", new { id = customerreviewTemp.Id}, customerreviewTemp);
         }
 
         // POST: api/Customerreviews
@@ -120,7 +132,7 @@ namespace WebApplication1.Controllers
             {
                 await _context.SaveChangesAsync();
             }
-            catch (DbUpdateException)
+            catch (Exception ex)
             {
                 if (CustomerreviewExists(customerreview.RoomId))
                 {
@@ -128,7 +140,7 @@ namespace WebApplication1.Controllers
                 }
                 else
                 {
-                    throw;
+                    Console.WriteLine(ex.ToString());
                 }
             }
 

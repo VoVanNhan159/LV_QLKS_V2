@@ -8,7 +8,7 @@ namespace ShareModel
         public Hotel()
         {
             Businessregistrations = new HashSet<Businessregistration>();
-            HotelServices = new HashSet<HotelServiceCs>();
+            HotelServiceCss = new HashSet<HotelServiceCs>();
             ImageHotels = new HashSet<ImageHotel>();
             Rooms = new HashSet<Room>();
         }
@@ -27,7 +27,7 @@ namespace ShareModel
         public virtual User UserPhoneNavigation { get; set; } = null!;
         public virtual Ward Ward { get; set; } = null!;
         public virtual ICollection<Businessregistration> Businessregistrations { get; set; }
-        public virtual ICollection<HotelServiceCs> HotelServices { get; set; }
+        public virtual ICollection<HotelServiceCs> HotelServiceCss { get; set; }
         public virtual ICollection<ImageHotel> ImageHotels { get; set; }
         public virtual ICollection<Room> Rooms { get; set; }
     }
