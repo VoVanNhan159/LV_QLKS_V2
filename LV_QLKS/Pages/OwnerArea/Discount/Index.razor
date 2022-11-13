@@ -4,13 +4,10 @@
 
 <div class="main-content">
     <div class="section__content section__content--p30">
-        <RadzenDataGrid EmptyText="Không có dữ liệu, vui lòng kiểm tra lại" Data="@discounts" FilterMode="FilterMode.Simple" AllowFiltering="true" TItem="Discount" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Center" AllowSorting="true" 
+        <RadzenDataGrid EmptyText="Không có dữ liệu, vui lòng kiểm tra lại" Data="@discounts" FilterMode="FilterMode.Simple" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" TItem="Discount" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Center" AllowSorting="true" 
             PageSizeOptions="@pageSizeOptions" PageSize="5" PageSizeText="mẫu tin/trang" ShowPagingSummary="@showPagerSummary" PagingSummaryFormat="@pagingSummaryFormat" Page="@OnPage">
             <Columns>
-                <RadzenDataGridColumn TItem="Discount" Title="Tên khuyến mãi">
-                    <Template Context="data">
-                        @data.DiscountName
-                    </Template>
+                <RadzenDataGridColumn TItem="Discount" Property="DiscountName" Title="Tên khuyến mãi">
                 </RadzenDataGridColumn>
                 <RadzenDataGridColumn TItem="Discount" Title="Ngày lập">
                     <Template Context="data">

@@ -1,15 +1,16 @@
 ﻿@page "/admin/hotel/index"
 @page "/admin/hotel"
 @using System.Globalization
+@using Microsoft.AspNetCore.SignalR.Client
 @layout Layout_Admin
 
 <div class="main-content">
     <div class="section__content section__content--p30">
         <RadzenDataGrid EmptyText="Không có dữ liệu, vui lòng kiểm tra lại" Data="@hotels" TItem="Hotel" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Center" AllowSorting="true" 
-            PageSizeOptions="@pageSizeOptions" PageSize="5" PageSizeText="mẫu tin/trang" ShowPagingSummary="@showPagerSummary" PagingSummaryFormat="@pagingSummaryFormat" Page="@OnPage">
+            FilterMode="FilterMode.Simple" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" PageSizeOptions="@pageSizeOptions" PageSize="5" PageSizeText="mẫu tin/trang" ShowPagingSummary="@showPagerSummary" PagingSummaryFormat="@pagingSummaryFormat" Page="@OnPage">
             <Columns>
                 <RadzenDataGridColumn TItem="Hotel" Width="20%" Property="HotelName" Title="Tên khách sạn" />
-                <RadzenDataGridColumn TItem="Hotel" Title="Địa chỉ">
+                <RadzenDataGridColumn TItem="Hotel" Title="Địa chỉ" >
                     <Template Context="data">
                         @addressHotels.FirstOrDefault(cr=>cr.Key == data.HotelId).Value
                     </Template>
@@ -64,7 +65,12 @@
     {
         StateHasChanged();
     }
+    //start hub
+    private HubConnection hubConnection;
 
+    public bool IsConnected => hubConnection.State == HubConnectionState.Connected;
+    Task SendMessage() => hubConnection.SendAsync("SendMessage");
+    //end hub
     protected override async Task OnInitializedAsync()
     {
         try
@@ -77,6 +83,10 @@
                 var address = hotelService.GetAddressHotel(item.HotelId);
                 addressHotels.Add(item.HotelId, address);
             }
+            hubConnection = new HubConnectionBuilder()
+                .WithUrl(NavigationManager.ToAbsoluteUri("/HotelBrHub"))
+                .Build();
+            await hubConnection.StartAsync();
             StateHasChanged();
         }
         catch(Exception ex)
@@ -96,8 +106,19 @@
              new DialogOptions() { Width = "800px", Height = "500px", Resizable = true, Draggable = true });
         if(res == true)
         {
-            NavigationManager.NavigateTo("/hotel/create");
-            NavigationManager.NavigateTo("/admin/hotel/index");
+            countRoom.Clear();
+            addressHotels.Clear();
+            hotels = await hotelService.GetAllHotel();
+            foreach (var item in hotels)
+            {
+                var count = hotelService.CountRoomOfHotel(item.HotelId);
+                countRoom.Add(item.HotelId, count);
+                var address = hotelService.GetAddressHotel(item.HotelId);
+                addressHotels.Add(item.HotelId, address);
+            }
+            if (IsConnected)
+                await SendMessage();
+            StateHasChanged();
         }
     }
 }

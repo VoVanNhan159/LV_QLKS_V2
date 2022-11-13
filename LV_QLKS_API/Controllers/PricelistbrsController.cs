@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ShareModel;
+using ShareModel.Custom;
 
 namespace LV_QLKS_API.Controllers
 {
@@ -44,14 +45,18 @@ namespace LV_QLKS_API.Controllers
         // PUT: api/Pricelistbrs/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutPricelistbr(int id, Pricelistbr pricelistbr)
+        public async Task<IActionResult> PutPricelistbr(int id, PriceListBr_Custom pricelistbr)
         {
             if (id != pricelistbr.PricelistbrId)
             {
                 return BadRequest();
             }
-
-            _context.Entry(pricelistbr).State = EntityState.Modified;
+            var pricelistbrTemp = new Pricelistbr();
+            pricelistbrTemp.PricelistbrId = id;
+            pricelistbrTemp.PricelistbrPrice = pricelistbr.PricelistbrPrice;
+            pricelistbrTemp.PricelistbrName = pricelistbr.PricelistbrName;
+            pricelistbrTemp.PricelistbrMonth = pricelistbr.PricelistbrMonth;
+            _context.Entry(pricelistbrTemp).State = EntityState.Modified;
 
             try
             {
@@ -69,18 +74,22 @@ namespace LV_QLKS_API.Controllers
                 }
             }
 
-            return NoContent();
+            return CreatedAtAction("GetPricelistbr", new { id = pricelistbrTemp.PricelistbrId }, pricelistbrTemp);
         }
 
         // POST: api/Pricelistbrs
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Pricelistbr>> PostPricelistbr(Pricelistbr pricelistbr)
+        public async Task<ActionResult<Pricelistbr>> PostPricelistbr(PriceListBr_Custom pricelistbr)
         {
-            _context.Pricelistbrs.Add(pricelistbr);
+            var pricelistbrTemp = new Pricelistbr();
+            pricelistbrTemp.PricelistbrPrice = pricelistbr.PricelistbrPrice;
+            pricelistbrTemp.PricelistbrName = pricelistbr.PricelistbrName;
+            pricelistbrTemp.PricelistbrMonth = pricelistbr.PricelistbrMonth;
+            _context.Pricelistbrs.Add(pricelistbrTemp);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetPricelistbr", new { id = pricelistbr.PricelistbrId }, pricelistbr);
+            return CreatedAtAction("GetPricelistbr", new { id = pricelistbrTemp.PricelistbrId }, pricelistbrTemp);
         }
 
         // DELETE: api/Pricelistbrs/5

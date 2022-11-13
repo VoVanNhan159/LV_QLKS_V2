@@ -4,6 +4,7 @@ using Blazored.Toast;
 using LV_QLKS.Data;
 using LV_QLKS.Hubs;
 using LV_QLKS.Service;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Mvc;
@@ -15,12 +16,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 //Add GG 
 Microsoft.Extensions.Configuration.ConfigurationManager configuration = builder.Configuration;
-builder.Services.AddAuthentication("Cookies")
-    .AddCookie(opt =>
-    {
-        opt.Cookie.Name = "TryingoutGooogleOAuth";
-        opt.LoginPath = "/auth/google-login";
-    })
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie()
     .AddGoogle(opt =>
     {
 
@@ -34,7 +31,13 @@ builder.Services.AddAuthentication("Cookies")
             return Task.CompletedTask;
         };
 
+    })
+    .AddFacebook(opt =>
+    {
+        opt.AppId = configuration["Authentication:Facebook:AppId"];
+        opt.AppSecret = configuration["Authentication:Facebook:AppSecret"];
     });
+    
 // Add services to the container.
 
 builder.Services.AddRazorPages();

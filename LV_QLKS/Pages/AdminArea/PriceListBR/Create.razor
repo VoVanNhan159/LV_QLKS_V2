@@ -1,0 +1,82 @@
+﻿@page "/admin/pricelistbr/create"
+@using Microsoft.AspNetCore.SignalR.Client
+@using ShareModel.Custom
+@layout Layout_Admin
+
+<div class="main-content">
+    <div class="section__content section__content--p30">
+        <div class="container">
+            <div class="row">
+                <div class="col">
+                    <RadzenTemplateForm TItem="PriceListBr_Custom" Data=@priceListBr_Custom>
+                        <RadzenFieldset Text="Thêm gói đăng ký đăng tin">
+                            <div class="row mb-5">
+                                <div class="col-md-4">
+                                    <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Tên gói đăng ký</RadzenText>
+                                </div>
+                                <div class="col">
+                                    <RadzenTextBox style="display: block" Placeholder="Nhập tên gói đăng ký" Name="PricelistbrName" @bind-Value=@priceListBr_Custom.PricelistbrName  Class="w-100" AutoComplete="false" />
+                                    <RadzenRequiredValidator Component="PricelistbrName" Text="Vui lòng nhập tên gói đăng ký" Popup="true" Style="position: absolute"/>
+                                </div>
+                            </div>
+                            <div class="row mb-5">
+                                <div class="col-md-4">
+                                    <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Nhập số tháng</RadzenText>
+                                </div>
+                                <div class="col">
+                                    <RadzenNumeric style="display: block" Placeholder="Nhập số tháng của gói đăng ký" Name="PricelistbrMonth" @bind-Value=@priceListBr_Custom.PricelistbrMonth  Class="w-100" AutoComplete="false" />
+                                    <RadzenRequiredValidator Component="PricelistbrMonth" Text="Vui lòng nhập số tháng của gói đăng ký" Popup="true" Style="position: absolute"/>
+                                </div>
+                            </div>
+                            <div class="row mb-5">
+                                <div class="col-md-4">
+                                    <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Nhập giá</RadzenText>
+                                </div>
+                                <div class="col">
+                                    <RadzenNumeric style="display: block" Step="50000" Format="@String.Format("#,### đ")" Placeholder="Nhập giá của gói đăng ký" Name="PricelistbrPrice" @bind-Value=@priceListBr_Custom.PricelistbrPrice  Class="w-100" AutoComplete="false" />
+                                    <RadzenRequiredValidator Component="PricelistbrPrice" Text="Vui lòng nhập giá của gói đăng ký" Popup="true" Style="position: absolute"/>
+                                </div>
+                            </div>
+                            <RadzenButton ButtonType="ButtonType.Submit" Icon="" Text="Thêm" Click="AddPriceListBr"></RadzenButton>
+                        </RadzenFieldset>
+                    </RadzenTemplateForm>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@code {
+    [Parameter]
+    public int id{ get; set; }
+
+    PriceListBr_Custom priceListBr_Custom = new PriceListBr_Custom();
+
+    PricelistbrService pricelistbrService = new PricelistbrService();
+
+    //start hub
+    private HubConnection hubConnection;
+    protected override async Task OnInitializedAsync()
+    {
+        hubConnection = new HubConnectionBuilder()
+            .WithUrl(NavigationManager.ToAbsoluteUri("/HotelBrHub"))
+            .Build();
+        await hubConnection.StartAsync();
+    }
+
+    public bool IsConnected => hubConnection.State == HubConnectionState.Connected;
+    Task SendMessage() => hubConnection.SendAsync("SendMessage");
+    //end hub
+    protected async void AddPriceListBr()
+    {
+        var res = await pricelistbrService.AddPriceListBr(priceListBr_Custom);
+        if (res != null)
+        {
+            if (IsConnected)
+                await SendMessage();
+            NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Thành công", Detail = "Thêm gói đăng ký thành công", Duration = 4000 });
+            NavigationManager.NavigateTo("/admin/pricelistbr/index");
+        }
+    }
+}

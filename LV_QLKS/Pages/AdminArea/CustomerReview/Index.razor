@@ -74,7 +74,7 @@
                                     @item.CrComment
                                 </td>
                                 <td>
-                                    <RadzenButton ButtonStyle="ButtonStyle.Info" Icon="build" Class="m-1" Click=@(() => DeleteCustomerReview(item)) />
+                                    <RadzenButton ButtonStyle="ButtonStyle.Info" Icon="delete" Class="m-1" Click=@(() => DeleteCustomerReview(item)) />
                                 </td>
                             </tr>
                         }
@@ -103,12 +103,16 @@
     }
     protected async void DeleteCustomerReview(Customerreview customerreview)
     {
-        var res = await customerReviewService.DeleteCustomerReview(customerreview.RoomId, customerreview.UserPhone, customerreview.Id);
-        if(res != null)
+        var confirmationResult = await this.DialogService.Confirm("Bạn có muốn xóa bình luận này không?", "Thông báo", new ConfirmOptions { OkButtonText = "Xác nhận", CancelButtonText = "Trở về" });
+        if (confirmationResult == true)
         {
-            NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Thành công", Detail = "Xóa bình luận thành công", Duration = 4000 });
-            NavigationManager.NavigateTo("/admin/index");
-            NavigationManager.NavigateTo("/admin/customerreview");
+            var res = await customerReviewService.DeleteCustomerReview(customerreview.RoomId, customerreview.UserPhone, customerreview.Id);
+            if(res != null)
+            {
+                NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Thành công", Detail = "Xóa bình luận thành công", Duration = 4000 });
+                customerreviews = await customerReviewService.GetAllCustomerReview();
+                StateHasChanged();
+            }
         }
     }
 }

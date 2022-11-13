@@ -5,25 +5,11 @@
 
 <div class="main-content">
     <div class="section__content section__content--p30">
-        <RadzenDataGrid EmptyText="Không có dữ liệu, vui lòng kiểm tra lại" Data="@listOrderrooms" FilterMode="FilterMode.Simple" AllowFiltering="true" TItem="Orderroom" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Center" AllowSorting="true" 
-            PageSizeOptions="@pageSizeOptions" PageSize="5" PageSizeText="mẫu tin/trang" ShowPagingSummary="@showPagerSummary" PagingSummaryFormat="@pagingSummaryFormat" Page="@OnPage">
+        <RadzenDataGrid EmptyText="Không có dữ liệu, vui lòng kiểm tra lại" Data="@listOrderrooms" TItem="Orderroom" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Center" AllowSorting="true" 
+            FilterMode="FilterMode.Simple" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" PageSizeOptions="@pageSizeOptions" PageSize="5" PageSizeText="mẫu tin/trang" ShowPagingSummary="@showPagerSummary" PagingSummaryFormat="@pagingSummaryFormat" Page="@OnPage">
             <Columns>
-                <RadzenDataGridColumn TItem="Orderroom" Title="Tên khách hàng">
-                    <FilterTemplate>
-                        <RadzenTextBox @oninput=@(args => OnNameChange(args.Value.ToString())) Style="width:100%;" />
-                    </FilterTemplate>
-                    <Template Context="data">
-                        @data.UserPhoneNavigation.UserName
-                    </Template>
-                </RadzenDataGridColumn>
-                <RadzenDataGridColumn Width="10%" TItem="Orderroom" Title="SĐT">
-                    <FilterTemplate>
-                        <RadzenTextBox @oninput=@(args => OnPhoneChange(args.Value.ToString())) Style="width:100%;" />
-                    </FilterTemplate>
-                    <Template Context="data">
-                        @data.UserPhone
-                    </Template>
-                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="Orderroom" Property="UserPhoneNavigation.UserName" Title="Tên khách hàng" />
+                <RadzenDataGridColumn Width="10%" Property="UserPhone" TItem="Orderroom" Title="SĐT" />
                 <RadzenDataGridColumn TItem="Orderroom" Title="Tên khách sạn">
                     <Template Context="data">
                         @data.Orderroomdetails.First().Room.Hotel.HotelName

@@ -7,11 +7,10 @@
 <div class="main-content">
     <div class="section__content section__content--p30">
         <RadzenDataGrid EmptyText="Không có dữ liệu, vui lòng kiểm tra lại" Data="@rooms" TItem="Room" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Center" AllowSorting="true" 
-            PageSizeOptions="@pageSizeOptions" PageSize="0" PageSizeText="mẫu tin/trang" ShowPagingSummary="@showPagerSummary" PagingSummaryFormat="@pagingSummaryFormat" Page="@OnPage">
+            FilterMode="FilterMode.Simple" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" PageSizeOptions="@pageSizeOptions" PageSize="0" PageSizeText="mẫu tin/trang" ShowPagingSummary="@showPagerSummary" PagingSummaryFormat="@pagingSummaryFormat" Page="@OnPage">
             <Columns>
                 <RadzenDataGridColumn TItem="Room" Property="RoomName" Title="Tên phòng" />
-                <RadzenDataGridColumn TItem="Room" Property="Hotel.HotelName" Title="Tên khách sạn">
-                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="Room" Property="Hotel.HotelName" Title="Tên khách sạn" />
                 <RadzenDataGridColumn Width="10%" TItem="Room" Property="Floor.FloorName" Title="Thuộc tầng">
                 </RadzenDataGridColumn>
                 <RadzenDataGridColumn Width="10%" TItem="Room" Property="Tor.TorCapacity" Title="Sức chứa">

@@ -14,7 +14,7 @@
                         @GetNameHotelOfBR(data.HotelId)
                     </Template>
                 </RadzenDataGridColumn>
-                <RadzenDataGridColumn Width="10%" TItem="Businessregistration" Title="Gói đăng ký">
+                <RadzenDataGridColumn TItem="Businessregistration" Title="Gói đăng ký">
                     <Template Context="data">
                         @GetPricelistbrOfBR(data.PricelistbrId).PricelistbrName (@hotelService.FormatVND((int)GetPricelistbrOfBR(data.PricelistbrId).PricelistbrPrice))
                     </Template>

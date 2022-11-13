@@ -1,0 +1,82 @@
+﻿@page "/admin/pricelistbr/index"
+@using System.Globalization
+@using Microsoft.AspNetCore.SignalR.Client
+@layout Layout_Admin
+
+<div class="main-content">
+    <RadzenText Style="color:darkviolet" TextStyle="TextStyle.DisplayH4" TextAlign="TextAlign.Center"  Text="Danh sách gói đăng ký"></RadzenText>
+    <div class="section__content section__content--p30">
+        <RadzenDataGrid EmptyText="Không có dữ liệu, vui lòng kiểm tra lại" Data="@pricelistbrs" FilterMode="FilterMode.Simple" AllowFiltering="true" TItem="Pricelistbr" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Center" AllowSorting="true" 
+            PageSizeOptions="@pageSizeOptions" PageSize="5" PageSizeText="mẫu tin/trang" ShowPagingSummary="@showPagerSummary" PagingSummaryFormat="@pagingSummaryFormat" Page="@OnPage">
+            <Columns>
+                <RadzenDataGridColumn TItem="Pricelistbr" Property="PricelistbrName" Title="Tên gói đăng ký">
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="Pricelistbr" Title="Giá">
+                    <Template Context="data">
+                        @hotelService.FormatVND((int)data.PricelistbrPrice)
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="Pricelistbr" Title="Số tháng">
+                    <Template Context="data">
+                        @data.PricelistbrMonth tháng
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="Pricelistbr">
+                    <Template Context="data">
+                        <RadzenButton ButtonStyle="ButtonStyle.Info" Icon="build" Class="m-1" Click=@(() => EditPriceListBr(data.PricelistbrId)) />
+                    </Template>
+                </RadzenDataGridColumn>
+            </Columns>
+        </RadzenDataGrid>
+    </div>
+</div>
+
+@code {
+    List<Pricelistbr> pricelistbrs = new List<Pricelistbr>();
+
+    PricelistbrService pricelistbrService = new PricelistbrService();
+    HotelService hotelService = new HotelService();
+
+    //Phân trang
+    string pagingSummaryFormat = "Trang hiển thị {0}/{1} (tổng cộng {2} mẫu tin)";
+
+    IEnumerable<int> pageSizeOptions = new int[] { 5, 10, 15, 20 };
+    bool showPagerSummary = true;
+
+    void OnPage(PagerEventArgs args)
+    {
+        StateHasChanged();
+    }
+
+    private HubConnection hubConnection;
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            pricelistbrs = await pricelistbrService.GetAllPricelistbr();
+            hubConnection = new HubConnectionBuilder()
+                .WithUrl(NavigationManager.ToAbsoluteUri("/HotelBrHub"))
+                .Build();
+            hubConnection.On("ReceiveMessage", () =>
+            {
+                ReloadData();
+            });
+            await hubConnection.StartAsync();
+            StateHasChanged();
+        }
+    }
+    protected async void ReloadData()
+    {
+        pricelistbrs = await pricelistbrService.GetAllPricelistbr();
+        await InvokeAsync(() => {
+            StateHasChanged();
+        });
+    }
+    protected async void EditPriceListBr(int id)
+    {
+
+        var res = await DialogService.OpenAsync<AdminArea.PriceListBR.Edit>("",
+             new Dictionary<string, object>() { { "id", id } },
+             new DialogOptions() { Width = "700px", Height = "500px", Resizable = true, Draggable = true });
+    }
+}
