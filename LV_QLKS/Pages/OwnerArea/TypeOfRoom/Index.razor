@@ -6,6 +6,7 @@
         <RadzenDataGrid EmptyText="Không có dữ liệu, vui lòng kiểm tra lại" Data="@typeofrooms" TItem="Typeofroom" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Center" AllowSorting="true" 
             FilterMode="FilterMode.Simple" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" PageSizeOptions="@pageSizeOptions" PageSize="5" PageSizeText="mẫu tin/trang" ShowPagingSummary="@showPagerSummary" PagingSummaryFormat="@pagingSummaryFormat" Page="@OnPage">
             <Columns>
+                <RadzenDataGridColumn TItem="Typeofroom" Property="TorId" Title="Mã loại phòng" />
                 <RadzenDataGridColumn TItem="Typeofroom" Property="TorName" Title="Tên loại phòng" />
                 <RadzenDataGridColumn TItem="Typeofroom" Title="Giá">
                     <Template Context="data">

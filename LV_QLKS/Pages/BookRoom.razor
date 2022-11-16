@@ -40,7 +40,7 @@
                         }
                     </style>
                     <!-- Payment Room -->
-                    @if(room.RoomId != null)
+                    @if(room.RoomId != 0)
                     {
                         <div class="payment-room">
                                     <div class="row">
@@ -48,11 +48,18 @@
                                             <div class="payment-infor">
                                                 <h2>@hoTel.HotelName</h2>
                                                 <span class="star-room">
-                                                    <i class="glyphicon glyphicon-star"></i>
-                                                    <i class="glyphicon glyphicon-star"></i>
-                                                    <i class="glyphicon glyphicon-star"></i>
-                                                    <i class="glyphicon glyphicon-star"></i>
-                                                    <i class="glyphicon glyphicon-star"></i>
+                                                    @{
+                                                        double starTemph = GetStartOfHotel(hoTel.HotelId);
+                                                        int temph = (int)starTemph;
+                                                        for(int i = 0; i < temph; i++)
+                                                        {
+                                                                            <i class="glyphicon glyphicon-star"></i>
+                                                        }
+                                                        if(starTemph - (double) temph > 0)
+                                                        {
+                                                                             <i class="glyphicon glyphicon-star half"></i>
+                                                        }
+                                                    }
                                                 </span>
                                                 <ul style="list-style: none;padding: initial;">
                                                     <li>
@@ -61,15 +68,20 @@
                                                     </li>
                                                     <li>
                                                         <span class="span-custom">Ngày nhận phòng:</span>
-                                                        @dayStartFilter
+                                                        @if(dayStartFilter != null){
+                                                            @DateTime.Parse(dayStartFilter).ToString("dd, MMMM, yyyy", new System.Globalization.CultureInfo("vi-VN"))
+                                                        }
+                                                        
                                                     </li>
                                                     <li>
                                                         <span class="span-custom">Ngày trả phòng:</span>
-                                                        @dayEndFilter
+                                                        @if(dayEndFilter != null){
+                                                            @DateTime.Parse(dayEndFilter).ToString("dd, MMMM, yyyy", new System.Globalization.CultureInfo("vi-VN"))
+                                                        }
                                                     </li>
                                                     <li>
                                                         <span class="span-custom">Thời gian lưu trú:</span>
-                                                        @totalDay ngày, 1 phòng, tối đa 2 người lớn
+                                                        @totalDay đêm, tối đa @room.Tor.TorCapacity người lớn
                                                     </li>
                                                     <li>
                                                         <span class="span-custom">Phòng:</span>
@@ -94,8 +106,7 @@
                                                 </figure>
                                                 <div class="total-trip">
                                                     <span>
-                                                        1 Ngày x @totalDay đêm<br>
-                                                        @hotelService.FormatVND(int.Parse(torPrice))<small>/đêm</small>
+                                                        @hotelService.FormatVND(int.Parse(torPrice))<small>/đêm</small> x @totalDay đêm
                                                     </span>
                                        
                                                     <p>
@@ -207,7 +218,11 @@
         }
 
     }
-
+    //Get start of hotel
+    protected double GetStartOfHotel(int id)
+    {
+        return hotelService.GetRateOfHotel(id);
+    }
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)

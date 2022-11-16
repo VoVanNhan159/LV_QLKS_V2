@@ -8,6 +8,7 @@
         <RadzenDataGrid EmptyText="Không có dữ liệu, vui lòng kiểm tra lại" Data="@hotels" TItem="Hotel" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Center" AllowSorting="true" 
             FilterMode="FilterMode.Simple" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" PageSizeOptions="@pageSizeOptions" PageSize="5" PageSizeText="mẫu tin/trang" ShowPagingSummary="@showPagerSummary" PagingSummaryFormat="@pagingSummaryFormat" Page="@OnPage">
             <Columns>
+                <RadzenDataGridColumn TItem="Hotel" Width="7%" Property="HotelId" Title="Mã khách sạn" />
                 <RadzenDataGridColumn TItem="Hotel" Width="20%" Property="HotelName" Title="Tên khách sạn" />
                 <RadzenDataGridColumn TItem="Hotel" Title="Địa chỉ">
                     <Template Context="data">
@@ -19,7 +20,7 @@
                         @countRoom.FirstOrDefault(cr=>cr.Key == data.HotelId).Value
                     </Template>
                 </RadzenDataGridColumn>
-                <RadzenDataGridColumn Width="13%" TItem="Hotel" Title="Trạng thái">
+                @*<RadzenDataGridColumn Width="13%" TItem="Hotel" Title="Trạng thái">
                     <Template Context="data">
                         @if (data.HotelStatus == true)
                         {
@@ -31,13 +32,14 @@
                         } 
                     </Template>
                 </RadzenDataGridColumn>
-                <RadzenDataGridColumn TItem="Hotel" Width="10%" Title="Xem ảnh">
+                <RadzenDataGridColumn TItem="Hotel" Width="8%" Title="Xem ảnh">
                     <Template Context="data">
                          <RadzenButton ButtonStyle="ButtonStyle.Success" Icon="group_work" Class="m-1" Click=@(() => PopupImage(data.HotelId)) />
                     </Template>
-                </RadzenDataGridColumn>
-                <RadzenDataGridColumn Width="10%" TItem="Hotel" Title="Chỉnh sửa">
+                </RadzenDataGridColumn>*@
+                <RadzenDataGridColumn Width="10%" TItem="Hotel">
                     <Template Context="data">
+                        <RadzenButton ButtonStyle="ButtonStyle.Success" Icon="group_work" Class="m-1" Click=@(() => PopupImage(data.HotelId)) />
                         <RadzenButton ButtonStyle="ButtonStyle.Info" Icon="build" Class="m-1" Click=@(() => ShowEditHotel(data.HotelId)) />
                     </Template>
                 </RadzenDataGridColumn>

@@ -3,12 +3,14 @@
 @using System.Globalization
 @using LV_QLKS.Pages.OwnerArea.Hotel
 @layout Layout_Owner
+<PageTitle>Quản lý phòng</PageTitle>
 
 <div class="main-content">
     <div class="section__content section__content--p30">
         <RadzenDataGrid EmptyText="Không có dữ liệu, vui lòng kiểm tra lại" Data="@rooms" TItem="Room" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Center" AllowSorting="true" 
             FilterMode="FilterMode.Simple" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" PageSizeOptions="@pageSizeOptions" PageSize="0" PageSizeText="mẫu tin/trang" ShowPagingSummary="@showPagerSummary" PagingSummaryFormat="@pagingSummaryFormat" Page="@OnPage">
             <Columns>
+                <RadzenDataGridColumn Width="8%" TItem="Room" Property="RoomId" Title="Mã" />
                 <RadzenDataGridColumn TItem="Room" Property="RoomName" Title="Tên phòng" />
                 <RadzenDataGridColumn TItem="Room" Property="Hotel.HotelName" Title="Tên khách sạn" />
                 <RadzenDataGridColumn Width="10%" TItem="Room" Property="Floor.FloorName" Title="Thuộc tầng">
@@ -27,13 +29,9 @@
                         } 
                     </Template>
                 </RadzenDataGridColumn>
-                <RadzenDataGridColumn TItem="Room" Width="10%" Title="Xem ảnh">
+                <RadzenDataGridColumn Width="10%" TItem="Room">
                     <Template Context="data">
-                         <RadzenButton ButtonStyle="ButtonStyle.Success" Icon="group_work" Class="m-1" Click=@(() => PopupImage(data.RoomId)) />
-                    </Template>
-                </RadzenDataGridColumn>
-                <RadzenDataGridColumn Width="10%" TItem="Room" Title="Chỉnh sửa">
-                    <Template Context="data">
+                        <RadzenButton ButtonStyle="ButtonStyle.Success" Icon="group_work" Class="m-1" Click=@(() => PopupImage(data.RoomId)) />
                         <RadzenButton ButtonStyle="ButtonStyle.Info" Icon="build" Class="m-1" Click=@(() => ShowEditRoom(data.RoomId)) />
                     </Template>
                 </RadzenDataGridColumn>

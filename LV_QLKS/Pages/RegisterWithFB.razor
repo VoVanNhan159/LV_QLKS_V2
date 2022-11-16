@@ -21,107 +21,138 @@
         }
     </Authorized>
 </AuthorizeView>
-<div class="container w-50">
-        <div class="row">
-            <div class="col">
-                <RadzenTemplateForm TItem="User" Data=@customer>
-                    <RadzenFieldset Text="Cập nhật thông tin cá nhân">
-                        <div class="row mb-5">
-                            <div class="col-md-4">
-                                <RadzenLabel Text="Địa chỉ Gmail" />
-                            </div>
-                            <div class="col">
-                                <RadzenTextBox style="display: block" Name="UserPhone" @bind-Value=customer.UserPhone Class="w-100" ReadOnly/>
-                                <RadzenRequiredValidator Component="UserPhone" Text="First name is required" Popup="true" Style="position: absolute"/>
-                            </div>
-                        </div>
-                        <div class="row mb-5">
-                            <div class="col-md-4">
-                                <RadzenLabel Text="Mật khẩu" />
-                            </div>
-                            <div class="col">
-                                <div class="row">
-                                    <div class="col-sm">
-                                        <RadzenPassword Visible="@passwordVisible" style="display: block" Name="passWordOne" @bind-Value=passWordOne Placeholder="Mật khẩu" Class="w-100" />
-                                        <RadzenTextBox @bind-Value="@passWordOne" style="display: block" Visible="@(passwordVisible == false)" />
-                                        <RadzenRequiredValidator Component="passWordOne" Text="Vui lòng nhập mật khẩu" Popup="true" Style="position: absolute"/>
-                                    </div>
-                                    <div class="col-sm">
-                                        <RadzenPassword Visible="@passwordVisible" style="display: block" Name="passWordTwo" @bind-Value=passWordTwo Placeholder="Nhập lại mật khẩu" Class="w-100" />
-                                        <RadzenTextBox @bind-Value="@passWordTwo" style="display: block" Visible="@(passwordVisible == false)" />
-                                        <RadzenRequiredValidator Component="passWordTwo" Text="Vui lòng nhập lại mật khẩu" Popup="true" Style="position: absolute"/>
-                                    </div>
-                                </div>
-                                <br />
-                                Ẩn mật khẩu <RadzenCheckBox @bind-Value="@passwordVisible" />
-                            </div>
-                        </div>
-                        <div class="row mb-5">
-                            <div class="col-md-4">
-                                <RadzenLabel Text="Loại tài khoản" />
-                            </div>
-                            <div class="col">
-                                <select class="form-control" @bind="account_Custom.ToaId">
-                                    <option value="2" selected>Chủ khách sạn</option>
-                                    <option value="3">Người dùng</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="row mb-5">
-                            <div class="col-md-4">
-                                <RadzenLabel Text="Họ tên" />
-                            </div>
-                            <div class="col">
-                                <RadzenTextBox style="display: block" Placeholder="Họ tên" Name="UserName" @bind-Value=@customer.UserName  Class="w-100" AutoComplete="false" />
-                                <RadzenRequiredValidator Component="UserName" Text="Vui lòng nhập họ tên" Popup="true" Style="position: absolute"/>
-                            </div>
-                        </div>
-                        <div class="row mb-5">
-                            <div class="col-md-4">
-                                <RadzenLabel Text="Số CCCD" />
-                            </div>
-                            <div class="col">
-                                <RadzenTextBox style="display: block" Name="UserId" Placeholder="Số CCCD" @bind-Value=@customer.UserId  Class="w-100" AutoComplete="false" />
-                                <RadzenRequiredValidator Component="UserId" Text="Vui lòng nhập số CCCD" Popup="true" Style="position: absolute"/>
-                            </div>
-                        </div>
-                        <div class="row mb-5">
-                            <div class="col-md-4">
-                                <RadzenLabel Text="Giới tính" />
-                            </div>
-                            <div class="col">
-                                <RadzenRadioButtonList @bind-Value=sex Orientation="Orientation.Vertical" TValue="int">
-                                    <Items>
-                                        <RadzenRadioButtonListItem Text="Nam" Value="1" TValue="int" />
-                                        <RadzenRadioButtonListItem Text="Nữ" Value="2" TValue="int" />
-                                    </Items>
-                                </RadzenRadioButtonList>
-                            </div>
-                        </div>
-                        <div class="row mb-5">
-                            <div class="col-md-4">
-                                <RadzenLabel Text="Ngày sinh" />
-                            </div>
-                            <div class="col">
-                                <RadzenDatePicker Name="UserDateofbirth" Placeholder="Ngày sinh" Class="w-100" @bind-Value="customer.UserDateofbirth" DateFormat="dd/MM/yyyy" Max="DateTime.Now" onkeydown="return false" style="display: block"/>
-                                <RadzenRequiredValidator Component="UserDateofbirth" Text="Vui lòng chọn ngày sinh" Popup="true" Style="position: absolute"/>
-                            </div>
-                        </div>
-                        <div class="row mb-5">
-                            <div class="col-md-4">
-                                <RadzenLabel Text="Địa chỉ" />
-                            </div>
-                            <div class="col">
-                                <RadzenTextBox style="display: block" Name="UserAddress" Placeholder="Địa chỉ" @bind-Value=@customer.UserAddress  Class="w-100" AutoComplete="false" />
-                                <RadzenRequiredValidator Component="UserAddress" Text="Vui lòng nhập địa chỉ" Popup="true" Style="position: absolute"/>
-                            </div>
-                        </div>
+<link rel="stylesheet" href="register/style.css">
+  <div class="content">
+    <div class="container">
+      <div class="row align-items-stretch no-gutters contact-wrap">
+        <div class="col-md-8">
+          <div class="form h-100">
+            <h3>Cập nhật thông tin</h3>
+            <div class="mb-5" id="contactForm" name="contactForm">
+              <RadzenTemplateForm TItem="User" Data=@customer>
+                  <div class="row">
+                    <div class="col-md-6 form-group mb-5">
+                      <label for="" class="col-form-label">Địa chỉ Email</label>
+                      <RadzenTextBox style="display: block" Name="UserPhone" @bind-Value=customer.UserPhone Class="w-100" ReadOnly/>
+                      <RadzenRequiredValidator Component="UserPhone" Text="" Popup="true" Style="position: absolute"/>
+                    </div>
+                    <div class="col-md-6 form-group mb-5">
+                      <label for="" class="col-form-label">Lựa chọn loại tài khoản</label>
+                      <select class="form-control" @bind="account_Custom.ToaId">
+                          <option value="2" selected>Chủ khách sạn</option>
+                          <option value="3">Người dùng</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-6 form-group mb-5">
+                      <label for="" class="col-form-label">Mật khẩu</label>
+                      <RadzenPassword Visible="@passwordVisible" style="display: block" Name="passWordOne" @bind-Value=passWordOne Placeholder="Mật khẩu" Class="w-100" />
+                      <RadzenTextBox @bind-Value="@passWordOne" style="display: block" Visible="@(passwordVisible == false)" />
+                      <RadzenRequiredValidator Component="passWordOne" Text="Vui lòng nhập mật khẩu" Popup="true" Style="position: absolute"/>
+                    </div>
+                    <div class="col-md-6 form-group mb-5">
+                      <label for="" class="col-form-label">Nhập lại mật khẩu</label>
+                      <RadzenPassword Visible="@passwordVisible" style="display: block" Name="passWordTwo" @bind-Value=passWordTwo Placeholder="Nhập lại mật khẩu" Class="w-100" />
+                      <RadzenTextBox @bind-Value="@passWordTwo" style="display: block" Visible="@(passwordVisible == false)" />
+                      <RadzenRequiredValidator Component="passWordTwo" Text="Vui lòng nhập lại mật khẩu" Popup="true" Style="position: absolute"/>
+                    </div>
+                    <div class="col-md-6 form-group mb-5">
+                      <RadzenCheckBox @bind-Value="@passwordVisible" />
+                      <label for="" class="col-form-label">Ẩn mật khẩu</label>
+                    </div>
+                    <div class="col-md-6 form-group mb-5">
+                      <label for="message" class="col-form-label">Họ tên</label>
+                      <RadzenTextBox style="display: block" Placeholder="Họ tên" Name="UserName" @bind-Value=@customer.UserName  Class="w-100" AutoComplete="false" />
+                      <RadzenRequiredValidator Component="UserName" Text="Vui lòng nhập họ tên" Popup="true" Style="position: absolute"/>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-6 form-group mb-5">
+                      <label for="message" class="col-form-label">Số CCCD</label>
+                      <RadzenTextBox style="display: block" Placeholder="CCCD" Name="UserId" @bind-Value=@customer.UserId  Class="w-100" AutoComplete="false" />
+                      <RadzenRequiredValidator Component="UserId" Text="Vui lòng nhập số CCCD" Popup="true" Style="position: absolute"/>
+                    </div>
+                    <div class="col-md-6 form-group">
+                        <label for="message" class="col-form-label">Ngày sinh</label>
+                        <RadzenDatePicker Name="UserDateofbirth" Placeholder="Ngày sinh" Class="w-100" @bind-Value="customer.UserDateofbirth" DateFormat="dd/MM/yyyy" Max="DateTime.Now" onkeydown="return false" style="display: block"/>
+                        <RadzenRequiredValidator Component="UserDateofbirth" Text="Vui lòng chọn ngày sinh" Popup="true" Style="position: absolute"/>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-6 form-group">
+                        <label for="message" class="col-form-label">Giới tính</label>
+                        <RadzenRadioButtonList @bind-Value=sex Orientation="Orientation.Horizontal" TValue="int">
+                            <Items>
+                                <RadzenRadioButtonListItem Text="Nam" Value="1" TValue="int" />
+                                <RadzenRadioButtonListItem Text="Nữ" Value="2" TValue="int" />
+                            </Items>
+                        </RadzenRadioButtonList>
+                    </div>
+                    <div class="col-md-6 form-group">
+                        <label for="message" class="col-form-label">Địa chỉ</label>
+                        <RadzenTextBox style="display: block" Name="UserAddress" Placeholder="Địa chỉ" @bind-Value=@customer.UserAddress  Class="w-100" AutoComplete="false" />
+                        <RadzenRequiredValidator Component="UserAddress" Text="Vui lòng nhập địa chỉ" Popup="true" Style="position: absolute"/>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col form-group">
                         <RadzenButton ButtonType="ButtonType.Submit" Text="Cập nhật" Click="AddUser"></RadzenButton>
-                    </RadzenFieldset>
-                </RadzenTemplateForm>
+                    </div>
+                  </div>
+              </RadzenTemplateForm>
             </div>
+          </div>
         </div>
+        <div class="col-md-4">
+          <div class="contact-info h-100">
+            <h3>Thông tin bạn vừa cập nhật</h3>
+            <ul class="list-unstyled">
+              <li class="d-flex">
+                <span style="padding-right: 5px;">Tên đăng nhập: </span>
+                <span class="text">@customer.UserPhone</span>
+              </li>
+              <li class="d-flex">
+                <span style="padding-right: 5px;">Họ tên: </span>
+                <span class="text">@customer.UserName</span>
+              </li>
+              <li class="d-flex">
+                <span style="padding-right: 5px;">Số CCCD: </span>
+                <span class="text">@customer.UserId</span>
+              </li>
+              <li class="d-flex">
+                <span style="padding-right: 5px;">Ngày sinh: </span>
+                @if(customer.UserDateofbirth != null){
+                    <span class="text">@DateTime.Parse(customer.UserDateofbirth.ToString()).ToString("dd MMMM yyyy", new System.Globalization.CultureInfo("vi-VN"))</span>
+                }
+              </li>
+              <li class="d-flex">
+                <span style="padding-right: 5px;">Giới tính: </span>
+                @if(sex == 1){
+                    <span class="text">Nam</span>
+                }
+                else{
+                    <span class="text">Nữ</span>
+                }
+              </li>
+              <li class="d-flex">
+                <span style="padding-right: 5px;">Địa chỉ: </span>
+                <span class="text">@customer.UserAddress</span>
+              </li>
+            </ul>
+            <br />
+            <br />
+            <h3>Chúng tôi luôn nỗ lực để mang đến sự phục vụ tốt nhất</h3>
+            <ul class="list-unstyled">
+              <li class="d-flex">
+                <span style="padding-right: 5px;">Chân thành cảm ơn bạn đã tin tưởng và sử dụng dịch vụ của chúng tôi</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
     </div>
+  </div>
 
 
 
@@ -159,6 +190,10 @@
         {
             NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Thông báo", Detail = "Mật khẩu không khớp", Duration = 4000 });
         }
+        else if(customer.UserId.Length != 12 && customer.UserId.ToString().Substring(0,1) != "0")
+        {
+            NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Thông báo", Detail = "Vui lòng nhập số CCCD hợp lệ", Duration = 4000 });
+        }
         else
         {
             if (sex == 1)
@@ -183,8 +218,12 @@
                     var res = await userService.AddUser(customer);
                     if (res != null)
                     {
-                        NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Thành công", Detail = "Cập nhật thành công", Duration = 4000 });
-                        NavigationManager.NavigateTo("/");
+                        NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Thành công", Detail = "Cập nhật thông tin thành công", Duration = 4000 });
+                        var confirmationResult = await this.DialogService.Confirm("Bạn vừa tạo tài khoản thành công. Bạn có muốn đăng nhập không?", "Thông báo", new ConfirmOptions { OkButtonText = "Xác nhận", CancelButtonText = "Trở về" });
+                        if (confirmationResult == true)
+                        {
+                            CheckLogin(customer.UserPhone, passWordOne);
+                        }
                     }
                 }
             }
@@ -196,5 +235,76 @@
             return true;
         else
             return false;
+    }
+    public async void CheckLogin(string phone, string password)
+    {
+        Account newAcc = new Account();
+        User user = new User();
+        try
+        {
+            newAcc = await accountService.GetAccount(phone, accountService.Encrypt(password));
+                if(newAcc.AccountUsername != null)
+                {
+                    var role = newAcc.Toa.ToaPower;
+                    var phoneTemp = newAcc.AccountUsername;
+                    await sessionStorage.SetItemAsync("phone", phoneTemp);
+                    try
+                    {
+                        user = await userService.GetUser(phoneTemp);
+                        if(role == "Customer")
+                        {
+                            await sessionStorage.SetItemAsync("customer_phone", phoneTemp);
+                            await sessionStorage.SetItemAsync("customer_name", user.UserName);
+                            NavigationManager.NavigateTo("/");
+                            this.DialogService.Close(phoneTemp);
+                        }
+                        else if(role == "Owner")
+                        {
+                            await sessionStorage.SetItemAsync("owner_phone", phoneTemp);
+                            await sessionStorage.SetItemAsync("owner_name", user.UserName);
+                            NavigationManager.NavigateTo("/owner/index");
+                        }
+                        else
+                        {
+                            await sessionStorage.SetItemAsync("admin_phone", phoneTemp);
+                            await sessionStorage.SetItemAsync("admin_name", user.UserName);
+                            NavigationManager.NavigateTo("/admin/index");
+                        }
+
+
+                    }
+                    catch(Exception ex)
+                    {
+                        if(role == "Customer")
+                        {
+                            await sessionStorage.SetItemAsync("customer_phone", phoneTemp);
+                        }
+                        else if(role == "Owner")
+                        {
+                            await sessionStorage.SetItemAsync("owner_phone", phoneTemp);
+                            NavigationManager.NavigateTo("/owner/index");
+                        }
+                        else
+                        {
+                            await sessionStorage.SetItemAsync("admin_phone", phoneTemp);
+                            NavigationManager.NavigateTo("admin/index");
+                        }
+
+                    }
+
+
+                    NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Thành công", Detail = "Đăng nhập thành công", Duration = 4000 });
+                    this.DialogService.Close(phoneTemp);
+                }
+                else
+                {
+                    NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Lỗi", Detail = "Sai thông tin tài khoản", Duration = 4000 });
+                }
+        }
+        catch(Exception Ex)
+        {
+            Console.WriteLine(Ex.ToString());
+        }
+
     }
 }
