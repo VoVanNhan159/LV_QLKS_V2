@@ -21,15 +21,15 @@
                                     <div class="start-address">
                                         <span class="star">
                                         @{
-                                            double starTemph = GetStartOfHotel(id);
+                                            double starTemph = GetStarOfHotel(id);
                                             int temph = (int)starTemph;
                                             for(int i = 0; i < temph; i++)
                                             {
-                                                                <i class="glyphicon glyphicon-star"></i>
+                                                                    <i class="glyphicon glyphicon-star"></i>
                                             }
                                             if(starTemph - (double) temph > 0)
                                             {
-                                                                 <i class="glyphicon glyphicon-star half"></i>
+                                                                     <i class="glyphicon glyphicon-star half"></i>
                                             }
                                         }
                                         </span>
@@ -59,7 +59,7 @@
                                     try{
                                         if(urlImageHotel != null)
                                         {
-                                                            <img class="w-100" src="/images/@urlImageHotel" alt="@urlImageHotel">
+                                                                <img class="w-100" src="/images/@urlImageHotel" alt="@urlImageHotel">
                                         }
                                     }
                                     catch(Exception ex)
@@ -80,8 +80,29 @@
                             <div class="col-lg-3 detail-sidebar">
                                 <!-- Hight Light -->
                                 <div class="hight-light">
-
-                                    <h2>Tuyệt vời</h2>
+                                    @{
+                                        double starTempHotel = GetStarOfHotel(id);
+                                        if(Double.IsNaN(starTempHotel)){
+                                            <h3 style="border-bottom-style: inset;color: #049905;font-size: 30px;margin: 0 -30px;text-align: center;border-left: 10px solid #049905;position: relative;line-height: 90px;background: url(../images/bg-border-v.png) bottom left repeat-x;">
+                                                Chưa có đánh giá
+                                            </h3>
+                                        }
+                                        else if(starTempHotel >= 4){
+                                            <h3 style="color: #049905;font-size: 38px;margin: 0 -30px;text-align: center;border-left: 10px solid #049905;position: relative;line-height: 90px;background: url(../images/bg-border-v.png) bottom left repeat-x;">
+                                                Tuyệt vời
+                                            </h3>
+                                        }
+                                        else if(starTempHotel == 3){
+                                            <h3 style="color: orange;font-size: 38px;margin: 0 -30px;text-align: center;border-left: 10px solid orange;position: relative;line-height: 90px;background: url(../images/bg-border-v.png) bottom left repeat-x;">
+                                                Tốt
+                                            </h3>
+                                        }
+                                        else{
+                                            <h3 style="color: orangered;font-size: 38px;margin: 0 -30px;text-align: center;border-left: 10px solid orangered;position: relative;line-height: 90px;background: url(../images/bg-border-v.png) bottom left repeat-x;">
+                                                Tạm ổn
+                                            </h3>
+                                        }
+                                    }
                                     <!-- Vote Text -->
                                     <div class="row">
                                         <!-- Recommend -->
@@ -98,21 +119,23 @@
                                         <div class="col-xs-12 col-sm-12 col-md-6 col-lg-12">
 
                                             <!-- Quote -->
-                                            <blockquote class="quote-sidebar">
+                                            
                                             @{
                                                 if(customerreview.Count != 0)
                                                 {
                                                     var customerRV = customerreview.First();
-                                                                        <p>@customerRV.CrComment
-                                                                            .<br>
-                                                                            <span><b>@customerRV.UserPhoneNavigation.UserName</b> - @customerRV.CrDate</span>
-                                                                        </p>
+                                                    <blockquote class="quote-sidebar">
+                                                        <p>@customerRV.CrComment
+                                                            .<br>
+                                                            <span><b>@customerRV.UserPhoneNavigation.UserName</b> - @customerRV.CrDate</span>
+                                                        </p>
+                                                     </blockquote>
                                                 }
                                                 else{
-                                                                <span>Chưa có đánh giá</span>
+
                                                 }
                                             }
-                                            </blockquote>
+                                            
                                             <!-- End Quote -->
                                         </div>
                                     </div>
@@ -249,7 +272,7 @@
                                                                                 @{
                                                                                     try{
                                                                                         string urlImageRoom = GetURLImage(item.ImageRooms.FirstOrDefault().ImageId);
-                                                                                                        <img src="/images/@urlImageRoom" alt="@urlImageRoom" @onclick="() =>PopupImage(item.RoomId)">
+                                                                                                            <img src="/images/@urlImageRoom" alt="@urlImageRoom" @onclick="() =>PopupImage(item.RoomId)">
                                                                                     }
                                                                                     catch(Exception ex)
                                                                                     {
@@ -280,18 +303,18 @@
                                                                                 int temp = (int)starTemp;
                                                                                 for(int i = 0; i < temp; i++)
                                                                                 {
-                                                                                                    <i class="glyphicon glyphicon-star"></i>
+                                                                                                        <i class="glyphicon glyphicon-star"></i>
                                                                                 }
                                                                                 if(starTemp - (double) temp > 0)
                                                                                 {
-                                                                                                <i class="glyphicon glyphicon-star half"></i>
+                                                                                                    <i class="glyphicon glyphicon-star half"></i>
                                                                                 }
                                                                                 if(starTemp > 0){
-                                                                                                <p>(@starTemp/5.0) đánh giá <a style="cursor:pointer;color:blue" @onclick="()=>ShowReviewPopup(item.RoomId)">Xem đánh giá</a></p>
+                                                                                                    <p>(@starTemp/5.0) đánh giá <a style="cursor:pointer;color:blue" @onclick="()=>ShowReviewPopup(item.RoomId)">Xem đánh giá</a></p>
                                                                                 }
                                                                                 else
                                                                                 {
-                                                                                                <p>Chưa có đánh giá</p>
+                                                                                                    <p>Chưa có đánh giá</p>
                                                                                 }
                                                                             
 
@@ -313,24 +336,24 @@
                                                                             @{
                                                                                 if(GetPriceAfterMinus(item) == item.Tor.TorPrice.Value)
                                                                                 {
-                                                                                                <h4 class="price">@hotelService.FormatVND(GetPriceAfterMinus(item))/đêm</h4>
+                                                                                                    <h4 class="price">@hotelService.FormatVND(GetPriceAfterMinus(item))/đêm</h4>
                                                                                 }
                                                                                 else
                                                                                 {
-                                                                                                <h4 class="price" style="text-decoration: line-through">@hotelService.FormatVND(item.Tor.TorPrice.Value)/đêm</h4>
-                                                                                                <h4 class="price" style="color:red">@hotelService.FormatVND(GetPriceAfterMinus(item))/đêm</h4>
+                                                                                                    <h4 class="price" style="text-decoration: line-through">@hotelService.FormatVND(item.Tor.TorPrice.Value)/đêm</h4>
+                                                                                                    <h4 class="price" style="color:red">@hotelService.FormatVND(GetPriceAfterMinus(item))/đêm</h4>
                                                                                 }
                                                                                 int countTor = 0;
                                                                                 if(keyValuePairTors.Count > 0)
                                                                                     countTor = keyValuePairTors[item.TorId];
                                                                                 if(countTor <= 1 ){
-                                                                                                <p style="color:red">Chỉ còn @countTor phòng loại này hôm nay</p>
+                                                                                                    <p style="color:red">Chỉ còn @countTor phòng loại này hôm nay</p>
                                                                                 }
                                                                                 else if(countTor > 1 && countTor < 3){
-                                                                                                <p style="color:orange">Còn @countTor phòng loại này hôm nay</p>
+                                                                                                    <p style="color:orange">Còn @countTor phòng loại này hôm nay</p>
                                                                                 }
                                                                                 else{
-                                                                                                <p style="color:limegreen">Còn @countTor phòng loại này hôm nay</p>
+                                                                                                    <p style="color:limegreen">Còn @countTor phòng loại này hôm nay</p>
                                                                                 }
                                                                             }
                                                                         </td>
@@ -341,6 +364,13 @@
                                                                     </tr>
                                                         }
                                                     }
+                                                }
+                                                else{
+                                                    <tr>
+                                                        <td rowspan="5" colspan="5" style="color:orangered;text-align:center">
+                                                            Hiện tại khách sạn này tạm hết phòng
+                                                        </td>
+                                                    </tr>
                                                 }
                                             </tbody>
 
@@ -642,7 +672,7 @@
         return percent;
     }
     //Get start of hotel
-    protected double GetStartOfHotel(int id)
+    protected double GetStarOfHotel(int id)
     {
         return hotelService.GetRateOfHotel(id);
     }

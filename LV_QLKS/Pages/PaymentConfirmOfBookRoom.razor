@@ -131,30 +131,54 @@
                     try
                     {
                         var orderroomId = await sessionStorage.GetItemAsync<string>("orderroom_id");
+                        var checkBookFromOrder = await sessionStorage.GetItemAsync<string>("checkBookFromOrder");
                         Orderroom_Custom orderroom_Custom = new Orderroom_Custom();
-                        orderroom_Custom.UserPhone = await sessionStorage.GetItemAsync<string>("customer_phone");
-                        orderroom_Custom.OrderroomDatestart = Convert.ToDateTime(await sessionStorage.GetItemAsync<string>("dayStartOrder"));
-                        orderroom_Custom.OrderroomDateend = Convert.ToDateTime(await sessionStorage.GetItemAsync<string>("dayEndOrder"));
-                        orderroom_Custom.OrderroomDate = DateTime.Now;
-                        orderroom_Custom.OrderroomStatus = "2";
-                        orderroom_Custom.OrderroomTotalprice = int.Parse(await sessionStorage.GetItemAsync<string>("vnp_Amount"));
-                        var resod = await orderroomService.AddOrderroomCustom(orderroom_Custom);
-
-                        if (resod != null)
+                        if (orderroomId == null)
                         {
-                            OrderroomDetail_Custom orderroomDetail_Custom = new OrderroomDetail_Custom();
-                            orderroomDetail_Custom.OrderroomId = resod.OrderroomId;
-                            orderroomDetail_Custom.RoomId = int.Parse(await sessionStorage.GetItemAsync<string>("room_id"));
-                            var resodd = await orderroomDetailService.AddOrderroomdetail(orderroomDetail_Custom);
-                            if (resodd != null)
+                            //Thêm mới đơn đặt phòng
+                            orderroom_Custom.UserPhone = await sessionStorage.GetItemAsync<string>("customer_phone");
+                            orderroom_Custom.OrderroomDatestart = Convert.ToDateTime(await sessionStorage.GetItemAsync<string>("dayStartOrder"));
+                            orderroom_Custom.OrderroomDateend = Convert.ToDateTime(await sessionStorage.GetItemAsync<string>("dayEndOrder"));
+                            orderroom_Custom.OrderroomDate = DateTime.Now;
+                            orderroom_Custom.OrderroomStatus = "2";
+                            orderroom_Custom.OrderroomTotalprice = int.Parse(await sessionStorage.GetItemAsync<string>("vnp_Amount"));
+                            var resod = await orderroomService.AddOrderroomCustom(orderroom_Custom);
+                            if (resod != null)
+                            {
+                                OrderroomDetail_Custom orderroomDetail_Custom = new OrderroomDetail_Custom();
+                                orderroomDetail_Custom.OrderroomId = resod.OrderroomId;
+                                orderroomDetail_Custom.RoomId = int.Parse(await sessionStorage.GetItemAsync<string>("room_id"));
+                                var resodd = await orderroomDetailService.AddOrderroomdetail(orderroomDetail_Custom);
+                                if (resodd != null)
+                                {
+                                    if (IsConnected)
+                                        await SendMessage();
+                                    NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Thành công", Detail = "Đặt phòng thành công", Duration = 4000 });
+                                    NavigationManager.NavigateTo("/orderroom/index");
+                                }
+
+                            }
+                        }
+                        else
+                        {
+                            //Thay đổi trạng thái đơn đặt
+                            var orderroomTemp = await orderroomService.GetOrderrom(int.Parse(orderroomId));
+                            orderroom_Custom.UserPhone = orderroomTemp.UserPhone;
+                            orderroom_Custom.OrderroomId = orderroomTemp.OrderroomId;
+                            orderroom_Custom.OrderroomDatestart = orderroomTemp.OrderroomDatestart;
+                            orderroom_Custom.OrderroomDateend = orderroomTemp.OrderroomDateend;
+                            orderroom_Custom.OrderroomDate = DateTime.Now;
+                            orderroom_Custom.OrderroomStatus = "2";
+                            orderroom_Custom.OrderroomTotalprice = orderroomTemp.OrderroomTotalprice;
+                            var resod = await orderroomService.UpdateOrderroomAfterPayment(orderroom_Custom);
+                            if (resod != null)
                             {
                                 if (IsConnected)
-                                    await SendMessage();
-                                NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Thành công", Detail = "Dặt phòng thành công", Duration = 4000 });
+                                     await SendMessage();
+                                NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Thành công", Detail = "Đặt phòng thành công", Duration = 4000 });
                                 NavigationManager.NavigateTo("/orderroom/index");
                             }
-
-                        }
+                        }   
                     }
                     catch (Exception ex)
                     {

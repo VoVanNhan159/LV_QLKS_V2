@@ -65,26 +65,29 @@
 
     protected async override Task OnAfterRenderAsync(bool firstRender)
     {
-        phone = await sessionStorage.GetItemAsync<string>("phone");
-        if(phone != null)
+        if (firstRender)
         {
-            nonelogout = "";
-            none = "none";
-            var account = await accountService.CheckAccount(phone);
-            var role = account.ToaId;
-            if(role != 3)
+            phone = await sessionStorage.GetItemAsync<string>("phone");
+            if(phone != null)
             {
-                sessionStorage.ClearAsync();
-                none = "";
+                nonelogout = "";
+                none = "none";
+                var account = await accountService.CheckAccount(phone);
+                var role = account.ToaId;
+                if(role != 3)
+                {
+                    sessionStorage.ClearAsync();
+                    none = "";
+                    nonelogout = "none";
+                }
+            }
+            else
+            {
                 nonelogout = "none";
             }
-        }
-        else
-        {
-            nonelogout = "none";
-        }
         
-        StateHasChanged();
+            StateHasChanged();
+        }
     }
     public async Task Login()
     {

@@ -24,7 +24,7 @@
                                     <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Giá</RadzenText>
                                 </div>
                                 <div class="col">
-                                    <RadzenNumeric style="display: block" Placeholder="Nhập giá tiền" Name="TorPrice" @bind-Value=@typeofroom.TorPrice  Class="w-100" AutoComplete="false" />
+                                    <RadzenNumeric style="display: block" Placeholder="Nhập giá tiền" Format="@String.Format("#,### đ")" Step="50000" Name="TorPrice" @bind-Value=@typeofroom.TorPrice  Class="w-100" AutoComplete="false" />
                                     <RadzenRequiredValidator Component="TorPrice" Text="Vui lòng nhập giá tiền" Popup="true" Style="position: absolute"/>
                                 </div>
                             </div>

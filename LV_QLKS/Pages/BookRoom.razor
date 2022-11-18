@@ -223,13 +223,6 @@
     {
         return hotelService.GetRateOfHotel(id);
     }
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-
-        }
-    }
     //Đóng modal
     protected void CancelModal()
     {
@@ -240,9 +233,9 @@
     {
         try
         {
-            await sessionStorage.SetItemAsync("room_id", room.RoomId);
-            await sessionStorage.SetItemAsync("customer_phone", user.UserPhone);
-            await sessionStorage.SetItemAsync("vnp_Amount", totalPriceDiscount);
+            await sessionStorage.SetItemAsync<string>("room_id", room.RoomId.ToString());
+            await sessionStorage.SetItemAsync<string>("customer_phone", user.UserPhone);
+            await sessionStorage.SetItemAsync<string>("vnp_Amount", totalPriceDiscount.ToString());
             Payment();
 
         }
@@ -346,7 +339,7 @@
             {
                 // 1 là thanh toán tiền khi nhận phòng
                 // 2 là thanh toán trực tuyến
-                await JS.InvokeVoidAsync("open", paymentUrl, "_blank");
+                await JS.InvokeVoidAsync("open", paymentUrl, "_self");
                 paying = true;
             }
             else if(tt ==1 )

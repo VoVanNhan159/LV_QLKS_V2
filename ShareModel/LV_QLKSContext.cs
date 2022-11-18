@@ -146,7 +146,6 @@ namespace ShareModel
 
                 entity.Property(e => e.CrComment)
                     .HasMaxLength(200)
-                    .IsUnicode(false)
                     .HasColumnName("CR_COMMENT");
 
                 entity.Property(e => e.CrDate)
@@ -370,13 +369,13 @@ namespace ShareModel
                     .HasColumnName("ID");
 
                 entity.HasOne(d => d.Hotel)
-                    .WithMany(p => p.HotelServices)
+                    .WithMany(p => p.HotelServiceCss)
                     .HasForeignKey(d => d.HotelId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_HOTEL_SE_HOTEL_SER_HOTEL");
 
                 entity.HasOne(d => d.Service)
-                    .WithMany(p => p.HotelServices)
+                    .WithMany(p => p.HotelServiceCss)
                     .HasForeignKey(d => d.ServiceId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_HOTEL_SE_HOTEL_SER_SERVICE");
