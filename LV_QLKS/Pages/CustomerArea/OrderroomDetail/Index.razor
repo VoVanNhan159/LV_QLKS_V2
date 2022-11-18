@@ -46,11 +46,11 @@
                             @if(orderroom.OrderroomDateend < DateTime.Now){
                                 if(GetCustomerreview(item.RoomId) != null)
                                 {
-                                   <RadzenButton Text="Đã đánh giá" Click="() => ShowReviewRoomPopup(item.RoomId)" ButtonStyle="ButtonStyle.Success"></RadzenButton>
+                                   <RadzenButton Text="Đã đánh giá" Click="() => ShowReviewRoomPopup(item.RoomId, item.OrderroomId)" ButtonStyle="ButtonStyle.Success"></RadzenButton>
                                 }
                                 else
                                 {
-                                    <RadzenButton Text="Chưa đánh giá" Click="() => ShowReviewRoomPopup(item.RoomId)" ButtonStyle="ButtonStyle.Warning"></RadzenButton>
+                                    <RadzenButton Text="Chưa đánh giá" Click="() => ShowReviewRoomPopup(item.RoomId, item.OrderroomId)" ButtonStyle="ButtonStyle.Warning"></RadzenButton>
                                 }
                             }
                             </td>
@@ -133,18 +133,21 @@
     {
         foreach (var item in customerreviews)
         {
-            if(item.RoomId == id && item.UserPhone == phone)
+            if(item.RoomId == id && item.UserPhone == phone && item.OrderroomId == orderroom.OrderroomId)
             {
                 return item;
             }
         }
         return null;
     }
-    protected async void ShowReviewRoomPopup(int id)
+    protected async void ShowReviewRoomPopup(int roomId, int orderroomId)
     {
         var res = await DialogService.OpenAsync<CustomerArea.CustomerReview.CustomerReview>(
             "",
-            new Dictionary<string, object>() { { "id", id } },
+            new Dictionary<string, object>() { 
+                { "roomId", roomId },
+                { "orderroomId", orderroomId }
+            },
             new DialogOptions() { Width = "700px", Height = "570px", Resizable = true, Draggable = true });
         if(res == 0){
             NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Thành công", Detail = "Thêm đánh giá thành công", Duration = 4000 });

@@ -7,6 +7,7 @@ namespace ShareModel
     {
         public Orderroom()
         {
+            Customerreviews = new HashSet<Customerreview>();
             Orderroomdetails = new HashSet<Orderroomdetail>();
         }
 
@@ -19,6 +20,7 @@ namespace ShareModel
         public int? OrderroomTotalprice { get; set; }
 
         public virtual User UserPhoneNavigation { get; set; } = null!;
+        public virtual ICollection<Customerreview> Customerreviews { get; set; }
         public virtual ICollection<Orderroomdetail> Orderroomdetails { get; set; }
     }
 }

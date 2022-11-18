@@ -10,6 +10,7 @@ namespace ShareModel.Custom
     {
         public int RoomId { get; set; }
         public int Id { get; set; }
+        public int OrderroomId { get; set; }
         public string UserPhone { get; set; } = null!;
         public DateTime? CrDate { get; set; }
         public double? CrStar { get; set; }

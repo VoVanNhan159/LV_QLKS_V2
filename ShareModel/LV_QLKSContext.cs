@@ -126,11 +126,13 @@ namespace ShareModel
 
             modelBuilder.Entity<Customerreview>(entity =>
             {
-                entity.HasKey(e => new { e.RoomId, e.UserPhone, e.Id });
+                entity.HasKey(e => new { e.RoomId, e.UserPhone, e.OrderroomId });
 
                 entity.ToTable("CUSTOMERREVIEW");
 
                 entity.HasIndex(e => e.UserPhone, "CUSTOMERREVIEW2_FK");
+
+                entity.HasIndex(e => e.OrderroomId, "CUSTOMERREVIEW3_FK");
 
                 entity.HasIndex(e => e.RoomId, "CUSTOMERREVIEW_FK");
 
@@ -140,12 +142,11 @@ namespace ShareModel
                     .HasMaxLength(100)
                     .HasColumnName("USER_PHONE");
 
-                entity.Property(e => e.Id)
-                    .ValueGeneratedOnAdd()
-                    .HasColumnName("ID");
+                entity.Property(e => e.OrderroomId).HasColumnName("ORDERROOM_ID");
 
                 entity.Property(e => e.CrComment)
                     .HasMaxLength(200)
+                    .IsUnicode(false)
                     .HasColumnName("CR_COMMENT");
 
                 entity.Property(e => e.CrDate)
@@ -153,6 +154,14 @@ namespace ShareModel
                     .HasColumnName("CR_DATE");
 
                 entity.Property(e => e.CrStar).HasColumnName("CR_STAR");
+
+                entity.Property(e => e.Id).HasColumnName("ID");
+
+                entity.HasOne(d => d.Orderroom)
+                    .WithMany(p => p.Customerreviews)
+                    .HasForeignKey(d => d.OrderroomId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_CUSTOMER_CUSTOMERR_ORDERROO");
 
                 entity.HasOne(d => d.Room)
                     .WithMany(p => p.Customerreviews)
@@ -361,13 +370,13 @@ namespace ShareModel
                     .HasColumnName("ID");
 
                 entity.HasOne(d => d.Hotel)
-                    .WithMany(p => p.HotelServiceCss)
+                    .WithMany(p => p.HotelServices)
                     .HasForeignKey(d => d.HotelId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_HOTEL_SE_HOTEL_SER_HOTEL");
 
                 entity.HasOne(d => d.Service)
-                    .WithMany(p => p.HotelServiceCss)
+                    .WithMany(p => p.HotelServices)
                     .HasForeignKey(d => d.ServiceId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_HOTEL_SE_HOTEL_SER_SERVICE");

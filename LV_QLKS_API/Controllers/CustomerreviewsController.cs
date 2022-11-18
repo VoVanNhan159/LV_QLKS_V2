@@ -33,9 +33,9 @@ namespace WebApplication1.Controllers
 
         // GET: api/Customerreviews/5
         [HttpGet("{id}/{phone}")]
-        public async Task<Customerreview> GetCustomerreview(int id, string phone)
+        public async Task<Customerreview> GetCustomerreview(int id, string phone, int orderroomId)
         {
-            var customerreview = await _context.Customerreviews.Include(cr=>cr.UserPhoneNavigation).FirstOrDefaultAsync(cr=>cr.RoomId == id && cr.UserPhone == phone);
+            var customerreview = await _context.Customerreviews.Include(cr=>cr.UserPhoneNavigation).FirstOrDefaultAsync(cr=>cr.RoomId == id && cr.UserPhone == phone && cr.OrderroomId == orderroomId);
 
             if (customerreview == null)
             {
@@ -90,6 +90,7 @@ namespace WebApplication1.Controllers
             Customerreview customerreviewTemp = new Customerreview();
             customerreviewTemp.Id = customerreview.Id;
             customerreviewTemp.RoomId = customerreview.RoomId;
+            customerreviewTemp.OrderroomId = customerreview.OrderroomId;
             customerreviewTemp.UserPhone = customerreview.UserPhone;
             customerreviewTemp.CrDate = customerreview.CrDate;
             customerreviewTemp.CrComment = customerreview.CrComment;
@@ -113,7 +114,7 @@ namespace WebApplication1.Controllers
                 }
             }
 
-            return CreatedAtAction("GetCustomerreview", new { id = customerreviewTemp.Id}, customerreviewTemp);
+            return CreatedAtAction("GetCustomerreview", new { id = customerreviewTemp.Id, phone = customerreviewTemp .UserPhone , orderroomId  = customerreviewTemp .OrderroomId}, customerreviewTemp);
         }
 
         // POST: api/Customerreviews
@@ -124,6 +125,7 @@ namespace WebApplication1.Controllers
             var customerReviewTemp = new Customerreview();
             customerReviewTemp.RoomId = customerreview.RoomId;
             customerReviewTemp.UserPhone = customerreview.UserPhone;
+            customerReviewTemp.OrderroomId = customerreview.OrderroomId;
             customerReviewTemp.CrDate = customerreview.CrDate;
             customerReviewTemp.CrStar = customerreview.CrStar;
             customerReviewTemp.CrComment = customerreview.CrComment;
@@ -144,7 +146,7 @@ namespace WebApplication1.Controllers
                 }
             }
 
-            return CreatedAtAction("GetCustomerreview", new { id = customerReviewTemp.RoomId }, customerReviewTemp);
+            return CreatedAtAction("GetCustomerreview", new { id = customerReviewTemp.Id, phone = customerReviewTemp.UserPhone, orderroomId = customerReviewTemp.OrderroomId }, customerReviewTemp);
         }
 
         // DELETE: api/Customerreviews/5

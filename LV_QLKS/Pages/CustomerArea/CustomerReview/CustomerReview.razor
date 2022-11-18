@@ -117,7 +117,9 @@ else
 
 @code {
     [Parameter]
-    public int id{ get; set; }
+    public int roomId{ get; set; }
+    [Parameter]
+    public int orderroomId{ get; set; }
     protected int StarTemp = 0;
     List<Customerreview> customerreviews = new List<Customerreview>();
     CustomerReview_Custom customerReview_Custom = new CustomerReview_Custom();
@@ -131,17 +133,18 @@ else
             var phone = await sessionStorage.GetItemAsync<string>("customer_phone");
             if (phone != null)
                 customerReview_Custom.UserPhone = phone;
-            if(id > 0)
+            if(roomId > 0)
             {
-                customerreviews = await customerReviewService.GetAllCustomerreviewOfRoom(id);
+                customerreviews = await customerReviewService.GetAllCustomerreviewOfRoom(roomId);
                 if(customerreviews.Count > 0)
                 {
                     foreach (var item in customerreviews)
                     {
-                        if(item.RoomId == id && item.UserPhone == phone)
+                        if(item.RoomId == roomId && item.UserPhone == phone && item.OrderroomId == orderroomId)
                         {
                             customerReview_Custom.Id = item.Id;
                             customerReview_Custom.RoomId = item.RoomId;
+                            customerReview_Custom.OrderroomId = item.OrderroomId;
                             customerReview_Custom.UserPhone = item.UserPhone;
                             customerReview_Custom.CrStar = item.CrStar;
                             customerReview_Custom.CrComment = item.CrComment;
@@ -162,7 +165,8 @@ else
     protected async void AddReview()
     {
         if(customerReview_Custom.RoomId <= 0)
-            customerReview_Custom.RoomId = id;
+            customerReview_Custom.RoomId = roomId;
+        customerReview_Custom.OrderroomId = orderroomId;
         customerReview_Custom.CrStar = StarTemp;
         customerReview_Custom.CrDate = DateTime.Now;
         var res = await customerReviewService.AddCustomerreviewOfRoom(customerReview_Custom);
@@ -172,7 +176,8 @@ else
     protected async void UpdateReview()
     {
         if(customerReview_Custom.RoomId <= 0)
-            customerReview_Custom.RoomId = id;
+            customerReview_Custom.RoomId = roomId;
+        customerReview_Custom.OrderroomId = orderroomId;
         customerReview_Custom.CrStar = StarTemp;
         customerReview_Custom.CrDate = DateTime.Now;
         var res = await customerReviewService.UpdateCustomerreviewOfRoom(customerReview_Custom);
