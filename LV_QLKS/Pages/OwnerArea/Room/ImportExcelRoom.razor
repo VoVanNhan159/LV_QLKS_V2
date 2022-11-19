@@ -1,4 +1,5 @@
 ﻿@page "/room/import"
+@using Microsoft.AspNetCore.SignalR.Client
 @using ShareModel.Custom
 @inject IWebHostEnvironment Environment
 <div class="forms-sample">
@@ -31,6 +32,19 @@
     List<Room_Custom> room_Customs = new List<Room_Custom>();
     string filePath = "";
     string phone;
+    //start hub
+    private HubConnection hubConnection;
+    protected override async Task OnInitializedAsync()
+    {
+        hubConnection = new HubConnectionBuilder()
+            .WithUrl(NavigationManager.ToAbsoluteUri("/HotelBrHub"))
+            .Build();
+        await hubConnection.StartAsync();
+    }
+
+    public bool IsConnected => hubConnection.State == HubConnectionState.Connected;
+    Task SendMessage() => hubConnection.SendAsync("SendMessage");
+    //end hub
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         phone = await sessionStorage.GetItemAsync<string>("owner_phone");
@@ -68,18 +82,22 @@
                         Room_Custom room_Custom = new Room_Custom();
                         for (int col = 1; col <= totalCollumn; col++)
                         {
-                            if (col == 1) room_Custom.RoomId = int.Parse(worksheet.Cells[row, col].Value.ToString());
-                            if (col == 2) room_Custom.FloorId = int.Parse(worksheet.Cells[row, col].Value.ToString());
-                            if (col == 3) room_Custom.TorId = int.Parse(worksheet.Cells[row, col].Value.ToString());
-                            if (col == 4) room_Custom.HotelId = int.Parse(worksheet.Cells[row, col].Value.ToString());
-                            if (col == 5) room_Custom.RoomName = worksheet.Cells[row, col].Value.ToString();
-                            if (col == 6) room_Custom.RoomDescription = worksheet.Cells[row, col].Value.ToString();
-                            if (col == 7)
+                            if(worksheet.Cells[row, col].Value != null)
                             {
-                                if (worksheet.Cells[row, col].Value.ToString() == "true")
-                                    room_Custom.RoomStatus = true;
-                                else
-                                    room_Custom.RoomStatus = false;
+                                var value = worksheet.Cells[row, col].Value.ToString();
+                                if (col == 1) room_Custom.RoomId = int.Parse(value);
+                                if (col == 2) room_Custom.FloorId = int.Parse(value);
+                                if (col == 3) room_Custom.TorId = int.Parse(value);
+                                if (col == 4) room_Custom.HotelId = int.Parse(value);
+                                if (col == 5) room_Custom.RoomName = value;
+                                if (col == 6) room_Custom.RoomDescription = value;
+                                if (col == 7)
+                                {
+                                    if (value.ToString().ToLower() == "true")
+                                        room_Custom.RoomStatus = true;
+                                    else
+                                        room_Custom.RoomStatus = false;
+                                }
                             }   
                         }
                         room_Customs.Add(room_Custom);
@@ -122,6 +140,8 @@
             }
         }
         NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Thành công", Detail = "Thêm " + countCheckAdd + " phòng, cập nhật " + countCheckUpdate + " phòng thành công", Duration = 4000 });
+        if (IsConnected)
+            await SendMessage();
         if(countCheckError > 0)
             this.DialogService.Close(countCheckError);
         else

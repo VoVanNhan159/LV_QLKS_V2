@@ -43,9 +43,9 @@ namespace LV_QLKS_API.Controllers
             return discountDetails;
         }
         [HttpGet("GetAllDiscountdetailActiveDate/{dateStart}/{dateEnd}")]
-        public async Task<ActionResult<IEnumerable<Discountdetail>>> GetAllDiscountdetailActiveDate(DateTime dateStart, DateTime dateEnd)
+        public async Task<List<Discountdetail>> GetAllDiscountdetailActiveDate(DateTime dateStart, DateTime dateEnd)
         {
-            var discountDetails = new List<Discountdetail>();
+            List<Discountdetail> discountDetails = new List<Discountdetail>();
             var discounts = await _context.Discounts.ToListAsync();
             foreach (var item in discounts)
             {

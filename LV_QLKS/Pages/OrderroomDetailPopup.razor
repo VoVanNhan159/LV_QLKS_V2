@@ -45,7 +45,7 @@
                                                         </li>
                                                         <li>
                                                               <span class="span-custom">Ngày nhận phòng:</span>
-                                                              <RadzenDatePicker Class="w-75" @bind-Value="orderroom.OrderroomDatestart" DateFormat="dd/MM/yyyy" Min="DateTime.Now" onkeydown="return false" style="display: block" Change="DayStartChange" />
+                                                              <RadzenDatePicker Class="w-75" @bind-Value="orderroom.OrderroomDatestart" DateFormat="dd/MM/yyyy" Min="DateTime.Today" onkeydown="return false" style="display: block" Change="DayStartChange" />
                                                       </li>
                                                       <li>
                                                               <span class="span-custom">Ngày trả phòng:</span>
@@ -381,8 +381,8 @@
                 orderroom.OrderroomDateend = orderroom.OrderroomDatestart.Value.AddDays(1);
             }
         }
+        discountdetails = discountdetailService.GetAllDiscountdetailActiveDate((DateTime)orderroom.OrderroomDatestart, (DateTime)orderroom.OrderroomDateend).Result;
         StateHasChanged();
-        //discountdetails = discountdetailService.GetAllDiscountdetailActiveDate(dayStartFilter, dayEndFilter).Result;
     }
     protected async void DayEndChange()
     {
@@ -396,7 +396,8 @@
         CalTotalPrice(orderroomCustom);
         orderroomCustom.OrderroomTotalprice = (int)totalPrice;
         var res = await orderroomService.UpdateOrderroomAfterPayment(orderroomCustom);
-        //discountdetails = discountdetailService.GetAllDiscountdetailActiveDate(dayStartFilter, dayEndFilter).Result;
+        discountdetails = discountdetailService.GetAllDiscountdetailActiveDate((DateTime)orderroomCustom.OrderroomDatestart, (DateTime)orderroomCustom.OrderroomDateend).Result;
+        StateHasChanged();
     }
     //Get tỉ lệ khuyến mãi
     public int GetPercentOfRoom(Room room)

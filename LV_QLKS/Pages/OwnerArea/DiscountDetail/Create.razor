@@ -130,6 +130,10 @@
         if(check == false)
         {
             if (discountDetail_Custom.RoomId < 0 || discountDetail_Custom.Percent > 100 || discountDetail_Custom.Percent <= 0 || discountDetail_Custom.Percent == null) ;
+            else if( discountDetail_Custom.RoomId == 0)
+            {
+                NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Thông báo", Detail = "Vui lòng chọn phòng khuyến mãi", Duration = 4000 });
+            }
             else{
                 var res = await discountdetailService.AddDiscountDetail(discountDetail_Custom);
                 if(res != null)

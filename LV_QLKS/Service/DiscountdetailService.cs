@@ -29,7 +29,18 @@ namespace LV_QLKS.Service
         //Lấy tất cả Discountdetail còn hạn
         public async Task<List<Discountdetail>> GetAllDiscountdetailActiveDate(DateTime dateStart, DateTime dateEnd)
         {
-            return await Http.GetFromJsonAsync<List<Discountdetail>>(baseurl + "/GetAllDiscountdetailActiveDate/" + dateStart + "/" + dateEnd);
+            LV_QLKSContext _context = new LV_QLKSContext();
+            List<Discountdetail> discountDetails = new List<Discountdetail>();
+            var discounts = _context.Discounts.ToList();
+            foreach (var item in discounts)
+            {
+                if (item.DiscountDatestart <= dateStart && item.DiscountDateend >= dateEnd)
+                {
+                    var discountDetailsTemp = _context.Discountdetails.Where(dd => dd.DiscountId == item.DiscountId).ToList();
+                    discountDetails.AddRange(discountDetailsTemp);
+                }
+            }
+            return discountDetails;
         }
         //Add Discountdetail
         public async Task<DiscountDetail_Custom> AddDiscountDetail(DiscountDetail_Custom discount)

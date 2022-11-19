@@ -281,15 +281,5 @@
     }
     void OnChangeDisabled(object value)
     {
-        multipleValuesChip.Clear();
-        var str = value is IEnumerable<int> ? string.Join(", ", (IEnumerable<int>)value) : value;
-        var temp = str.ToString().Split(",");
-        if(temp.Length > 1)
-        {
-            foreach (var item in temp)
-            {
-                multipleValuesChip.Add(int.Parse(item));
-            }
-        }
     }
 }

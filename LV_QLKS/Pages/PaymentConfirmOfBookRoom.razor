@@ -4,6 +4,7 @@
 @using LV_QLKS.Data
 @using Microsoft.AspNetCore.WebUtilities
 @using ShareModel.Custom
+@using System.Net.Mail
 @inject IConfiguration Configuration
 @layout Layout_Null
 
@@ -13,9 +14,12 @@
     public bool IsConnected => hubConnection.State == HubConnectionState.Connected;
     Task SendMessage() => hubConnection.SendAsync("SendMessage");
     //end hub
+    User user = new User();
     ShareModel.Orderroom orderroom = new ShareModel.Orderroom();
     List<Orderroomdetail> orderroomdetails = new List<Orderroomdetail>();
 
+    HotelService hotelService = new HotelService();
+    RoomService roomService = new RoomService();
     OrderroomService orderroomService = new OrderroomService();
     OrderroomDetailService orderroomDetailService = new OrderroomDetailService();
     AccountService accountService = new AccountService();
@@ -151,6 +155,7 @@
                                 var resodd = await orderroomDetailService.AddOrderroomdetail(orderroomDetail_Custom);
                                 if (resodd != null)
                                 {
+                                    SendMail(resod, resodd);
                                     if (IsConnected)
                                         await SendMessage();
                                     NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Thành công", Detail = "Đặt phòng thành công", Duration = 4000 });
@@ -173,8 +178,9 @@
                             var resod = await orderroomService.UpdateOrderroomAfterPayment(orderroom_Custom);
                             if (resod != null)
                             {
+                                SendMail(resod);
                                 if (IsConnected)
-                                     await SendMessage();
+                                    await SendMessage();
                                 NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Thành công", Detail = "Đặt phòng thành công", Duration = 4000 });
                                 NavigationManager.NavigateTo("/orderroom/index");
                             }
@@ -201,5 +207,90 @@
             //return Redirect("/Customers/Customers/Routing?X=" + HttpContext.Session.GetString("X") + "&Y=" + HttpContext.Session.GetString("Y"));
             //NavigationManager.NavigateTo("/owner/index/0366037245");
         }
+    }
+    private async void SendMail(Orderroom orderroom, Orderroomdetail orderroomdetail)
+    {
+        try
+        {
+            var room = await roomService.GetRoom(orderroomdetail.RoomId);
+            using (MailMessage mail = new MailMessage())
+            {
+                mail.From = new MailAddress("vovannhan2727bc@outlook.com");
+                mail.To.Add(user.UserEmail);
+                mail.Subject = "Xác nhận đặt phòng";
+                mail.Body = "Kính chào khách hàng: " + user.UserName.ToUpper();
+                mail.Body += "<p>Chúng tôi xin xác nhận lại thông tin đặt phòng như sau:<p/>";
+                mail.Body += "<p>Khách sạn: " + room.Hotel.HotelName + "</p>";
+                mail.Body += "<p>Địa chỉ: " + hotelService.GetAddressHotel(room.Hotel.HotelId) + "</p>";
+                mail.Body += "<p>Phòng đặt: " + room.RoomName + "</p>";
+                mail.Body += "<p>Ngày đặt: " + orderroom.OrderroomDate + "</p>";
+                mail.Body += "<p>Ngày nhận phòng: " + orderroom.OrderroomDatestart + "</p>";
+                mail.Body += "<p>Ngày trả phòng: " + orderroom.OrderroomDateend + "</p>";
+                mail.Body += "<p>Tổng tiền: " + hotelService.FormatVND((int)orderroom.OrderroomTotalprice) + "</p>";
+                mail.Body += "<p>Trạng thái thanh toán: Thanh toán trực tuyến</p>";
+
+                mail.Body += "<p>Xin cảm chân thành ơn quý khách hàng đã tin tưởng và sử dụng dịch vụ của chúng tôi</p>";
+
+                mail.Body += "<br>Trân trọng,<br>";
+                mail.IsBodyHtml = true;
+
+                using (SmtpClient smtp = new SmtpClient("smtp.office365.com", 587))
+                {
+                    smtp.Credentials = new System.Net.NetworkCredential("vovannhan2727bc@outlook.com", "8vxzX$PS123");
+                    smtp.EnableSsl = true;
+                    smtp.Send(mail);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            throw;
+        }
+
+    }
+    private async void SendMail(Orderroom orderroom)
+    {
+        try
+        {
+            user = await userService.GetUser(orderroom.UserPhone);
+            var orderroomdetails = await orderroomDetailService.GetAllOrderromDetailOfOrderrom(orderroom.OrderroomId);
+            var room = await roomService.GetRoom(orderroomdetails.First().RoomId);
+            using (MailMessage mail = new MailMessage())
+            {
+                mail.From = new MailAddress("vovannhan2727bc@outlook.com");
+                mail.To.Add(user.UserEmail);
+                mail.Subject = "Xác nhận đặt phòng";
+                mail.Body = "Kính chào khách hàng: " + user.UserName.ToUpper();
+                mail.Body += "<p>Chúng tôi xin xác nhận lại thông tin đặt phòng như sau:<p/>";
+                mail.Body += "<p>Khách sạn: " + room.Hotel.HotelName + "</p>";
+                mail.Body += "<p>Địa chỉ: " + hotelService.GetAddressHotel(room.Hotel.HotelId) + "</p>";
+                foreach (var item in orderroomdetails)
+                {
+                    mail.Body += "<p>Phòng đặt: " + item.Room.RoomName + "</p>";
+                }
+                mail.Body += "<p>Ngày đặt: " + orderroom.OrderroomDate + "</p>";
+                mail.Body += "<p>Ngày nhận phòng: " + orderroom.OrderroomDatestart + "</p>";
+                mail.Body += "<p>Ngày trả phòng: " + orderroom.OrderroomDateend + "</p>";
+                mail.Body += "<p>Tổng tiền: " + hotelService.FormatVND((int)orderroom.OrderroomTotalprice) + "</p>";
+                mail.Body += "<p>Trạng thái thanh toán: Thanh toán trực tuyến</p>";
+
+                mail.Body += "<p>Xin cảm chân thành ơn quý khách hàng đã tin tưởng và sử dụng dịch vụ của chúng tôi</p>";
+
+                mail.Body += "<br>Trân trọng,<br>";
+                mail.IsBodyHtml = true;
+
+                using (SmtpClient smtp = new SmtpClient("smtp.office365.com", 587))
+                {
+                    smtp.Credentials = new System.Net.NetworkCredential("vovannhan2727bc@outlook.com", "8vxzX$PS123");
+                    smtp.EnableSsl = true;
+                    smtp.Send(mail);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            throw;
+        }
+
     }
 }

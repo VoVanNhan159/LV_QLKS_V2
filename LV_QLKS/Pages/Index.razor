@@ -87,7 +87,6 @@
                                             </span>
                                 <hr class="hr">
                                 <div class="price-box">
-                                    <span class="price old-price">Từ <del>@hotelService.FormatVND(hotelService.GetFakePriceHotel(item.HotelId))</del></span>
                                     <span class="price special-price">@hotelService.FormatVND(hotelService.GetRealPriceHotel(item.HotelId))</span>
                                 </div>
                                 <div></div>
@@ -103,7 +102,7 @@
 </div>
 @code{
     public readonly string UrlPluginFB = "https://localhost:7129";
-    //public readonly string UrlPluginFB = "https://a210-113-183-211-147.ap.ngrok.io";
+    //public readonly string UrlPluginFB = "https://1d88-123-28-165-74.ap.ngrok.io";
     List<ShareModel.Hotel> hoTel = new List<ShareModel.Hotel>();
     HotelService hotelService = new HotelService();
     List<Image> listImageHotel = new List<Image>();

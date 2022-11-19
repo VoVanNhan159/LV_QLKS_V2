@@ -65,9 +65,7 @@
 
     protected async override Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender)
-        {
-            phone = await sessionStorage.GetItemAsync<string>("phone");
+        phone = await sessionStorage.GetItemAsync<string>("phone");
             if(phone != null)
             {
                 nonelogout = "";
@@ -87,7 +85,6 @@
             }
         
             StateHasChanged();
-        }
     }
     public async Task Login()
     {

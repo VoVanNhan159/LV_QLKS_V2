@@ -2,6 +2,7 @@
 @page "/room"
 @using System.Globalization
 @using LV_QLKS.Pages.OwnerArea.Hotel
+@using Microsoft.AspNetCore.SignalR.Client
 @layout Layout_Owner
 <PageTitle>Quản lý phòng</PageTitle>
 
@@ -10,12 +11,12 @@
         <RadzenDataGrid EmptyText="Không có dữ liệu, vui lòng kiểm tra lại" Data="@rooms" TItem="Room" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Center" AllowSorting="true" 
             FilterMode="FilterMode.Simple" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" PageSizeOptions="@pageSizeOptions" PageSize="0" PageSizeText="mẫu tin/trang" ShowPagingSummary="@showPagerSummary" PagingSummaryFormat="@pagingSummaryFormat" Page="@OnPage">
             <Columns>
-                <RadzenDataGridColumn Width="8%" TItem="Room" Property="RoomId" Title="Mã" />
-                <RadzenDataGridColumn TItem="Room" Property="RoomName" Title="Tên phòng" />
-                <RadzenDataGridColumn TItem="Room" Property="Hotel.HotelName" Title="Tên khách sạn" />
+                <RadzenDataGridColumn Width="5%" TItem="Room" Property="RoomId" Title="Mã" />
+                <RadzenDataGridColumn Width="10%" TItem="Room" Property="RoomName" Title="Tên phòng" />
+                <RadzenDataGridColumn Width="15%" TItem="Room" Property="Hotel.HotelName" Title="Tên khách sạn" />
                 <RadzenDataGridColumn Width="10%" TItem="Room" Property="Floor.FloorName" Title="Thuộc tầng">
                 </RadzenDataGridColumn>
-                <RadzenDataGridColumn Width="10%" TItem="Room" Property="Tor.TorCapacity" Title="Sức chứa">
+                <RadzenDataGridColumn Width="15%" TItem="Room" Property="Tor.TorName" Title="Loại phòng">
                 </RadzenDataGridColumn>
                 <RadzenDataGridColumn TItem="Room" Width="15%"Title="Trạng thái">
                     <Template Context="data">
@@ -64,6 +65,19 @@
     FloorService floorService = new FloorService();
     TypeOfRoomService typeOfRoomService = new TypeOfRoomService();
 
+    //hub
+    private HubConnection hubConnection;
+    protected override async Task OnInitializedAsync()
+    {
+        hubConnection = new HubConnectionBuilder()
+            .WithUrl(NavigationManager.ToAbsoluteUri("/HotelBrHub"))
+            .Build();
+        hubConnection.On("ReceiveMessage", () =>
+        {
+            ReloadData();
+        });
+        await hubConnection.StartAsync();
+    }
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
@@ -91,6 +105,25 @@
                 Console.Write(ex.ToString());
             }
         }
+    }
+    protected async void ReloadData()
+    {
+        rooms.Clear();
+        var roomTemps = await roomService.GetAllRoomOfOwner(owner.UserPhone);
+        foreach (var item in roomTemps)
+        {
+            var tor = await typeOfRoomService.GetTypeOfRoom(item.TorId);
+            var hotel = await hotelService.GetHotel(item.HotelId);
+            var floor = await floorService.GetFloor(item.FloorId);
+            var roomAdd = item;
+            roomAdd.Tor = tor;
+            roomAdd.Hotel = hotel;
+            roomAdd.Floor = floor;
+            rooms.Add(roomAdd);
+        }
+        await InvokeAsync(() => {
+            StateHasChanged();
+        });
     }
     public async void PopupImage(int id)
     {

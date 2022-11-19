@@ -123,7 +123,7 @@
                 {
                     if (IsConnected)
                         await SendMessage();
-                    //SendMail(res);
+                    SendMail(res);
                     NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Thành công", Detail = "Đăng ký thành công. Khách sạn của bạn đã được hiển thị trên Website của chúng tôi", Duration = 4000 });
                     NavigationManager.NavigateTo("/businessregistration/index");
                 }
