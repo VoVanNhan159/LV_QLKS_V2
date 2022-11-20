@@ -175,7 +175,7 @@
                                     @if(hoTel.HotelX != null && hoTel.HotelY != null)
                                     {
                                         <div style="height:60%;padding-top: 100px;">
-                                            <RadzenGoogleMap ApiKey="" style="height: 400px" Options=@(new Dictionary<string, object> { { "disableDoubleClickZoom", true } })
+                                            <RadzenGoogleMap ApiKey="@mapHotel.keyAPIGGM" style="height: 400px" Options=@(new Dictionary<string, object> { { "disableDoubleClickZoom", true } })
                                                 Zoom="13" Center=@(new GoogleMapPosition() { Lat = double.Parse(hoTel.HotelY), Lng = double.Parse(hoTel.HotelX) }) MarkerClick=@OnMarkerClick>
                                                 <Markers>
                                                     <RadzenGoogleMapMarker Title="@hoTel.HotelName" Label="@hoTel.HotelName" Position=@(new GoogleMapPosition() { Lat = double.Parse(hoTel.HotelY), Lng = double.Parse(hoTel.HotelX) }) />
@@ -436,6 +436,8 @@
     List<Customerreview> customerreview = new List<Customerreview>();
     List<Discountdetail> discountdetails = new List<Discountdetail>();
 
+    OwnerArea.Hotel.MapHotel mapHotel = new OwnerArea.Hotel.MapHotel();
+
     Dictionary<int, int> keyValuePairTors = new Dictionary<int, int>();
 
     string filterSelect = "";
@@ -599,7 +601,7 @@
                 {
                     if(orderroomdetail.RoomId == room.RoomId)
                     {
-                        if (orderroom.OrderroomDatestart <= DateTime.Today && orderroom.OrderroomDateend >= DateTime.Today)
+                        if (orderroom.OrderroomDatestart <= DateTime.Today && orderroom.OrderroomDateend > DateTime.Today)
                             return true;
                     }
                 }
@@ -684,7 +686,7 @@
         return percent;
     }
     //Get start of hotel
-    protected double GetStarOfHotel(int id)
+    public double GetStarOfHotel(int id)
     {
         return hotelService.GetRateOfHotel(id);
     }

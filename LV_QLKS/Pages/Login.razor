@@ -139,7 +139,7 @@
         Thread.Sleep(500);
         var res = await DialogService.OpenAsync<ForgetPassword>
         (
-            "Khôi phục mật khẩu",
+            "",
                new Dictionary<string, object>() {},
                new DialogOptions() { ShowTitle = true, Width = "550px", Height = "", Resizable = true, Draggable = true, AutoFocusFirstElement = true }
         );

@@ -1,6 +1,7 @@
 ﻿@page "/floor/index"
 @layout Layout_Owner
 <div class="main-content">
+    <RadzenText Style="color:darkviolet" TextStyle="TextStyle.DisplayH4" TextAlign="TextAlign.Center"  Text="Danh sách tầng"></RadzenText>
     <div class="section__content section__content--p30">
         <RadzenDataGrid EmptyText="Không có dữ liệu, vui lòng kiểm tra lại" Data="@floors" TItem="Floor" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Center" AllowSorting="true" 
             FilterMode="FilterMode.Simple" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" PageSizeOptions="@pageSizeOptions" PageSize="5" PageSizeText="mẫu tin/trang" ShowPagingSummary="@showPagerSummary" PagingSummaryFormat="@pagingSummaryFormat" Page="@OnPage">

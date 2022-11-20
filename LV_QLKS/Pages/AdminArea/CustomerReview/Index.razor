@@ -4,8 +4,31 @@
 @layout Layout_Admin
 
 <div class="main-content">
+    <RadzenText Style="color:darkviolet" TextStyle="TextStyle.DisplayH4" TextAlign="TextAlign.Center"  Text="Danh sách đánh giá, bình luận"></RadzenText>
     <div class="section__content section__content--p30">
-        <table class="table table-striped">
+        <RadzenDataGrid EmptyText="Không có dữ liệu, vui lòng kiểm tra lại" Data="@customerreviews" FilterMode="FilterMode.Simple" AllowFiltering="true" TItem="Customerreview" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Center" AllowSorting="true" 
+            PageSizeOptions="@pageSizeOptions" PageSize="5" PageSizeText="mẫu tin/trang" ShowPagingSummary="@showPagerSummary" PagingSummaryFormat="@pagingSummaryFormat" Page="@OnPage">
+            <Columns>
+                <RadzenDataGridColumn TItem="Customerreview" Title="Tên phòng">
+                    <Template Context="data">
+                          @data.Room.RoomName - @data.Room.Hotel.HotelName
+                     </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="Customerreview" Width="15%" Property="UserPhoneNavigation.UserName" Title="Người đánh giá" />
+                <RadzenDataGridColumn TItem="Customerreview" Width="15%" Title="Ngày đánh giá">
+                     <Template Context="data">
+                          @DateTime.Parse(data.CrDate.ToString()).ToString("dd MMMM yyyy", new System.Globalization.CultureInfo("vi-VN"))
+                     </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="Customerreview" Property="CrComment"  Title="Nội dung đánh giá" />
+                <RadzenDataGridColumn TItem="Customerreview" Width="10%">
+                    <Template Context="data">
+                       <RadzenButton ButtonStyle="ButtonStyle.Info" Icon="build" Class="m-1" Click=@(() => DeleteCustomerReview(data)) />
+                    </Template>
+                </RadzenDataGridColumn>
+            </Columns>
+        </RadzenDataGrid>
+        @*<table class="table table-striped">
             <thead>
                 <tr>
                     <th>
@@ -80,7 +103,7 @@
                         }
                     }
             </tbody>
-        </table>
+        </table>*@
     </div>
 </div>
 
@@ -88,6 +111,18 @@
     List<Customerreview> customerreviews = new List<Customerreview>();
 
     CustomerReviewService customerReviewService = new CustomerReviewService();
+
+    //Phân trang
+    string pagingSummaryFormat = "Trang hiển thị {0}/{1} (tổng cộng {2} mẫu tin)";
+
+    IEnumerable<int> pageSizeOptions = new int[] { 5, 10, 15, 20 };
+    bool showPagerSummary = true;
+
+    void OnPage(PagerEventArgs args)
+    {
+        StateHasChanged();
+    }
+
     protected override async Task OnInitializedAsync()
     {
         customerreviews = await customerReviewService.GetAllCustomerReview();

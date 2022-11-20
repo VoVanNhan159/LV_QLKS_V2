@@ -31,13 +31,19 @@
                                             <div class="col">
                                                 <div class="payment-infor">
                                                     <h2>@hoTel.HotelName</h2>
-                                                    <span class="star-room">
-                                                        <i class="glyphicon glyphicon-star"></i>
-                                                        <i class="glyphicon glyphicon-star"></i>
-                                                        <i class="glyphicon glyphicon-star"></i>
-                                                        <i class="glyphicon glyphicon-star"></i>
-                                                        <i class="glyphicon glyphicon-star"></i>
-                                                    </span>
+                                                    @{
+                                                        HotelDetail hotelDetail = new HotelDetail();
+                                                        double starTemph = hotelDetail.GetStarOfHotel(listRoom.First().Hotel.HotelId);
+                                                        int temph = (int)starTemph;
+                                                        for(int i = 0; i < temph; i++)
+                                                        {
+                                                            <i class="glyphicon glyphicon-star"></i>
+                                                        }
+                                                        if(starTemph - (double) temph > 0)
+                                                        {
+                                                            <i class="glyphicon glyphicon-star half"></i>
+                                                        }
+                                                    }
                                                     <ul style="list-style: none;padding: initial;">
                                                         <li>
                                                             <span class="span-custom">Địa chỉ:</span>
@@ -368,7 +374,14 @@
         orderroomCustom.OrderroomId = orderroom.OrderroomId;
         orderroomCustom.OrderroomDate = orderroom.OrderroomDate;
         orderroomCustom.OrderroomDatestart = orderroom.OrderroomDatestart;
-        orderroomCustom.OrderroomDateend = orderroom.OrderroomDateend;
+        if(orderroom.OrderroomDatestart > orderroom.OrderroomDateend)
+        {
+            orderroomCustom.OrderroomDateend = orderroom.OrderroomDatestart.Value.AddDays(1);
+        }
+        else
+        {
+            orderroomCustom.OrderroomDateend = orderroom.OrderroomDateend;
+        }
         orderroomCustom.OrderroomStatus = orderroom.OrderroomStatus;
         orderroomCustom.UserPhone = orderroom.UserPhone;
         CalTotalPrice(orderroomCustom);
