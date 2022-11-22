@@ -8,18 +8,18 @@
   <!-- Email input -->
   <div class="form-outline mb-4">
     <label class="form-label" for="form2Example1">Số điện thoại</label>
-    <InputText type="email" @bind-Value="acc.AccountUsername" @ref=phone class="form-control" />
+    <InputText type="email" placeholder="Số điện thoại/Email" @bind-Value="acc.AccountUsername" @ref=phone class="form-control" />
   </div>
 
   <!-- Password input -->
   <div class="form-outline mb-4">
     <label class="form-label" for="form2Example2">Mật khẩu</label>
-    <InputText type="@typeInput" @bind-Value="acc.AccountPassword" @ref=passwordOne class="form-control" />
+    <InputText type="@typeInput" placeholder="Mật khẩu" @bind-Value="acc.AccountPassword" @ref=passwordOne class="form-control" />
   </div>
 
   <div class="form-outline mb-4">
     <label class="form-label" for="form2Example2">Nhập lại mật khẩu</label>
-    <InputText type="@typeInput" @bind-Value="pwdTwo" @ref=passwordTwo class="form-control" />
+    <InputText type="@typeInput" placeholder="Nhập lại mật khẩu" @bind-Value="pwdTwo" @ref=passwordTwo class="form-control" />
   </div>
 
   <div class="form-outline mb-4">

@@ -6,14 +6,14 @@
 <EditForm Model="acc" style="width:400px">
   <!-- Email input -->
   <div class="form-outline mb-4">
-    <label class="form-label" for="form2Example1">Số điện thoại</label>
-    <InputText type="tel" @bind-Value="acc.AccountUsername" @ref=phone class="form-control" />
+    <label class="form-label" for="form2Example1">Số điện thoại/Email</label>
+    <InputText type="tel" @bind-Value="acc.AccountUsername" placeholder="Số điện thoại/Email"  @ref=phone class="form-control" />
   </div>
 
   <!-- Password input -->
   <div class="form-outline mb-4">
     <label class="form-label" for="form2Example2">Mật khẩu</label>
-    <InputText type="password" @bind-Value="acc.AccountPassword" @ref=password class="form-control" />
+    <InputText type="password" @bind-Value="acc.AccountPassword" placeholder="Mật khẩu" @ref=password class="form-control" />
   </div>
 
   <!-- Submit button -->

@@ -69,6 +69,27 @@ namespace LV_QLKS_API.Controllers
 
             return room;
         }
+        [HttpGet("GetAllRoomOfFloorOfHotel/{hotelId}/{floorId}")]
+        public async Task<ActionResult<IEnumerable<Room>>> GetAllRoomOfFloorOfHotel(int hotelId, int floorId)
+        {
+            if (_context.Rooms == null)
+            {
+                return NotFound();
+            }
+            var room = await _context.Rooms
+                .Include(r => r.Hotel)
+                .Include(r => r.Floor)
+                .Include(r => r.Tor)
+                .Include(r => r.ImageRooms)
+                .Where(r => r.Hotel.HotelId == hotelId && r.FloorId == floorId).ToListAsync();
+
+            if (room == null)
+            {
+                return NotFound();
+            }
+
+            return room;
+        }
         // GET: api/Rooms/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Room>> GetRoom(int id)

@@ -12,6 +12,12 @@
 @using System.Globalization
 @layout Layout_HotelDetail
 
+@*<link rel="stylesheet" href="/home/css/library/font-awesome.min.css">
+    <link rel="stylesheet" href="/home/css/library/bootstrap.min.css">
+    <link rel="stylesheet" href="/home/css/library/jquery-ui.min.css">
+    <link rel="stylesheet" href="/home/css/library/owl.carousel.css">
+    <!-- End Library CSS -->
+    <link rel="stylesheet" href="/home/css/style.css">*@
                     <!-- Header Detail -->
                     <section class="head-detail">
                         <div class="head-dt-cn">
@@ -25,11 +31,11 @@
                                             int temph = (int)starTemph;
                                             for(int i = 0; i < temph; i++)
                                             {
-                                                                    <i class="glyphicon glyphicon-star"></i>
+                                                                        <i class="glyphicon glyphicon-star"></i>
                                             }
                                             if(starTemph - (double) temph > 0)
                                             {
-                                                                     <i class="glyphicon glyphicon-star half"></i>
+                                                                         <i class="glyphicon glyphicon-star half"></i>
                                             }
                                         }
                                         </span>
@@ -59,7 +65,7 @@
                                     try{
                                         if(urlImageHotel != null)
                                         {
-                                                                <img class="w-100" src="/images/@urlImageHotel" alt="@urlImageHotel">
+                                                                    <img class="w-100" src="/images/@urlImageHotel" alt="@urlImageHotel">
                                         }
                                     }
                                     catch(Exception ex)
@@ -83,24 +89,24 @@
                                     @{
                                         double starTempHotel = GetStarOfHotel(id);
                                         if(Double.IsNaN(starTempHotel)){
-                                            <h3 style="border-bottom-style: inset;color: #049905;font-size: 30px;margin: 0 -30px;text-align: center;border-left: 10px solid #049905;position: relative;line-height: 90px;background: url(../images/bg-border-v.png) bottom left repeat-x;">
-                                                Chưa có đánh giá
-                                            </h3>
+                                                <h3 style="border-bottom-style: inset;color: #049905;font-size: 30px;margin: 0 -30px;text-align: center;border-left: 10px solid #049905;position: relative;line-height: 90px;background: url(../images/bg-border-v.png) bottom left repeat-x;">
+                                                    Chưa có đánh giá
+                                                </h3>
                                         }
                                         else if(starTempHotel >= 4){
-                                            <h3 style="color: #049905;font-size: 38px;margin: 0 -30px;text-align: center;border-left: 10px solid #049905;position: relative;line-height: 90px;background: url(../images/bg-border-v.png) bottom left repeat-x;">
-                                                Tuyệt vời
-                                            </h3>
+                                                <h3 style="color: #049905;font-size: 38px;margin: 0 -30px;text-align: center;border-left: 10px solid #049905;position: relative;line-height: 90px;background: url(../images/bg-border-v.png) bottom left repeat-x;">
+                                                    Tuyệt vời
+                                                </h3>
                                         }
                                         else if(starTempHotel == 3){
-                                            <h3 style="color: orange;font-size: 38px;margin: 0 -30px;text-align: center;border-left: 10px solid orange;position: relative;line-height: 90px;background: url(../images/bg-border-v.png) bottom left repeat-x;">
-                                                Tốt
-                                            </h3>
+                                                <h3 style="color: orange;font-size: 38px;margin: 0 -30px;text-align: center;border-left: 10px solid orange;position: relative;line-height: 90px;background: url(../images/bg-border-v.png) bottom left repeat-x;">
+                                                    Tốt
+                                                </h3>
                                         }
                                         else{
-                                            <h3 style="color: orangered;font-size: 38px;margin: 0 -30px;text-align: center;border-left: 10px solid orangered;position: relative;line-height: 90px;background: url(../images/bg-border-v.png) bottom left repeat-x;">
-                                                Tạm ổn
-                                            </h3>
+                                                <h3 style="color: orangered;font-size: 38px;margin: 0 -30px;text-align: center;border-left: 10px solid orangered;position: relative;line-height: 90px;background: url(../images/bg-border-v.png) bottom left repeat-x;">
+                                                    Tạm ổn
+                                                </h3>
                                         }
                                     }
                                     <!-- Vote Text -->
@@ -124,12 +130,12 @@
                                                 if(customerreview.Count != 0)
                                                 {
                                                     var customerRV = customerreview.First();
-                                                    <blockquote class="quote-sidebar">
-                                                        <p>@customerRV.CrComment
-                                                            .<br>
-                                                            <span><b>@customerRV.UserPhoneNavigation.UserName</b> - @customerRV.CrDate</span>
-                                                        </p>
-                                                     </blockquote>
+                                                        <blockquote class="quote-sidebar">
+                                                            <p>@customerRV.CrComment
+                                                                .<br>
+                                                                <span><b>@customerRV.UserPhoneNavigation.UserName</b> - @customerRV.CrDate</span>
+                                                            </p>
+                                                         </blockquote>
                                                 }
                                                 else{
 
@@ -195,7 +201,19 @@
                     <section class="check-rates detail-cn" id="check-rates">
                         <div class="row">
                             <div class="col-lg-3 detail-sidebar">
-                                <!-- chổ nhúng map-->
+                                <div class="scroll-heading">
+                                    <h3>@hoTel.HotelName</h3>
+                                    <hr class="hr">
+                                    @if(keyValuePairFloors.Count > 0){
+                                        if(floors.Count > 0){
+                                            foreach (var item in floors)
+                                            {
+                                                <a style="cursor:pointer;color:@keyValuePairFloors[@item.FloorId]" @onclick="() => GetAllRoomOfFloor(item.FloorId)" title="">@item.FloorName</a>
+                                            }
+                                        }
+                                        <a style="cursor:pointer;color:@keyValuePairFloors[0]" @onclick="() => GetAllRoomOfFloor(0)" title="">Tất cả phòng</a>
+                                    }
+                                    </div>
                             </div>
                             <div class="col-lg-9 check-rates-cn">
 
@@ -275,7 +293,7 @@
                                                                                         if(item.ImageRooms.Count > 0){
                                                                                             urlImageRoom = GetURLImage(item.ImageRooms.FirstOrDefault().ImageId);
                                                                                         }
-                                                                                        <img src="/images/@urlImageRoom" alt="@urlImageRoom" @onclick="() =>PopupImage(item.RoomId)">
+                                                                                            <img src="/images/@urlImageRoom" alt="@urlImageRoom" @onclick="() =>PopupImage(item.RoomId)">
                                                                                     }
                                                                                     catch(Exception ex)
                                                                                     {
@@ -306,18 +324,18 @@
                                                                                 int temp = (int)starTemp;
                                                                                 for(int i = 0; i < temp; i++)
                                                                                 {
-                                                                                                        <i class="glyphicon glyphicon-star"></i>
+                                                                                                            <i class="glyphicon glyphicon-star"></i>
                                                                                 }
                                                                                 if(starTemp - (double) temp > 0)
                                                                                 {
-                                                                                                    <i class="glyphicon glyphicon-star half"></i>
+                                                                                                        <i class="glyphicon glyphicon-star half"></i>
                                                                                 }
                                                                                 if(starTemp > 0){
-                                                                                                    <p>(@starTemp/5.0) đánh giá <a style="cursor:pointer;color:blue" @onclick="()=>ShowReviewPopup(item.RoomId)">Xem đánh giá</a></p>
+                                                                                                        <p>(@starTemp/5.0) đánh giá <a style="cursor:pointer;color:blue" @onclick="()=>ShowReviewPopup(item.RoomId)">Xem đánh giá</a></p>
                                                                                 }
                                                                                 else
                                                                                 {
-                                                                                                    <p>Chưa có đánh giá</p>
+                                                                                                        <p>Chưa có đánh giá</p>
                                                                                 }
                                                                             
 
@@ -339,24 +357,24 @@
                                                                             @{
                                                                                 if(GetPriceAfterMinus(item) == item.Tor.TorPrice.Value)
                                                                                 {
-                                                                                                    <h4 class="price">@hotelService.FormatVND(GetPriceAfterMinus(item))/đêm</h4>
+                                                                                                        <h4 class="price">@hotelService.FormatVND(GetPriceAfterMinus(item))/đêm</h4>
                                                                                 }
                                                                                 else
                                                                                 {
-                                                                                                    <h4 class="price" style="text-decoration: line-through">@hotelService.FormatVND(item.Tor.TorPrice.Value)/đêm</h4>
-                                                                                                    <h4 class="price" style="color:red">@hotelService.FormatVND(GetPriceAfterMinus(item))/đêm</h4>
+                                                                                                        <h4 class="price" style="text-decoration: line-through">@hotelService.FormatVND(item.Tor.TorPrice.Value)/đêm</h4>
+                                                                                                        <h4 class="price" style="color:red">@hotelService.FormatVND(GetPriceAfterMinus(item))/đêm</h4>
                                                                                 }
                                                                                 int countTor = 0;
                                                                                 if(keyValuePairTors.Count > 0)
                                                                                     countTor = keyValuePairTors[item.TorId];
                                                                                 if(countTor <= 1 ){
-                                                                                                    <p style="color:red">Chỉ còn @countTor phòng loại này</p>
+                                                                                                        <p style="color:red">Chỉ còn @countTor phòng loại này</p>
                                                                                 }
                                                                                 else if(countTor > 1 && countTor < 3){
-                                                                                                    <p style="color:orange">Còn @countTor phòng loại này</p>
+                                                                                                        <p style="color:orange">Còn @countTor phòng loại này</p>
                                                                                 }
                                                                                 else{
-                                                                                                    <p style="color:limegreen">Còn @countTor phòng loại này</p>
+                                                                                                        <p style="color:limegreen">Còn @countTor phòng loại này</p>
                                                                                 }
                                                                             }
                                                                         </td>
@@ -392,6 +410,7 @@
                                 <div class="row">
                                     <div class="col-xs-5 ">
                                         <div class="review-more">
+                                            
                                         </div>
                                     </div>
                                 </div>
@@ -399,7 +418,6 @@
                             </div>
                         </div>
                     </section>
-
 @code {
     [Parameter]
     public string idTemp { get; set; }
@@ -423,6 +441,7 @@
     DiscountdetailService discountdetailService = new DiscountdetailService();
     AccountService accountService = new AccountService();
     HotelServiceService hotelServiceService = new HotelServiceService();
+    FloorService floorService = new FloorService();
 
     //Khai báo các biến
     List<ShareModel.HotelServiceCs> hotelServiceCss = new List<ShareModel.HotelServiceCs>();
@@ -432,6 +451,7 @@
     List<ShareModel.Orderroom> orderrooms = new List<ShareModel.Orderroom>();
     List<Orderroomdetail> orderroomdetails = new List<Orderroomdetail>();
     List<Typeofroom> listTor = new List<Typeofroom>();
+    List<Floor> floors = new List<Floor>();
     User user = new User();
     List<Customerreview> customerreview = new List<Customerreview>();
     List<Discountdetail> discountdetails = new List<Discountdetail>();
@@ -439,6 +459,7 @@
     OwnerArea.Hotel.MapHotel mapHotel = new OwnerArea.Hotel.MapHotel();
 
     Dictionary<int, int> keyValuePairTors = new Dictionary<int, int>();
+    Dictionary<int, string> keyValuePairFloors = new Dictionary<int, string>();
 
     string filterSelect = "";
     string phone = "";
@@ -464,6 +485,7 @@
         urlImageHotel = GetURLImage(hoTel.ImageHotels.FirstOrDefault().ImageId);
         listTor = await typeOfRoomService.GetAllTypeOfRoom();
         listTor = listTor.OrderBy(t => t.TorCapacity).ToList();
+        floors = await floorService.GetAllFloorOfHotel(hoTel.HotelId);
         services = await serviceService.GetAllService();
         hotelServiceCss = await hotelServiceService.GetAllHotelServiceOfHotel(hoTel.HotelId);
         customerreview = await customerReviewService.GetAllCustomerReviewOfHotel(hoTel.HotelId);
@@ -495,6 +517,11 @@
                 }
             }
         }
+        keyValuePairFloors.Add(0, "black");
+        foreach (var item in floors)
+        {
+            keyValuePairFloors.Add(item.FloorId, "black");
+        }
         hubConnection = new HubConnectionBuilder()
             .WithUrl(NavigationManager.ToAbsoluteUri("/HotelBrHub"))
             .Build();
@@ -514,6 +541,7 @@
         urlImageHotel = GetURLImage(hoTel.ImageHotels.FirstOrDefault().ImageId);
         listTor = await typeOfRoomService.GetAllTypeOfRoom();
         listTor = listTor.OrderBy(t => t.TorCapacity).ToList();
+        floors = await floorService.GetAllFloorOfHotel(hoTel.HotelId);
         services = await serviceService.GetAllService();
         hotelServiceCss = await hotelServiceService.GetAllHotelServiceOfHotel(hoTel.HotelId);
         customerreview = await customerReviewService.GetAllCustomerReviewOfHotel(hoTel.HotelId);
@@ -549,6 +577,11 @@
                 }
             }
         }
+        keyValuePairFloors.Add(0, "black");
+        foreach (var item in floors)
+        {
+            keyValuePairFloors.Add(item.FloorId, "black");
+        }
         await InvokeAsync(() => {
             StateHasChanged();
         });
@@ -570,6 +603,38 @@
             }
             StateHasChanged();
         }
+    }
+    //Get all room of floor of hotel
+    protected async void GetAllRoomOfFloor(int floorId)
+    {
+        if(floorId == 0)
+        {
+            keyValuePairFloors.Clear();
+            keyValuePairFloors[0] = "blue";
+            foreach (var item in floors)
+            {
+                keyValuePairFloors.Add(item.FloorId, "black");
+            }
+            listRoom = await hotelService.GetAllRoomOfHotel(hoTel.HotelId);
+            NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Thông báo", Detail = "Tìm tất cả phòng thành công", Duration = 4000 });
+        }
+        else
+        {
+            keyValuePairFloors.Clear();
+            keyValuePairFloors[0] = "black";
+            foreach (var item in floors)
+            {
+                keyValuePairFloors[item.FloorId] = "black";
+            }
+            keyValuePairFloors[floorId] = "blue";
+            var floor = floors.First(f => f.FloorId == floorId);
+            listRoom = await roomService.GetAllRoomOfFloorOfHotel(hoTel.HotelId, floorId);
+            if(listRoom.Count > 0)
+                NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Thông báo", Detail = "Tìm tất cả phòng ở "+floor.FloorName+" thành công", Duration = 4000 });
+            else
+                NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Thông báo", Detail = "Không tìm thấy phòng ở "+floor.FloorName, Duration = 4000 });
+        }
+        StateHasChanged();
     }
     //Check xem phòng có trống không theo thời gian
     protected bool CheckBooked(Room room, DateTime dayStart, DateTime dayEnd)

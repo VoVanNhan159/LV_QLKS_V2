@@ -45,7 +45,7 @@
             <Header />
             <!-- End Header -->
             <!--Banner-->
-            <section class="banner">
+            <section class="banner" id="top">
 
                 <!--Background-->
                 <div class="bg-parallax bg-1"></div>
@@ -55,6 +55,7 @@
                     
                     <div class="logo-banner text-center">
                         <a href="" title="">
+                            <br />
                             <img src="/home/images/logo-banner.png" alt="">
                         </a>
                     </div>
@@ -194,7 +195,7 @@
                                                         <div class="destinations-item ">
                                                             <div class="destinations-text">
                                                                 <div class="destinations-name">
-                                                                    <a style="cursor:default" @onclick="() => ShowHotelOfProvincePopup(item)" title="">@item.ProvinceName</a>
+                                                                    <a style="cursor:default;font-size:24px" @onclick="() => ShowHotelOfProvincePopup(item)" title="">@item.ProvinceName</a>
                                                                 </div>
                                                                 <span class="properties-nb">
                                                                     <ins>@CountHotelOfProvince(item)</ins> khách sạn
@@ -229,6 +230,47 @@
                     <!-- End Title -->
                 </section>
                 </section>
+                <style>
+                        #buttonbacktotop {
+                          display: inline-block;
+                          background-color: #FF9800;
+                          width: 50px;
+                          height: 50px;
+                          text-align: center;
+                          border-radius: 4px;
+                          float:right;
+                          bottom: 30px;
+                          right: 30px;
+                          transition: background-color .3s, 
+                            opacity .5s, visibility .5s;
+                          z-index: 1000;
+                        }
+                        #buttonbacktotop::after {
+                          content: "\f077";
+                          font-family: FontAwesome;
+                          font-weight: normal;
+                          font-style: normal;
+                          font-size: 2em;
+                          line-height: 50px;
+                          color: #fff;
+                        }
+                        #buttonbacktotop:hover {
+                          cursor: pointer;
+                          background-color: #333;
+                        }
+                        #buttonbacktotop:active {
+                          background-color: #555;
+                        }
+                        #buttonbacktotop.show {
+                          opacity: 1;
+                          visibility: visible;
+                        }
+                    </style>
+                    <a id="buttonbacktotop" onclick="document.getElementById('top').scrollIntoView({behavior:'smooth'})"></a>
+                    <br />
+                    <br />
+                    <br />
+                    <br />
                 <!-- End Travel Magazine -->
                 <!-- Footer -->
                 <Footer />
@@ -326,7 +368,7 @@
     {
         var res = await DialogService.OpenAsync<HotelOfProvince>("",
              new Dictionary<string, object>() { { "id", province.ProvinceId } },
-             new DialogOptions() { Width = "800px", Height = "500px", Resizable = true, Draggable = true });
+             new DialogOptions() { Width = "800px", Height = "550px", Resizable = true, Draggable = true });
 
     }
     protected async void ShowHotelFillterPopup()

@@ -19,7 +19,7 @@
                                             string urlImage = GetURLImage(item.ImageHotels.FirstOrDefault().ImageId);
                                             if(urlImage != null)
                                             {
-                                                <img src="/images/@urlImage" @onclick="() =>PopupImage(item.HotelId)"  />
+                                                <img src="/images/@urlImage" style="max-height:180px;max-width:273px" @onclick="() =>PopupImage(item.HotelId)"  />
                                             }
                                         }
                                         catch(Exception ex)
@@ -82,7 +82,6 @@
                                             </span>
                                 <hr class="hr">
                                 <div class="price-box">
-                                    <span class="price old-price">Từ <del>@hotelService.FormatVND(hotelService.GetFakePriceHotel(item.HotelId))</del></span>
                                     <span class="price special-price">@hotelService.FormatVND(hotelService.GetRealPriceHotel(item.HotelId))</span>
                                 </div>
                                 <div></div>
