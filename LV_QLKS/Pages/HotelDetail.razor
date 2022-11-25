@@ -18,7 +18,9 @@
     <link rel="stylesheet" href="/home/css/library/owl.carousel.css">
     <!-- End Library CSS -->
     <link rel="stylesheet" href="/home/css/style.css">*@
-                    <!-- Header Detail -->
+@if (id > 0)
+{
+                        <!-- Header Detail -->
                     <section class="head-detail">
                         <div class="head-dt-cn">
                             <div class="row">
@@ -418,6 +420,7 @@
                             </div>
                         </div>
                     </section>
+}
 @code {
     [Parameter]
     public string idTemp { get; set; }
@@ -478,59 +481,65 @@
 
     protected override async Task OnInitializedAsync()
     {
-        id = int.Parse(accountService.Decrypt(idTemp));
-        var listRoomTemp = await hotelService.GetAllRoomOfHotel(id);
-        hoTel = await hotelService.GetHotel(id);
-        hoTel.ImageHotels = await imageHotelService.GetAllImageHotel(id);
-        urlImageHotel = GetURLImage(hoTel.ImageHotels.FirstOrDefault().ImageId);
-        listTor = await typeOfRoomService.GetAllTypeOfRoom();
-        listTor = listTor.OrderBy(t => t.TorCapacity).ToList();
-        floors = await floorService.GetAllFloorOfHotel(hoTel.HotelId);
-        services = await serviceService.GetAllService();
-        hotelServiceCss = await hotelServiceService.GetAllHotelServiceOfHotel(hoTel.HotelId);
-        customerreview = await customerReviewService.GetAllCustomerReviewOfHotel(hoTel.HotelId);
-        customerreview = customerreview.OrderBy(cr => cr.CrStar).ToList();
-        dayStartFilter = DateTime.Today;
-        dayEndFilter = DateTime.Today.AddDays(1);
-        discountdetails = await discountdetailService.GetAllDiscountdetailActive();
-        orderrooms = await orderroomService.GetAllOrderrom();
-        orderroomdetails = await orderroomDetailService.GetAllOrderromDetail();
-        //Lọc giá
-        minTor = (int)listTor.Min(lt=>lt.TorPrice);
-        maxTor = (int)listTor.Max(lt=>lt.TorPrice);
-        priceStart = minTor;
-        priceEnd = maxTor;
-        //Tính số lượng loại phòng còn trống trong hôm nay
-        foreach (var item in listRoomTemp)
-        {
-            if(CheckBooked(item) == false)
+        try{
+            id = int.Parse(accountService.Decrypt(idTemp));
+            var listRoomTemp = await hotelService.GetAllRoomOfHotel(id);
+            hoTel = await hotelService.GetHotel(id);
+            hoTel.ImageHotels = await imageHotelService.GetAllImageHotel(id);
+            urlImageHotel = GetURLImage(hoTel.ImageHotels.FirstOrDefault().ImageId);
+            listTor = await typeOfRoomService.GetAllTypeOfRoom();
+            listTor = listTor.OrderBy(t => t.TorCapacity).ToList();
+            floors = await floorService.GetAllFloorOfHotel(hoTel.HotelId);
+            services = await serviceService.GetAllService();
+            hotelServiceCss = await hotelServiceService.GetAllHotelServiceOfHotel(hoTel.HotelId);
+            customerreview = await customerReviewService.GetAllCustomerReviewOfHotel(hoTel.HotelId);
+            customerreview = customerreview.OrderBy(cr => cr.CrStar).ToList();
+            dayStartFilter = DateTime.Today;
+            dayEndFilter = DateTime.Today.AddDays(1);
+            discountdetails = await discountdetailService.GetAllDiscountdetailActive();
+            orderrooms = await orderroomService.GetAllOrderrom();
+            orderroomdetails = await orderroomDetailService.GetAllOrderromDetail();
+            //Lọc giá
+            minTor = (int)listTor.Min(lt=>lt.TorPrice);
+            maxTor = (int)listTor.Max(lt=>lt.TorPrice);
+            priceStart = minTor;
+            priceEnd = maxTor;
+            //Tính số lượng loại phòng còn trống trong hôm nay
+            foreach (var item in listRoomTemp)
             {
-                listRoom.Add(item);
-                if (keyValuePairTors.ContainsKey(item.TorId))
+                if(CheckBooked(item) == false)
                 {
-                    var value = keyValuePairTors.Single(kvpt=>kvpt.Key == item.TorId).Value + 1;
-                    keyValuePairTors[item.TorId] = value;
-                }
-                else
-                {
-                    keyValuePairTors.Add(item.TorId, 1);
+                    listRoom.Add(item);
+                    if (keyValuePairTors.ContainsKey(item.TorId))
+                    {
+                        var value = keyValuePairTors.Single(kvpt=>kvpt.Key == item.TorId).Value + 1;
+                        keyValuePairTors[item.TorId] = value;
+                    }
+                    else
+                    {
+                        keyValuePairTors.Add(item.TorId, 1);
+                    }
                 }
             }
+            keyValuePairFloors.Add(0, "blue");
+            foreach (var item in floors)
+            {
+                keyValuePairFloors.Add(item.FloorId, "black");
+            }
+            hubConnection = new HubConnectionBuilder()
+                .WithUrl(NavigationManager.ToAbsoluteUri("/HotelBrHub"))
+                .Build();
+            hubConnection.On("ReceiveMessage", () =>
+            {
+                ReloadData();
+            });
+            await hubConnection.StartAsync();
+            StateHasChanged();
         }
-        keyValuePairFloors.Add(0, "black");
-        foreach (var item in floors)
+        catch(Exception)
         {
-            keyValuePairFloors.Add(item.FloorId, "black");
+            NavigationManager.NavigateTo("/");
         }
-        hubConnection = new HubConnectionBuilder()
-            .WithUrl(NavigationManager.ToAbsoluteUri("/HotelBrHub"))
-            .Build();
-        hubConnection.On("ReceiveMessage", () =>
-        {
-            ReloadData();
-        });
-        await hubConnection.StartAsync();
-        StateHasChanged();
     }
     public async void ReloadData()
     {
@@ -577,7 +586,7 @@
                 }
             }
         }
-        keyValuePairFloors.Add(0, "black");
+        keyValuePairFloors.Add(0, "blue");
         foreach (var item in floors)
         {
             keyValuePairFloors.Add(item.FloorId, "black");

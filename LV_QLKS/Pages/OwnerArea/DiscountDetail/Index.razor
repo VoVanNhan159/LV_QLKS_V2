@@ -5,6 +5,7 @@
 <div>
     <div class="section__content section__content--p30">
         <button class="btn btn-success" @onclick="()=>ShowCreateDialog()">Thêm chi tiết</button>
+        <button class="btn btn-success" @onclick="()=>ShowImportDialog()">Thêm bằng file Excel</button>
         <br />
         <br />
         <table class="table table-striped">
@@ -159,7 +160,7 @@
     {
         var res = await DialogService.OpenAsync<OwnerArea.DiscountDetail.Create>("",
             new Dictionary<string, object>() { { "id", discount.DiscountId } },
-            new DialogOptions() { Width = "700px", Height = "570px", Resizable = true, Draggable = true });
+            new DialogOptions() { Width = "600px", Height = "500px", Resizable = true, Draggable = true });
         if(res != null)
         {
             var discountDetailTemp = new Discountdetail();
@@ -169,6 +170,35 @@
             discountDetailTemp.Discount = null;
             discountDetailTemp.Room = null;
             discountdetails.Add(discountDetailTemp);
+        }
+        StateHasChanged();
+    }
+    protected async void ShowImportDialog()
+    {
+        var res = await DialogService.OpenAsync<OwnerArea.DiscountDetail.ImportExcelDiscoutdetail>("",
+            new Dictionary<string, object>() { },
+            new DialogOptions() { Width = "600px", Height = "300px", Resizable = true, Draggable = true });
+        if(res != null)
+        {
+            foreach (var item in res)
+            {
+                var discountDetailTemp = new Discountdetail();
+                discountDetailTemp.DiscountId = item.DiscountId;
+                discountDetailTemp.RoomId = item.RoomId;
+                discountDetailTemp.Percent = item.Percent;
+                discountDetailTemp.Discount = null;
+                discountDetailTemp.Room = null;
+                if(discountdetails.Any(dd=>dd.DiscountId == discountDetailTemp.DiscountId && dd.RoomId == discountDetailTemp.RoomId))
+                {
+                    var discountdetailRemove = discountdetails.First(dd => dd.DiscountId == discountDetailTemp.DiscountId && dd.RoomId == discountDetailTemp.RoomId);
+                    discountdetails.Remove(discountdetailRemove);
+                    discountdetails.Add(discountDetailTemp);
+                }
+                else
+                {
+                    discountdetails.Add(discountDetailTemp);
+                }
+            }
         }
         StateHasChanged();
     }

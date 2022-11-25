@@ -1,4 +1,5 @@
-﻿using Blazored.Modal;
+﻿using Append.Blazor.Printing;
+using Blazored.Modal;
 using Blazored.SessionStorage;
 using Blazored.Toast;
 using LV_QLKS.Data;
@@ -82,6 +83,9 @@ builder.Services.AddHttpContextAccessor();
 
 //builder.Services.AddMvc(options => options.EnableEndpointRouting = false).SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
 
+//Print
+builder.Services.AddScoped<IPrintingService, PrintingService>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -90,7 +94,10 @@ if (!app.Environment.IsDevelopment())
     app.UseExceptionHandler("/Error");
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
+
 }
+
+
 //SignalR
 app.UseResponseCompression();
 app.UseHttpsRedirection();

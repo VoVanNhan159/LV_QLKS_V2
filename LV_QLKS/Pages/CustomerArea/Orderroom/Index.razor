@@ -31,6 +31,9 @@
                     Chi tiết
                 </th>
                 <th>
+                    Xuất hóa đơn
+                </th>
+                <th>
 
                 </th>
             </tr>
@@ -78,6 +81,15 @@
                                 <button style="color:blue" @onclick="() => ShowOrderroomDetailPopup(item.OrderroomId)">
                                     <i class="fa fa-list"></i>
                                 </button>
+                            </td>
+                            <td>
+                            @if(item.OrderroomStatus != "1")
+                            {
+                                <button @onclick="() => ShowInvoicePopup(item.OrderroomId)">
+                                    <i class="fa fa-trash" aria-hidden="true"></i>
+                                    Xuất hóa đơn
+                                </button>
+                            }
                             </td>
                             <td>
                             @if(item.OrderroomStatus == "1")
@@ -189,6 +201,12 @@
         await DialogService.OpenAsync<OrderroomDetail.Index>("",
              new Dictionary<string, object>() { { "id", id } },
              new DialogOptions() { Width = "800px", Height = "500px", Resizable = true, Draggable = true });
+    }
+    protected async void ShowInvoicePopup(int id)
+    {
+        await DialogService.OpenAsync<CustomerArea.Orderroom.Invoice>("",
+             new Dictionary<string, object>() { { "id", id } },
+             new DialogOptions() { Width = "1000px", Height = "700px", Resizable = true, Draggable = true });
     }
     protected async void DeleteOrderroom(int id)
     {

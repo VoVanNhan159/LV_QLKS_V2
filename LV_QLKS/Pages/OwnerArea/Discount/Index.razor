@@ -8,6 +8,7 @@
         <RadzenDataGrid EmptyText="Không có dữ liệu, vui lòng kiểm tra lại" Data="@discounts" FilterMode="FilterMode.Simple" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" TItem="Discount" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Center" AllowSorting="true" 
             PageSizeOptions="@pageSizeOptions" PageSize="5" PageSizeText="mẫu tin/trang" ShowPagingSummary="@showPagerSummary" PagingSummaryFormat="@pagingSummaryFormat" Page="@OnPage">
             <Columns>
+                <RadzenDataGridColumn Width="10%" TItem="Discount" Property="DiscountId" Title="Mã khuyến mãi" />
                 <RadzenDataGridColumn TItem="Discount" Property="DiscountName" Title="Tên khuyến mãi">
                 </RadzenDataGridColumn>
                 <RadzenDataGridColumn TItem="Discount" Title="Ngày lập">

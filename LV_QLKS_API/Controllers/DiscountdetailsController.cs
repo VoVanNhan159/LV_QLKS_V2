@@ -25,13 +25,28 @@ namespace LV_QLKS_API.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Discountdetail>>> GetDiscountdetails()
         {
-            return await _context.Discountdetails.ToListAsync();
+            return await _context.Discountdetails.Include(dd=>dd.Discount).ToListAsync();
         }
         [HttpGet("GetAllDiscountdetailActive")]
         public async Task<ActionResult<IEnumerable<Discountdetail>>> GetAllDiscountdetailActive()
         {
             var discountDetails = new List<Discountdetail>();
             var discounts = await _context.Discounts.ToListAsync();
+            foreach(var item in discounts)
+            {
+                if(item.DiscountDateend >= DateTime.Now)
+                {
+                    var discountDetailsTemp = await _context.Discountdetails.Where(dd=>dd.DiscountId == item.DiscountId).ToListAsync();
+                    discountDetails.AddRange(discountDetailsTemp);
+                }
+            }
+            return discountDetails;
+        }
+        [HttpGet("GetAllDiscountdetailActiveOfOwner/{phone}")]
+        public async Task<ActionResult<IEnumerable<Discountdetail>>> GetAllDiscountdetailActiveOfOwner(string phone)
+        {
+            var discountDetails = new List<Discountdetail>();
+            var discounts = await _context.Discounts.Where(dc=>dc.UserPhone == phone).ToListAsync();
             foreach(var item in discounts)
             {
                 if(item.DiscountDateend >= DateTime.Now)
