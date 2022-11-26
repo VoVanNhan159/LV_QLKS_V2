@@ -132,9 +132,23 @@
     }
 }
 else
-{
-    <p>Không tìm thấy phòng phù hợp với điều kiện</p>
-}
+        {
+            <div style="padding-top: 9em;text-align-last: center;">
+                <svg class="lds-typing" width="80px"  height="80px"  xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid" style="background: none;"><circle cx="24.5" cy="48.4263" r="6" fill="#e15b64">
+                  <animate attributeName="cy" calcMode="spline" keySplines="0 0.5 0.5 1;0.5 0 1 0.5;0.5 0.5 0.5 0.5" repeatCount="indefinite" values="62.5;37.5;62.5;62.5" keyTimes="0;0.25;0.5;1" dur="1s" begin="-0.5s"></animate>
+                </circle> <circle cx="41.5" cy="62.5" r="6" fill="#f47e60">
+                  <animate attributeName="cy" calcMode="spline" keySplines="0 0.5 0.5 1;0.5 0 1 0.5;0.5 0.5 0.5 0.5" repeatCount="indefinite" values="62.5;37.5;62.5;62.5" keyTimes="0;0.25;0.5;1" dur="1s" begin="-0.375s"></animate>
+                </circle> <circle cx="58.5" cy="62.5" r="6" fill="#f8b26a">
+                  <animate attributeName="cy" calcMode="spline" keySplines="0 0.5 0.5 1;0.5 0 1 0.5;0.5 0.5 0.5 0.5" repeatCount="indefinite" values="62.5;37.5;62.5;62.5" keyTimes="0;0.25;0.5;1" dur="1s" begin="-0.25s"></animate>
+                </circle> <circle cx="75.5" cy="62.5" r="6" fill="#abbd81">
+                  <animate attributeName="cy" calcMode="spline" keySplines="0 0.5 0.5 1;0.5 0 1 0.5;0.5 0.5 0.5 0.5" repeatCount="indefinite" values="62.5;37.5;62.5;62.5" keyTimes="0;0.25;0.5;1" dur="1s" begin="-0.125s"></animate>
+                </circle>
+                </svg>
+            </div>
+            <div style="text-align-last: center;">
+                <p>Không tìm thấy khách sạn, phòng phù hợp với điều kiện của bạn</p>    
+            </div>
+        }
 @code {
     [Parameter]
     public string destination { get; set; }
@@ -150,6 +164,8 @@ else
     List<Hotel> hotels = new List<Hotel>();
     List<Room> rooms = new List<Room>();
     List<Discountdetail> discountdetails = new List<Discountdetail>();
+    List<ShareModel.Orderroom> orderrooms = new List<ShareModel.Orderroom>();
+    List<Orderroomdetail> orderroomdetails = new List<Orderroomdetail>();
 
     UserService userService = new UserService();
     HotelService hotelService = new HotelService();
@@ -161,8 +177,15 @@ else
 
     protected override async Task OnInitializedAsync()
     {
+        orderrooms = await orderroomService.GetAllOrderrom();
+        orderroomdetails = await orderroomDetailService.GetAllOrderromDetail();
         var hotelsTemp = await hotelService.GetAllHotelIsActive();
-        rooms = await roomService.GetListRoomFillter(destination, dayStartFilter, dayEndFilter, capacity);
+        var roomTemps = await roomService.GetListRoomFillter(destination, dayStartFilter, dayEndFilter, capacity);
+        foreach (var item in roomTemps)
+        {
+            if(CheckBooked(item) == false)
+                rooms.Add(item);
+        }
         foreach (var item in hotelsTemp)
         {
             if (rooms.Select(h => h.HotelId).Contains(item.HotelId))
@@ -194,6 +217,30 @@ else
     protected double GetStartOfRoom(int id)
     {
         return roomService.GetRateOfRoom(id);
+    }
+    //Check xem phòng hôm nay có trống không
+    protected bool CheckBooked(Room room)
+    {
+        foreach (var orderroom in orderrooms)
+        {
+            if(orderroom.OrderroomStatus == "2" || orderroom.OrderroomStatus == "1")
+            {
+                foreach (var orderroomdetail in orderroomdetails)
+                {
+                    if(orderroomdetail.RoomId == room.RoomId)
+                    {
+                        if 
+                        (
+                            (dayStartFilter <= orderroom.OrderroomDatestart && dayEndFilter >= orderroom.OrderroomDatestart) ||
+                            (dayStartFilter <= orderroom.OrderroomDatestart && dayEndFilter >= orderroom.OrderroomDateend) ||
+                            (dayStartFilter <= orderroom.OrderroomDatestart && dayEndFilter >= orderroom.OrderroomDatestart && dayEndFilter >= orderroom.OrderroomDatestart && dayEndFilter <= orderroom.OrderroomDateend)
+                        )
+                            return true;
+                    }
+                }
+            }  
+        }
+        return false;
     }
     //Get 1 image of hotel
     public string GetURLImage(int id)

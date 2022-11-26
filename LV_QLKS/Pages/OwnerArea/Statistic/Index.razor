@@ -6,96 +6,50 @@
 @inject IJSRuntime JS
 @inject DialogService DialogService
 @inject Blazored.SessionStorage.ISessionStorageService sessionStorage
-
+<PageTitle>Thống kê</PageTitle>
 <div class="main-content">
                 <div class="section__content section__content--p30">
                     <div class="container-fluid">
                         <div class="row m-t-25">
-                            <div class="col-sm-6 col-lg-3">
-                                <div class="overview-item overview-item--c1" style="max-height:300px">
-                                    <div class="overview__inner">
-                                        <div class="overview-box clearfix">
-                                            <div class="icon">
-                                                <i class="zmdi zmdi-home"></i>
-                                                <div class="text">
-                                                    <h2>@hotels.Count</h2>
-                                                </div>
-                                            </div>
-                                            <div class="text">
-                                                <br />
-                                                <span>Tổng số lượng Khách sạn</span>
-                                            </div>
-                                        </div>
-                                        <div class="overview-chart">
-                                            <canvas id="widgetChart2"></canvas>
+                            <div class="col-sm-6 col-xl-3">
+                                    <div class="bg-light rounded d-flex align-items-center justify-content-between p-4">
+                                        <i class="fa fa-home fa-3x text-primary"></i>
+                                        <div class="ms-3">
+                                            <p class="mb-2">Tổng số lượng khách sạn</p>
+                                            <h5 class="mb-0">@hotels.Count</h5>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="col-sm-6 col-lg-3">
-                                <div class="overview-item overview-item--c2" style="max-height:300px">
-                                    <div class="overview__inner">
-                                        <div class="overview-box clearfix">
-                                            <div class="icon">
-                                                <i class="zmdi zmdi-shopping-cart"></i>
-                                                <div class="text">
-                                                    <h2>@orderroomCarts.Count</h2>
-                                            </div>
-                                            </div>
-                                            <div class="text">
-                                                <br />
-                                                <span>Tổng số lượng giỏ hàng</span>
-                                            </div>
-                                        </div>
-                                        <div class="overview-chart">
-                                            <canvas id="widgetChart2"></canvas>
+                                <div class="col-sm-6 col-xl-3">
+                                    <div class="bg-light rounded d-flex align-items-center justify-content-between p-4">
+                                        <i class="fa fa-shopping-cart fa-3x text-primary"></i>
+                                        <div class="ms-3">
+                                            <p class="mb-2">Tổng số lượng giỏ hàng</p>
+                                            <h5 class="mb-0">@orderroomCarts.Count</h5>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="col-sm-6 col-lg-3">
-                                <div class="overview-item overview-item--c3" style="max-height:300px">
-                                    <div class="overview__inner">
-                                        <div class="overview-box clearfix">
-                                            <div class="icon">
-                                                <i class="zmdi zmdi-calendar-note"></i>
-                                                <div class="text">
-                                                    <h2>@orderroomReceipts.Count</h2>
-                                                </div>
-                                            </div>
-                                            <div class="text">
-                                                <br />
-                                                <span>Tổng số lượng đơn đặt phòng</span>
-                                            </div>
-                                        </div>
-                                        <div class="overview-chart">
-                                            <canvas id="widgetChart3"></canvas>
+                                <div class="col-sm-6 col-xl-3">
+                                    <div class="bg-light rounded d-flex align-items-center justify-content-between p-4">
+                                        <i class="fas fa-calendar-alt fa-3x text-primary"></i>
+                                        <div class="ms-3">
+                                            <p class="mb-2">Tổng số lượng đơn đặt phòng</p>
+                                            <h5 class="mb-0">@orderroomReceipts.Count</h5>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="col-sm-6 col-lg-3">
-                                <div class="overview-item overview-item--c4" style="max-height:300px">
-                                    <div class="overview__inner">
-                                        <div class="overview-box clearfix">
-                                            <div class="icon">
-                                                <i class="zmdi zmdi-money"></i>
-                                                 <div class="text">
-                                                    <h3 style="color:#fff;font-size: 20px;">@hotelService.FormatVND((int)orderroomReceipts.Sum(or=>or.OrderroomTotalprice))</h3>
-                                                </div>
-                                            </div>
-                                            <div class="text">
-                                                <br />
-                                                <span>Tổng giá trị đơn đặt phòng</span>
-                                            </div>
-                                        </div>
-                                        <div class="overview-chart">
-                                            <canvas id="widgetChart4"></canvas>
+                                <div class="col-sm-6 col-xl-3">
+                                    <div class="bg-light rounded d-flex align-items-center justify-content-between p-4">
+                                        <i class="fa fa-chart-line fa-3x text-primary"></i>
+                                        <div class="ms-3">
+                                            <p class="mb-2">Tổng giá trị đơn đặt phòng</p>
+                                            <h5 class="mb-0">@hotelService.FormatVND((int)orderroomReceipts.Sum(or=>or.OrderroomTotalprice))</h5>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
                         </div>
+                        <br/>
+                        <br/>
                         <RadzenCard>
                             <RadzenText TextStyle="TextStyle.H5" TagName="TagName.H4" Class="my-4">
                             Thống kê doanh thu
@@ -107,13 +61,13 @@
                                             <RadzenCheckBox @bind-Value="@showDataLabels" Name="dataLabels"></RadzenCheckBox>
                                             <RadzenLabel Text="Hiện giá tiền" For="dataLabels" />
                                             <RadzenDropDown AllowClear="true" TValue="int" Class="w-25" Data=@(chooses) TextProperty="name" ValueProperty="value" Change=@(args => OnChange(args)) />
-                                            <RadzenNumeric Visible=monthCheck @bind-Value="@monthValue" Class="w-25" Min="1" Max="12" Name="month" TValue="int" Change="MonthChange"></RadzenNumeric>
+                                            <RadzenNumeric onkeydown="return false" Visible=monthCheck @bind-Value="@monthValue" Class="w-25" Min="1" Max="12" Name="month" TValue="int" Change="MonthChange"></RadzenNumeric>
                                             <RadzenLabel Visible=monthCheck Text="Chọn tháng" For="month" />
-                                            <RadzenNumeric Visible=monthCheck @bind-Value="@yearValue" Class="w-25" Max="DateTime.Today.Year" Name="year" TValue="int" Change="YearChange"></RadzenNumeric>
+                                            <RadzenNumeric onkeydown="return false" Visible=monthCheck @bind-Value="@yearValue" Class="w-25" Max="DateTime.Today.Year" Name="year" TValue="int" Change="YearChange"></RadzenNumeric>
                                             <RadzenLabel Visible=monthCheck Text="Chọn năm" For="year" />
-                                            <RadzenNumeric Visible=quarterCheck @bind-Value="@yearValue" Class="w-25" Max="DateTime.Today.Year" Name="year" TValue="int" Change="YearChange"></RadzenNumeric>
+                                            <RadzenNumeric onkeydown="return false" Visible=quarterCheck @bind-Value="@yearValue" Class="w-25" Max="DateTime.Today.Year" Name="year" TValue="int" Change="YearChange"></RadzenNumeric>
                                             <RadzenLabel Visible=quarterCheck Text="Chọn năm" For="year" />
-                                            <RadzenNumeric Visible=yearCheck @bind-Value="@yearValue" Class="w-25" Max="DateTime.Today.Year" Name="year" TValue="int" Change="YearChange"></RadzenNumeric>
+                                            <RadzenNumeric onkeydown="return false" Visible=yearCheck @bind-Value="@yearValue" Class="w-25" Max="DateTime.Today.Year" Name="year" TValue="int" Change="YearChange"></RadzenNumeric>
                                             <RadzenLabel Visible=yearCheck Text="Chọn năm" For="year" />
                                         </RadzenCard>
                                             @if (yearCheck == true)
@@ -374,11 +328,26 @@
         {
             if(valueOfMonths.Select(vom=>vom.month).Contains(item.OrderroomDate.Value.Month) && valueOfMonths.Select(vom => vom.year).Contains(item.OrderroomDate.Value.Year))
             {
-                var ValueOfMonth = valueOfMonths.First(vom => vom.month == item.OrderroomDate.Value.Month && vom.year == item.OrderroomDate.Value.Year && vom.day == item.OrderroomDate.Value.Day);
-                var temp = ValueOfMonth;
-                valueOfMonths.Remove(ValueOfMonth);
-                temp.value = (double)item.OrderroomTotalprice;
-                valueOfMonths.Add(temp);
+                var ValueOfMonth = valueOfMonths.Where(vom => vom.month == item.OrderroomDate.Value.Month && vom.year == item.OrderroomDate.Value.Year && vom.day == item.OrderroomDate.Value.Day).ToList();
+                if(ValueOfMonth.Count > 0)
+                {
+                    foreach (var valueOfMonth in ValueOfMonth)
+                    {
+                        if (valueOfMonths.Contains(valueOfMonth))
+                        {
+                            var valueOfMonthTemp = valueOfMonth;
+                            valueOfMonths.Remove(valueOfMonth);
+                            valueOfMonthTemp.value += (double)item.OrderroomTotalprice;
+                            valueOfMonths.Add(valueOfMonthTemp);
+                        }
+                        else{
+                            var valueOfMonthTemp = valueOfMonth;
+                            valueOfMonths.Remove(valueOfMonth);
+                            valueOfMonthTemp.value = (double)item.OrderroomTotalprice;
+                            valueOfMonths.Add(valueOfMonthTemp);
+                        }
+                    }
+                }
             }
         }
         valueOfMonths = valueOfMonths.OrderBy(vom=>vom.month).ThenBy(vom => vom.day).ToList();

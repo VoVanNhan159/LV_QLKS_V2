@@ -1,63 +1,113 @@
 ﻿@page "/invoice"
+@page "/invoice/{id}"
 @using Append.Blazor.Printing
 @inject IPrintingService PrintingService
+@using System.Text
 @using VietnamNumber;
-@using IronPdf
 @inject IWebHostEnvironment _webHostEnvironment
+
 @if(customer != null && orderroom != null && orderroomdetails.Count > 0)
 {
     <div id="printView" style="position: relative;"><div class="VATTEMP" ><div id="quantitypages" style="padding-left:0px"><div style="display: none;"><center></center></div><div class="page_a4 p1" style=""><div class="pagecurrent" id="1"><table class="headTable"><tbody><tr><td><table><tbody><tr><td style="width: 150px"><div id="logo"></div></td><td style="text-align: center;width: 580px;"><h2 style="color: red;margin-top: 12px;font-weight: bold;font-size: 22px;margin-bottom: 0px;">
 									HÓA ĐƠN
 								</h2><p style="font-style:normal;margin: 0;padding-top: 10px;padding-bottom: 2px;">
                                             Ngày
-                                            <i>(Date)</i><label><b class="input-date">@DateTime.Today.Day</b></label>
+                                            <label><b class="input-date">@DateTime.Today.Day</b></label>
                                             tháng
-                                            <i>(month)</i><label><b class="input-date">@DateTime.Today.Month</b></label>
+                                            <label><b class="input-date">@DateTime.Today.Month</b></label>
                                             năm
-                                            <i>(year)</i><label><b class="input-date">@DateTime.Today.Year</b></label></p><div name="page-count"></div></td><td style="width: 220px"><p style="font-weight: bold;font-size: 15px;line-height: 0px;">
-                                    Số
-                                    <i>(No.)</i>
-                                    :
-                                    <span class="number" style="color:#fb0303;font-size:20px">HĐ @orderroom.OrderroomId</span></p></td></tr></tbody></table></td></tr></tbody></table><div><div style="padding-top: 4px;"><label>
-                    Tên người mua:
-                </label><span style="display: inline-block;width: 590px;"><label class="input-name" style="">@customer.UserName.ToString().ToUpper();</label></span></div></div><div style="padding-top: 4px;"><label>
-                    Địa chỉ:
-                </label><span><label class="input-name">@customer.UserAddress.ToString().ToUpper();</label></span></div><div style="padding-top: 4px;"><label>
-                    Số điện thoại:
-                </label><span><label class="input-name">@customer.UserPhone.ToString().ToUpper();</label></span></div>
-                <div style="padding-top: 4px;"><label>
-                    Địa chỉ Email:
-                </label><span><label class="input-name">@customer.UserEmail.ToString().ToUpper();</label></span></div>
-                <div style="padding-top: 4px;"><label>
-                    Thời gian đặt phòng:
-                </label><span><label class="input-name">@DateTime.Parse(orderroom.OrderroomDate.ToString()).ToString("dd MMMM yyyy", new System.Globalization.CultureInfo("vi-VN"))</label></span>
-                </div><div style="padding-top: 4px;"><label>
-                    Thời gian nhận phòng:
-                </label><span><label class="input-name">@DateTime.Parse(orderroom.OrderroomDatestart.ToString()).ToString("dd MMMM yyyy", new System.Globalization.CultureInfo("vi-VN"))</label></span>
-                </div><div style="padding-top: 4px;"><label>
-                    Thời gian trả phòng:
-                </label><span><label class="input-name">@DateTime.Parse(orderroom.OrderroomDateend.ToString()).ToString("dd MMMM yyyy", new System.Globalization.CultureInfo("vi-VN"))</label></span>
-                </div><div style="padding-top: 4px;"><label>
-                    Thời gian lưu trú:
-                </label><span><label class="input-name">@totalday</label></span>
-                </div>
+                                            <label><b class="input-date">@DateTime.Today.Year</b></label></p><div name="page-count"></div></td><td style="width: 220px"><p style="font-weight: bold;font-size: 15px;line-height: 0px;">
+                                    Số:
+                                    <span class="number" style="color:#fb0303;font-size:20px">HĐ @orderroom.OrderroomId</span></p></td></tr></tbody></table></td></tr>
+                                </tbody>
+                                </table>
+                 <div class="row">
+                     <div class="col col-lg-6">
+                         <div style="padding-top: 4px;"><label>
+                                Tên người mua: @UpperFirstChar(customer.UserName.ToString())</label>
+                         </div>
+                     </div>
+                     <div class="col col-lg-6">
+                         <div style="padding-top: 4px;"><label>
+                                Tên khách sạn: @hotel.HotelName</label>
+                         </div>
+                     </div>
+                 </div>  
+                 <div class="row">
+                     <div class="col col-lg-6">
+                         <div style="padding-top: 4px;"><label>
+                                Địa chỉ: @customer.UserAddress.ToString()</label>
+                        </div>
+                     </div>
+                     <div class="col col-lg-6">
+                         <div style="padding-top: 4px;"><label>
+                                Địa chỉ khách sạn: @hotelService.GetAddressHotel(hotel.HotelId)</label>
+                        </div>
+                     </div>
+                 </div>
+                 <div class="row">
+                     <div class="col col-lg-6">
+                         <div style="padding-top: 4px;"><label>
+                            Số điện thoại:
+                        </label><span><label class="input-name">@customer.UserPhone.ToString()</label></span></div>
+                     </div>
+                     <div class="col col-lg-6">
+                           <div style="padding-top: 4px;"><label>
+                            Thời gian đặt phòng: @DateTime.Parse(orderroom.OrderroomDate.ToString()).ToString("dd MMMM yyyy", new System.Globalization.CultureInfo("vi-VN"))</label>
+                            </div>
+                     </div>
+                 </div>
+                 <div class="row">
+                     <div class="col col-lg-6">
+                         <div style="padding-top: 4px;"><label>
+                            Địa chỉ Email:
+                        </label><span><label class="input-name">@customer.UserEmail.ToString()</label></span></div>
+                     </div>
+                     <div class="col col-lg-6">
+                         <div style="padding-top: 4px;"><label>
+                            Thời gian nhận phòng: @DateTime.Parse(orderroom.OrderroomDatestart.ToString()).ToString("dd MMMM yyyy", new System.Globalization.CultureInfo("vi-VN"))</label>
+                        </div>
+                     </div>
+                 </div>  
+                 <div class="row">
+                     <div class="col col-lg-6">
+                         <div style="padding-top: 4px;"> </div>
+                     </div>
+                     <div class="col col-lg-6">
+                         <div style="padding-top: 4px;"><label>
+                            Thời gian trả phòng: @DateTime.Parse(orderroom.OrderroomDateend.ToString()).ToString("dd MMMM yyyy", new System.Globalization.CultureInfo("vi-VN"))</label>
+                        </div>
+                     </div>
+                 </div> 
+                 <div class="row">
+                     <div class="col col-lg-6">
+                         <div style="padding-top: 4px;"> </div>
+                     </div>
+                     <div class="col col-lg-6">
+                         <div style="padding-top: 4px;"><label>
+                            Thời gian lưu trú: @totalday</label>
+                        </div>
+                     </div>
+                 </div>               
+                 
+                <div style="padding-top: 4px;"></div>
                 <div style="padding-top: 4px;"></div>
             </div><div class="statistics"><div class="nenhd" style="margin-top: 4px;"><div class="nenhd_bg" style="margin-top: -6px; margin-left: -26px"></div>
-            <table style="width: 100%; margin: 10px auto 0px; float: left;">
+            <table class="table table-bordered">
                 <tbody>
-                    <tr style="height:20px; border: 1px solid #235eaf;">
-                        <th style="text-transform:none;font-weight:bold; text-align: center;">
+                    <tr>
+                        <th style="font-weight:bold; text-align: center;">
                             STT
                             <br></th>
-                        <th style="text-transform:none;font-weight:bold; text-align: center;">
+                        <th style="font-weight:bold; text-align: center;">
                             Tên phòng
                             <br>
                         </th>
-                        <th style="text-transform:none;font-weight:bold; text-align: center;">
+                        <th style="font-weight:bold; text-align: center;">
                             Đơn giá
                             <br>
                         </th>
-                        <th style="text-transform:none;font-weight:bold; text-align: center;">
+                        <th style="font-weight:bold; text-align: center;">
                             Thành tiền
                             <br>
                         </th>
@@ -67,25 +117,25 @@
                              int stt = 1;
                              foreach (var item in orderroomdetails)
                              {
-                                 <tr style="border: 1px solid #235eaf;height: 26px;">
+                                 <tr>
                                      <td>
-                                         <div style="display: block;word-wrap: break-word;text-align: center; overflow: hidden;">@stt</div>
+                                         <div style="text-align: center;">@stt</div>
                                          @{stt++;}
                                      </td>
                                      <td>
-                                         <div style="display: block;word-wrap: break-word;text-align: center; overflow: hidden;">@item.Room.RoomName</div>
+                                         <div style="text-align: center;">@item.Room.RoomName</div>
                                      </td>
                                      <td>
-                                         <div style="display: block;word-wrap: break-word;text-align: center; overflow: hidden;">@hotelService.FormatVND((int)GetPriceOfRoomWithDiscount(item.RoomId))</div>
+                                         <div style="text-align: center;">@hotelService.FormatVND((int)GetPriceOfRoomWithDiscount(item.RoomId))</div>
                                      </td>
                                      <td>
-                                         <div style="display: block;word-wrap: break-word;text-align: center; overflow: hidden;">@hotelService.FormatVND((int)(GetPriceOfRoomWithDiscount(item.RoomId) * totalday))</div>
+                                         <div style="text-align: center;">@hotelService.FormatVND((int)(GetPriceOfRoomWithDiscount(item.RoomId) * totalday))</div>
                                      </td>
                                  </tr>
                              }
                          }
                     
-                    <tr height="26px" style="height:20px; border: 1px solid #235eaf;">
+                    <tr>
                         <td colspan="3" style="text-align: right; padding-right: 5px;height: 26px;">
                             <b>
                                 Tổng: 
@@ -119,7 +169,6 @@
             </div>
        </div>
     <RadzenButton Icon="get_app" Size="ButtonSize.Small" Text="In" Click="@(_ => PrintingService.Print("printView", PrintType.Html))"></RadzenButton>
-    <RadzenButton Icon="get_app" Size="ButtonSize.Small" Text="Lưu" Click="@(SavePDF)"></RadzenButton>
 }
 
 @code {
@@ -131,6 +180,8 @@
     User customer = new User();
     List<Typeofroom> typeofrooms = new List<Typeofroom>();
     List<Discountdetail> discountdetails = new List<Discountdetail>();
+    List<Hotel> hotels = new List<Hotel>();
+    Hotel hotel = new Hotel();
 
     DiscountdetailService discountdetailService = new DiscountdetailService();
     TypeOfRoomService typeOfRoomService = new TypeOfRoomService();
@@ -147,6 +198,8 @@
         customer = await userService.GetUser(orderroom.UserPhone);
         orderroomdetails = await orderroomDetailService.GetAllOrderromDetailOfOrderrom(orderroom.OrderroomId);
         discountdetails = await discountdetailService.GetAllDiscountdetail();
+        hotels = await hotelService.GetAllHotel();
+        hotel = GetHotel(orderroomdetails.First().Room.HotelId);
         StateHasChanged();
     }
     protected Typeofroom GetTypeofroom(int id)
@@ -154,6 +207,14 @@
         foreach (var item in typeofrooms)
         {
             if (item.TorId == id)
+                return item;
+        }
+        return null;
+    }
+    protected Hotel GetHotel(int id){
+        foreach (var item in hotels)
+        {
+            if (item.HotelId == id)
                 return item;
         }
         return null;
@@ -185,16 +246,16 @@
         }
         return new string(a);
     }
-    protected void SavePDF()
+    protected string UpperFirstChar(string text)
     {
-        IronPdf.Logging.Logger.EnableDebugging = true;
-        IronPdf.Logging.Logger.LogFilePath = "Default.log";
-        IronPdf.Logging.Logger.LoggingMode = IronPdf.Logging.Logger.LoggingModes.All;
-        var fileName = $"Đơn đặt phòng_{DateTime.Now.ToString("yyyyMMdd_HHmmss")}.pdf";
-        string filePath = Path.Combine(_webHostEnvironment.ContentRootPath, "wwwroot", "pdf", fileName);
-        string filePrint = Path.Combine(_webHostEnvironment.ContentRootPath, "Pages","CustomerArea","Orderroom", "invoice.razor");
-        var render = new ChromePdfRenderer();
-        var pdf = render.RenderHtmlFileAsPdf(filePrint);
-        pdf.SaveAs(filePath);
+        char[] a = text.ToCharArray();
+        a[0] = char.ToUpper(a[0]);
+        for (var i = 1; i < a.Length; i++)
+        {
+
+            if(a[i] == ' ')
+                a[i+1] = char.ToUpper(a[i+1]);
+        }
+        return new string(a);
     }
 }

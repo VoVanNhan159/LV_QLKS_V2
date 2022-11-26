@@ -86,6 +86,7 @@ builder.Services.AddHttpContextAccessor();
 //Print
 builder.Services.AddScoped<IPrintingService, PrintingService>();
 
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

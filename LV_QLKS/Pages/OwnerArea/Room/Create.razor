@@ -1,11 +1,14 @@
 ﻿@page "/room/create/{phone}"
 @page "/room/create"
 @layout Layout_Owner
+@using Microsoft.AspNetCore.SignalR.Client
 @using Radzen
 @using ShareModel.Custom
 @using Tewr.Blazor.FileReader
 @inject IFileReaderService fileReader
 @inject HttpClient client
+
+<PageTitle>Thêm phòng</PageTitle>
 <div class="main-content">
     <RadzenText Style="color:darkviolet" TextStyle="TextStyle.DisplayH4" TextAlign="TextAlign.Center"  Text="Thêm phòng"></RadzenText>
     <div class="section__content section__content--p30">
@@ -111,6 +114,20 @@
     TypeOfRoomService typeOfRoomService = new TypeOfRoomService();
     RoomService roomService = new RoomService();
 
+    //start hub
+    private HubConnection hubConnection;
+    protected override async Task OnInitializedAsync()
+    {
+        hubConnection = new HubConnectionBuilder()
+            .WithUrl(NavigationManager.ToAbsoluteUri("/HotelBrHub"))
+            .Build();
+        await hubConnection.StartAsync();
+    }
+
+    public bool IsConnected => hubConnection.State == HubConnectionState.Connected;
+    Task SendMessage() => hubConnection.SendAsync("SendMessage");
+    //end hub
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
@@ -196,6 +213,8 @@
             }
         }
         if(checkAddImg == files.Count){
+            if (IsConnected)
+                await SendMessage();
             NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Thành công", Detail = "Thêm phòng thành công", Duration = 4000 });
             NavigationManager.NavigateTo("/room/index");
         }

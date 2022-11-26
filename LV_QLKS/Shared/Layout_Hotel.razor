@@ -84,7 +84,7 @@
                                                         Ngày đến
                                                     </div>
                                                     <div class="col-lg-7">
-                                                        <RadzenDatePicker Class="w-100" @bind-Value="dayStartFilter" DateFormat="dd/MM/yyyy" Min="DateTime.Now" onkeydown="return false" style="display: block" Change="@DayStartChange" />
+                                                        <RadzenDatePicker Class="w-100" @bind-Value="dayStartFilter" DateFormat="dd/MM/yyyy" Min="DateTime.Today" onkeydown="return false" style="display: block" Change="@DayStartChange" />
                                                     </div>
                                                 </div>
                                                 <br />
@@ -187,7 +187,7 @@
 
                                                 foreach (var item in provincesDestination)
                                                 {
-                                                    <div class="col-xs-6 col-sm-4 col-md-6 col-lg-4">
+                                                    <div class="col-xs-6 col-sm-4 col-md-6 col-lg-4" style="max-width290px;max-height:290px;">
                                                         <div class="destinations-item ">
                                                             <div class="destinations-text">
                                                                 <div class="destinations-name">
@@ -199,7 +199,7 @@
                                                             </div>
                                                             <figure class="destinations-img">
                                                                 <a @onclick="() => ShowHotelOfProvincePopup(item)" title="">
-                                                                    <img src="/images/@GetRandomImageHotelOfProvince(item)" alt="">
+                                                                    <img src="/images/@GetRandomImageHotelOfProvince(item)" style="max-width:300px; max-height:200px" alt="">
                                                                 </a>
                                                             </figure>
                                                         </div>

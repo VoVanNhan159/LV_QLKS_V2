@@ -11,6 +11,7 @@
 @using System.Collections
 @using System.Globalization
 @layout Layout_HotelDetail
+<PageTitle>Chi tiết khách sạn</PageTitle>
 
 @*<link rel="stylesheet" href="/home/css/library/font-awesome.min.css">
     <link rel="stylesheet" href="/home/css/library/bootstrap.min.css">
@@ -239,10 +240,11 @@
                                             <span>Số người: </span>
                                             <RadzenNumeric @bind-Value=capacityFilter TValue="int" Min="1"></RadzenNumeric>
                                             <br />
-                                                <span>Giá: </span>
+                                                <span>Giá từ: </span>
                                             <br />
                                             <div>
                                                 <RadzenNumeric Change="@(args => PriceOnChange(args))" Step="50000" Format="@String.Format("#,### đ")" Min="@minTor" Max="@maxTor" TValue="int" @bind-Value=priceStart></RadzenNumeric>
+                                                <span>Đến: </span>
                                                 <RadzenNumeric Change="@(args => PriceOnChange(args))" Step="50000" Format="@String.Format("#,### đ")" Min="@minTor" Max="@maxTor" TValue="int" @bind-Value=priceEnd></RadzenNumeric>
                                             </div>
                                         </div>
@@ -586,6 +588,7 @@
                 }
             }
         }
+        keyValuePairFloors.Clear();
         keyValuePairFloors.Add(0, "blue");
         foreach (var item in floors)
         {
