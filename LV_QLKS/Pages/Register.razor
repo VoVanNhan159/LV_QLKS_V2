@@ -4,62 +4,76 @@
 @using System.Text
 @using System.Security.Cryptography
 
-<EditForm Model="acc" style="width:400px">
-  <!-- Email input -->
-  <div class="form-outline mb-4">
-    <label class="form-label" for="form2Example1">Số điện thoại</label>
-    <InputText type="email" placeholder="Số điện thoại/Email" @bind-Value="acc.AccountUsername" @ref=phone class="form-control" />
-  </div>
-
-  <!-- Password input -->
-  <div class="form-outline mb-4">
-    <label class="form-label" for="form2Example2">Mật khẩu</label>
-    <InputText type="@typeInput" placeholder="Mật khẩu" @bind-Value="acc.AccountPassword" @ref=passwordOne class="form-control" />
-  </div>
-
-  <div class="form-outline mb-4">
-    <label class="form-label" for="form2Example2">Nhập lại mật khẩu</label>
-    <InputText type="@typeInput" placeholder="Nhập lại mật khẩu" @bind-Value="pwdTwo" @ref=passwordTwo class="form-control" />
-  </div>
-
-  <div class="form-outline mb-4">
-    <input type="checkbox" @bind-value="@isChecked" @oninput="DoCheckBox"/>
-    <label class="form-label" for="form2Example2">Hiện mật khẩu</label>
-  </div>
-
-  <div class="form-outline mb-4">
-    <label class="form-label" >Lựa chọn quyền sử dụng</label>
-    <select class="form-control" @bind="acc.ToaId">
-        <option value="2" selected>Chủ khách sạn</option>
-        <option value="3">Người dùng</option>
-    </select>
-  </div>
-
-  <!-- Submit button -->
-  <button style="width:50%;margin-inline: auto;" type="button" class="btn btn-primary btn-block mb-4" @onclick="CheckRegister">Đăng ký</button>
-  <div class="form-outline mb-4" style="text-align: center;">
-      Hoặc đăng nhập bằng
-      <div class="login100-social-item">
-          <a href="https://localhost:7129/api/auth/google-login">
-              <img style="width:7%;height:7%" src="/home/images/google.png" />
-          </a>
-          <a href="https://localhost:7129/api/auth/facebook-login">
-              <img style="width:7%;height:7%" src="/home/images/facebook.jpg" />
-          </a>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<section class="">
+  <div class="container-fluid h-custom">
+    <div class="row">
+      <div class="col col-lg-6">
+        <img src="/home/images/background/signin-signup.webp" alt="Sample image">
+          <br />
+          <br />
+        <div class="form-outline mb-4" style="text-align: center;">
+          Hoặc đăng nhập bằng
+          <div class="login100-social-item">
+              <a href="https://localhost:7129/api/auth/google-login">
+                  <img style="width:7%;height:7%" src="/home/images/google.png" />
+              </a>
+              <a href="https://localhost:7129/api/auth/facebook-login">
+                  <img style="width:7%;height:7%" src="/home/images/facebook.jpg" />
+              </a>
+          </div>
       </div>
+        </div>
+      <div class="col col-lg-6">
+          <!-- Email input -->
+          <div class="form-outline mb-4">
+              <label class="form-label" for="form3Example3">Tên đăng nhập</label>
+            <RadzenTextBox @bind-Value="acc.AccountUsername" Name="AccountUsername" style="display: block" id="form3Example3" class="form-control form-control-lg" placeholder="Vui lòng nhập tên đăng nhập" />
+            <RadzenRequiredValidator Component="AccountUsername" Text="Vui lòng nhập tên đăng nhập" Popup="true" Style="position: absolute"/>
+          </div>
+
+          <!-- Password input -->
+          <div class="form-outline mb-3">
+            <label class="form-label" for="form3Example4">Mật khẩu</label>
+            <RadzenPassword @bind-Value="acc.AccountPassword" Visible="@(passwordVisible == false)" Name="AccountPassword" style="display: block" id="form3Example4" class="form-control form-control-lg" placeholder="Nhập mật khẩu" />
+            <RadzenTextBox @bind-Value="acc.AccountPassword" Visible="@passwordVisible" Name="AccountPassword" style="display: block" id="form3Example4" class="form-control form-control-lg" placeholder="Nhập mật khẩu" />
+          </div>
+          <div class="form-outline mb-3">
+            <label class="form-label" for="form3Example4">Nhập lại mật khẩu</label>
+            <RadzenPassword @bind-Value="passwordTwo" Visible="@(passwordVisible == false)" Name="AccountPassword" style="display: block" id="form3Example44" class="form-control form-control-lg" placeholder="Nhập mật khẩu" />
+            <RadzenTextBox @bind-Value="passwordTwo" Visible="@passwordVisible" Name="AccountPassword" style="display: block" id="form3Example4" class="form-control form-control-lg" placeholder="Nhập mật khẩu" />
+          </div>
+
+          <div class="d-flex justify-content-between align-items-center">
+            <!-- Checkbox -->
+            <div class="form-check mb-0">
+              <input class="form-check-input me-2" type="checkbox" @bind="passwordVisible" value="" id="form2Example3" />
+              <label class="form-check-label" for="form2Example3">
+                Hiện mật khẩu
+              </label>
+            </div>
+          </div>
+          <div class="form-outline mb-4">
+              <label class="form-label" >Lựa chọn quyền sử dụng</label>
+            <select class="form-control" @bind="acc.ToaId">
+                <option value="2" selected>Chủ khách sạn</option>
+                <option value="3">Người dùng</option>
+            </select>
+          </div>
+          <div class="text-center text-lg-start mt-4 pt-2">
+            <button type="button" class="btn btn-primary btn-lg"
+              style="padding-left: 2.5rem; padding-right: 2.5rem;" @onclick="CheckRegister">Đăng ký</button>
+          </div>
+      </div>
+    </div>
   </div>
-</EditForm>
+</section>
+
+
 	
 @code {
-    [Parameter]
-    public bool IsChecked { get; set; } = true;
-    private InputText phone;
-    private InputText passwordOne;
-    private InputText passwordTwo;
-    private InputCheckbox chk;
-    private string pwdTwo;
-    private bool isChecked = false;
-    private string typeInput = "password";
+    private string passwordTwo = "";
+    bool passwordVisible = false;
 
     Account acc = new Account();
     List<Typeofaccount> typeofaccounts = new List<Typeofaccount>();
@@ -93,37 +107,36 @@
 
     public async void CheckRegister()
     {
-        if (IsPhoneNumber(phone.Value))
+        if (IsPhoneNumber(acc.AccountUsername))
         {
-            if (passwordOne.Value == null)
+            if (acc.AccountUsername == null)
             {
-                NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Thông báo", Detail = "Bạn chưa nhập mật khẩu", Duration = 4000 });
-                passwordOne.Element.Value.FocusAsync();
-            }else if (passwordTwo.Value == null)
+                await JS.InvokeVoidAsync("eval", $@"document.getElementById(""form3Example3"").focus()");
+                NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Thông báo", Detail = "Bạn chưa nhập số điện thoại", Duration = 4000 });
+            }else if (acc.AccountPassword == null)
             {
-                NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Thông báo", Detail = "Bạn chưa nhập lại mật khẩu", Duration = 4000 });
-                passwordTwo.Element.Value.FocusAsync();
-            }else if (passwordTwo.Value != passwordOne.Value)
+                await JS.InvokeVoidAsync("eval", $@"document.getElementById(""form3Example4"").focus()");
+                NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Thông báo", Detail = "Bạn chưa mật khẩu", Duration = 4000 });
+            }else if (passwordTwo != acc.AccountPassword)
             {
+                await JS.InvokeVoidAsync("eval", $@"document.getElementById(""form3Example44"").focus()");
                 NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Thông báo", Detail = "Mật khẩu không khớp", Duration = 4000 });
-                passwordTwo.Element.Value.FocusAsync();
             }
-            else if(passwordOne.Value.Length < 5)
+            else if(acc.AccountPassword.ToString().Length < 5)
             {
+                await JS.InvokeVoidAsync("eval", $@"document.getElementById(""form3Example4"").focus()");
                 NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Thông báo", Detail = "Mật khẩu phải ít nhất 5 ký tự", Duration = 4000 });
-                passwordOne.Element.Value.FocusAsync();
             }else
             {
                 try{
-                    if((await CheckAccInDB(phone.Value)) == false)
+                    if((await CheckAccInDB(acc.AccountUsername)) == false)
                     {
+                        await JS.InvokeVoidAsync("eval", $@"document.getElementById(""form3Example3"").focus()");
                         NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Thông báo", Detail = "Số điện thoại đã được đăng ký, vui lòng chọn số điện thoại khác", Duration = 4000 });
-                        phone.Element.Value.FocusAsync();
                     }
                     else
                     {
-                        acc.AccountUsername = phone.Value;
-                        acc.AccountPassword = Encrypt(passwordOne.Value);
+                        acc.AccountPassword = Encrypt(acc.AccountPassword);
                         // Thêm loại tài khoản
                         var toa = await typeOfAccountService.GetTypeOfAccount(acc.ToaId);
                         acc.Toa = toa;
@@ -163,10 +176,11 @@
         }
         else
         {
-            if(phone.Value == null)
+            if(acc.AccountUsername == null)
                 NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Thông báo", Detail = "Bạn chưa nhập số điện thoại", Duration = 4000 });
             else
                 NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Thông báo", Detail = "Số điện thoại không hợp lệ", Duration = 4000 });
+            await JS.InvokeVoidAsync("eval", $@"document.getElementById(""form3Example3"").focus()");
         }
     }
     public async Task<bool> CheckAccInDB(string phone)
@@ -177,17 +191,6 @@
             return false;
     }
 
-    void DoCheckBox()
-    {
-        if(isChecked){
-            typeInput = "password";
-            isChecked = true;
-        }
-        else{
-            typeInput = "text";
-            isChecked = false;
-        }
-    }
     public static readonly string key = "Luanvantotngiep";
     public static string Encrypt(string text)
     {

@@ -2,32 +2,49 @@
 @using LV_QLKS.Service
 @using ShareModel
 
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<section class="">
+  <div class="container-fluid h-custom">
+    <div class="row">
+      <div class="col col-lg-6">
+        <img src="/home/images/background/signin-signup.webp" alt="Sample image">
+      </div>
+      <div class="col col-lg-6">
+          <!-- Email input -->
+          <div class="form-outline mb-4">
+              <label class="form-label" for="form3Example3">Tên đăng nhập</label>
+            <RadzenTextBox @bind-Value="acc.AccountUsername" Name="AccountUsername" style="display: block" id="form3Example3" class="form-control form-control-lg" placeholder="Vui lòng nhập tên đăng nhập" />
+            <RadzenRequiredValidator Component="AccountUsername" Text="Vui lòng nhập tên đăng nhập" Popup="true" Style="position: absolute"/>
+          </div>
 
-<EditForm Model="acc" style="width:400px">
-  <!-- Email input -->
-  <div class="form-outline mb-4">
-    <label class="form-label" for="form2Example1">Tên tài khoản</label>
-    <InputText type="tel" @bind-Value="acc.AccountUsername" placeholder="Tên tài khoản"  @ref=phone class="form-control" />
-  </div>
+          <!-- Password input -->
+          <div class="form-outline mb-3">
+            <label class="form-label" for="form3Example4">Mật khẩu</label>
+            <RadzenPassword @bind-Value="acc.AccountPassword" Visible="@(passwordVisible == false)" Name="AccountPassword" style="display: block" id="form3Example4" class="form-control form-control-lg" placeholder="Nhập mật khẩu" />
+            <RadzenTextBox @bind-Value="acc.AccountPassword" Visible="@passwordVisible" Name="AccountPassword" style="display: block" id="form3Example4" class="form-control form-control-lg" placeholder="Nhập mật khẩu" />
+          </div>
 
-  <!-- Password input -->
-  <div class="form-outline mb-4">
-    <label class="form-label" for="form2Example2">Mật khẩu</label>
-    <InputText type="password" @bind-Value="acc.AccountPassword" placeholder="Mật khẩu" @ref=password class="form-control" />
-  </div>
-
-  <!-- Submit button -->
-  <button style="width:50%;margin-inline: auto;" type="button" class="btn btn-primary btn-block mb-4" @onclick="CheckLogin">Đăng nhập</button>
-
-  <!-- Register buttons -->
-  <div class="text-center">
-          <div class="col">
-      <!-- Simple link -->
-      <a style="color:mediumblue;cursor:pointer" @onclick="ForgetPassword" >Quên mật khẩu?</a>
+          <div class="d-flex justify-content-between align-items-center">
+            <!-- Checkbox -->
+            <div class="form-check mb-0">
+              <input class="form-check-input me-2" type="checkbox" @bind="passwordVisible" value="" id="form2Example3" />
+              <label class="form-check-label" for="form2Example3">
+                Hiện mật khẩu
+              </label>
+            </div>
+            <a style="color:mediumblue;cursor:pointer" @onclick="ForgetPassword" class="text-body">Quên mật khẩu?</a>
+          </div>
+          <div class="text-center text-lg-start mt-4 pt-2">
+            <button type="button" class="btn btn-primary btn-lg"
+              style="padding-left: 2.5rem; padding-right: 2.5rem;" @onclick="CheckLogin">Đăng nhập</button>
+            <p class="fw-bold mt-2 pt-1 mb-0">Chưa có tài khoản? <a style="color:mediumblue;cursor:pointer" @onclick="Register">Đăng ký</a></p>
+          </div>
+      </div>
     </div>
-    <p>Bạn chưa có tài khoản? <a style="color:mediumblue;cursor:pointer" @onclick="Register" >Đăng ký ngay</a></p>
   </div>
-</EditForm>
+</section>
+
+
 
 	
 @code {
@@ -37,18 +54,24 @@
     Account acc = new Account();
     User user = new User();
 
-    private InputText phone;
-    private InputText password;
+    bool passwordVisible = false;
 
-    
     public async void CheckLogin()
     {
         Account newAcc = new Account();
 
         try
         {
-            if (phone.Value == null || password.Value == null)
-                NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Thông báo", Detail = "Vui lòng nhập thông tin hợp lệ", Duration = 4000 });
+            if (acc.AccountUsername == null)
+            {
+                await JS.InvokeVoidAsync("eval", $@"document.getElementById(""form3Example3"").focus()");
+                NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Thông báo", Detail = "Vui lòng nhập tên đăng nhập", Duration = 4000 });
+            }
+            else if (acc.AccountPassword == null)
+            {
+                await JS.InvokeVoidAsync("eval", $@"document.getElementById(""form3Example4"").focus()");
+                NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Thông báo", Detail = "Vui lòng nhập mật khẩu", Duration = 4000 });
+            }
             else
             {
                 newAcc = await accountService.GetAccount(acc.AccountUsername, accountService.Encrypt(acc.AccountPassword));
@@ -147,9 +170,9 @@
         {
             await DialogService.OpenAsync<Login>
             (
-                "Đăng nhập",
+                "",
                    new Dictionary<string, object>() {},
-                   new DialogOptions() { ShowTitle = true, Width = "450px", Height = "", Resizable = true, Draggable = true, AutoFocusFirstElement = true }
+                   new DialogOptions() { ShowTitle = true, Width = "1000px", Height = "400px", Resizable = true, Draggable = true, AutoFocusFirstElement = true }
             );
         }
     }
@@ -162,7 +185,7 @@
         (
             "Đăng ký tài khoản mới",
                new Dictionary<string, object>() {},
-               new DialogOptions() { ShowTitle = true, Width = "450px", Height = "", Resizable = true, Draggable = true, AutoFocusFirstElement = true }
+               new DialogOptions() { ShowTitle = true, Width = "1060px", Height = "537px", Resizable = true, Draggable = true, AutoFocusFirstElement = true }
         );
     }
 }

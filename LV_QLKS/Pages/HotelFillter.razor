@@ -286,7 +286,7 @@ else
                (
                    "Đăng nhập để đặt phòng",
                       new Dictionary<string, object>() {},
-                      new DialogOptions() { ShowTitle = true, Width = "450px", Height = "", Resizable = true, Draggable = true, AutoFocusFirstElement = true }
+                      new DialogOptions() { ShowTitle = true, Width = "1000px", Height = "420px", Resizable = true, Draggable = true, AutoFocusFirstElement = true }
                );
             if (phone != null)
             {
@@ -329,12 +329,12 @@ else
     {
         if(phone == null)
         {
-            NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Thông báo", Detail = "Bạn phải đăng nhập để đặt phòng", Duration = 4000 });
+            NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Thông báo", Detail = "Bạn phải đăng nhập để đặt phòng", Duration = 4000 });
             var res = await DialogService.OpenAsync<Login>
                 (
                     "Đăng nhập để thêm phòng",
                        new Dictionary<string, object>() {},
-                       new DialogOptions() { ShowTitle = true, Width = "450px", Height = "", Resizable = true, Draggable = true, AutoFocusFirstElement = true }
+                       new DialogOptions() { ShowTitle = true, Width = "1000px", Height = "420px", Resizable = true, Draggable = true, AutoFocusFirstElement = true }
                 );
             if (res != null)
             {

@@ -90,9 +90,9 @@
     {
         await DialogService.OpenAsync<Login>
         (
-            "Đăng nhập",
+            "",
                new Dictionary<string, object>() {},
-               new DialogOptions() { ShowTitle = true, Width = "450px", Height = "", Resizable = true, Draggable = true, AutoFocusFirstElement = true }
+               new DialogOptions() { ShowTitle = true, Width = "1000px", Height = "400px", Resizable = true, Draggable = true, AutoFocusFirstElement = true }
         );
     }
 
@@ -100,9 +100,9 @@
     {
         await DialogService.OpenAsync<Register>
         (
-            "Đăng ký",
+            "Đăng ký tài khoản mới",
                new Dictionary<string, object>() {},
-               new DialogOptions() { ShowTitle = true, Width = "450px", Height = "", Resizable = true, Draggable = true, AutoFocusFirstElement = true }
+               new DialogOptions() { ShowTitle = true, Width = "1060px", Height = "537px", Resizable = true, Draggable = true, AutoFocusFirstElement = true }
         );
     }
     public async void PopupOrderRoomDetail()
