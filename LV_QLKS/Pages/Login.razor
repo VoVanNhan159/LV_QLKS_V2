@@ -85,20 +85,29 @@
                         user = await userService.GetUser(phone);
                         if(role == "Customer")
                         {
-                            await sessionStorage.SetItemAsync("customer_phone", phone);
+                            await Task.Delay(100);
+                            await sessionStorage.SetItemAsync("customer_phone", user.UserPhone);
+                            await Task.Delay(100);
                             await sessionStorage.SetItemAsync("customer_name", user.UserName);
+                            await Task.Delay(100);
                             this.DialogService.Close(phone);
                         }
                         else if(role == "Owner")
                         {
-                            await sessionStorage.SetItemAsync("owner_phone", phone);
+                            await Task.Delay(100);
+                            await sessionStorage.SetItemAsync("owner_phone", user.UserPhone);
+                            await Task.Delay(100);
                             await sessionStorage.SetItemAsync("owner_name", user.UserName);
+                            await Task.Delay(100);
                             NavigationManager.NavigateTo("/owner/index");
                         }
                         else
                         {
-                            await sessionStorage.SetItemAsync("admin_phone", phone);
+                            await Task.Delay(100);
+                            await sessionStorage.SetItemAsync("admin_phone", user.UserPhone);
+                            await Task.Delay(100);
                             await sessionStorage.SetItemAsync("admin_name", user.UserName);
+                            await Task.Delay(100);
                             NavigationManager.NavigateTo("/admin/index");
                         }
 

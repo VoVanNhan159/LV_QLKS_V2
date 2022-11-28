@@ -147,9 +147,9 @@
             );
         }
     }
-    protected void Logout()
+    protected async void Logout()
     {
-        sessionStorage.ClearAsync();
+        await sessionStorage.ClearAsync();
         none = "";
         nonelogout = "none";
         toastService.ShowWarning("Đăng xuất thành công!", "Thông báo!");

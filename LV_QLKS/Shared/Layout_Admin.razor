@@ -110,6 +110,9 @@
                     <RadzenMenuItem Text="Quản lý ĐKĐT" Icon="assignment" Path="/admin/businessregistration/index"></RadzenMenuItem>
                 </RadzenMenu>
                 <RadzenMenu>
+                    <RadzenMenuItem Text="Quản lý Đơn đặt phòng" Icon="assignment" Path="/admin/orderroom/index"></RadzenMenuItem>
+                </RadzenMenu>
+                <RadzenMenu>
                     <RadzenMenuItem Text="Đăng xuất" Click="Logout" Icon="exit_to_app">
                     </RadzenMenuItem>
                 </RadzenMenu>
@@ -174,13 +177,18 @@
         {
             none = "none";
             try{
-                if (await sessionStorage.GetItemAsync<string>("admin_name") == null && await sessionStorage.GetItemAsync<string>("admin_phone") == null)
+                var nameTemp = await sessionStorage.GetItemAsync<string>("admin_name");
+                var phoneTemp = await sessionStorage.GetItemAsync<string>("admin_phone");
+                if ( nameTemp == null && phoneTemp == null)
                 {
                     this.DialogService.Close();
                     NavigationManager.NavigateTo("/");
                 }
-                name = await sessionStorage.GetItemAsync<string>("admin_name");
-            StateHasChanged();
+                else
+                {
+                    name = await sessionStorage.GetItemAsync<string>("admin_name");
+                }
+                StateHasChanged();
             }
             catch(Exception ex)
             {
@@ -194,7 +202,7 @@
         var confirmationResult = await this.DialogService.Confirm("Bạn có chắc đăng xuất không?", "Thông báo", new ConfirmOptions { OkButtonText = "Xác nhận", CancelButtonText = "Trở về" });
         if (confirmationResult == true)
         {
-            sessionStorage.ClearAsync();
+            await sessionStorage.ClearAsync();
             NavigationManager.NavigateTo("/");
         }
     }

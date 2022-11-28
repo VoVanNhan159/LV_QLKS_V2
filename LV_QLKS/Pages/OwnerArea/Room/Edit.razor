@@ -1,4 +1,5 @@
 ﻿@page "/room/edit/{id:int}"
+@using Microsoft.AspNetCore.SignalR.Client
 @using ShareModel.Custom
 @layout Layout_Owner
 @using Radzen
@@ -96,6 +97,22 @@
     ImageService imageService = new ImageService();
     ImageRoomService imageRoomService = new ImageRoomService();
 
+    //start hub
+    private HubConnection hubConnection;
+    protected override async Task OnInitializedAsync()
+    {
+        hubConnection = new HubConnectionBuilder()
+            .WithUrl(NavigationManager.ToAbsoluteUri("/HotelBrHub"))
+            .Build();
+        await hubConnection.StartAsync();
+    }
+
+    public bool IsConnected => hubConnection.State == HubConnectionState.Connected;
+    Task SendMessage() => hubConnection.SendAsync("SendMessage");
+    //if (IsConnected)
+        //await SendMessage();
+    //end hub
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
@@ -186,6 +203,8 @@
         }
         else
         {
+            if (IsConnected)
+                await SendMessage();
             NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Thành công", Detail = "Sửa thành công", Duration = 4000 });
             this.DialogService.Close(true);
         }

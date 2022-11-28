@@ -5,15 +5,9 @@
     <RadzenText Style="color:darkviolet" TextStyle="TextStyle.DisplayH4" TextAlign="TextAlign.Center"  Text="Danh sách đơn đăng ký đăng tin"></RadzenText>
     <div class="section__content section__content--p30">
         <RadzenDataGrid EmptyText="Không có dữ liệu, vui lòng kiểm tra lại" Data="@businessregistrations" FilterMode="FilterMode.Simple" AllowFiltering="true" TItem="Businessregistration" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Center" AllowSorting="true" 
-            PageSizeOptions="@pageSizeOptions" PageSize="5" PageSizeText="mẫu tin/trang" ShowPagingSummary="@showPagerSummary" PagingSummaryFormat="@pagingSummaryFormat" Page="@OnPage">
+            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" PageSizeOptions="@pageSizeOptions" PageSize="5" PageSizeText="mẫu tin/trang" ShowPagingSummary="@showPagerSummary" PagingSummaryFormat="@pagingSummaryFormat" Page="@OnPage">
             <Columns>
-                <RadzenDataGridColumn TItem="Businessregistration" Title="Tên khách sạn đăng ký">
-                    <FilterTemplate>
-                        <RadzenTextBox @oninput=@(args => OnNameChange(args.Value.ToString())) Style="width:100%;" />
-                    </FilterTemplate>
-                    <Template Context="data">
-                        @GetNameHotelOfBR(data.HotelId)
-                    </Template>
+                <RadzenDataGridColumn TItem="Businessregistration" Property="Hotel.HotelName" Title="Tên khách sạn đăng ký">
                 </RadzenDataGridColumn>
                 <RadzenDataGridColumn TItem="Businessregistration" Title="Gói đăng ký">
                     <Template Context="data">

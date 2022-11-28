@@ -10,7 +10,7 @@
     <RadzenText Style="color:darkviolet" TextStyle="TextStyle.DisplayH4" TextAlign="TextAlign.Center"  Text="Danh sách phòng"></RadzenText>
     <div class="section__content section__content--p30">
         <RadzenDataGrid EmptyText="Không có dữ liệu, vui lòng kiểm tra lại" Data="@rooms" TItem="Room" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Center" AllowSorting="true" 
-            FilterMode="FilterMode.Simple" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" PageSizeOptions="@pageSizeOptions" PageSize="0" PageSizeText="mẫu tin/trang" ShowPagingSummary="@showPagerSummary" PagingSummaryFormat="@pagingSummaryFormat" Page="@OnPage">
+            FilterMode="FilterMode.Simple" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" PageSizeOptions="@pageSizeOptions" PageSize="5" PageSizeText="mẫu tin/trang" ShowPagingSummary="@showPagerSummary" PagingSummaryFormat="@pagingSummaryFormat" Page="@OnPage">
             <Columns>
                 <RadzenDataGridColumn Width="5%" TItem="Room" Property="RoomId" Title="Mã" />
                 <RadzenDataGridColumn Width="10%" TItem="Room" Property="RoomName" Title="Tên phòng" />
@@ -70,6 +70,16 @@
     private HubConnection hubConnection;
     protected override async Task OnInitializedAsync()
     {
+        try
+            {
+                var phone = await sessionStorage.GetItemAsync<string>("owner_phone");
+                owner = await userService.GetUser(phone);
+                rooms = await roomService.GetAllRoomOfOwner(owner.UserPhone);
+            }
+            catch(Exception ex)
+            {
+                Console.Write(ex.ToString());
+            }
         hubConnection = new HubConnectionBuilder()
             .WithUrl(NavigationManager.ToAbsoluteUri("/HotelBrHub"))
             .Build();
@@ -83,28 +93,7 @@
     {
         if (firstRender)
         {
-            try
-            {
-                var phone = await sessionStorage.GetItemAsync<string>("owner_phone");
-                owner = await userService.GetUser(phone);
-                var roomTemps = await roomService.GetAllRoomOfOwner(owner.UserPhone);
-                foreach (var item in roomTemps)
-                {
-                    var tor = await typeOfRoomService.GetTypeOfRoom(item.TorId);
-                    var hotel = await hotelService.GetHotel(item.HotelId);
-                    var floor = await floorService.GetFloor(item.FloorId);
-                    var roomAdd = item;
-                    roomAdd.Tor = tor;
-                    roomAdd.Hotel = hotel;
-                    roomAdd.Floor = floor;
-                    rooms.Add(roomAdd);
-                }
-                StateHasChanged();
-            }
-            catch(Exception ex)
-            {
-                Console.Write(ex.ToString());
-            }
+            
         }
     }
     protected async void ReloadData()

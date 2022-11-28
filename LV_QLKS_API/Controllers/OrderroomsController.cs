@@ -25,7 +25,9 @@ namespace WebApplication1.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Orderroom>>> GetOrderrooms()
         {
-            return await _context.Orderrooms.ToListAsync();
+            return await _context.Orderrooms
+                .Include(od=>od.UserPhoneNavigation)
+                .ToListAsync();
         }
 
         [HttpGet("{id}")]
@@ -187,7 +189,7 @@ namespace WebApplication1.Controllers
             var orderroomsReturn = new List<Orderroom>();
             var hotels = await _context.Hotels.Where(h => h.UserPhone == phone).ToListAsync();
             var rooms = await _context.Rooms.Where(r => hotels.Select(h => h.HotelId).Contains(r.HotelId)).Select(r=>r.RoomId).ToListAsync();
-            var orderrooms = await _context.Orderrooms.Include(o=>o.UserPhoneNavigation).ToListAsync();
+            var orderrooms = await _context.Orderrooms.Where(od=>od.OrderroomStatus != "3").Include(o=>o.UserPhoneNavigation).ToListAsync();
 
             foreach(var item in orderrooms)
             {

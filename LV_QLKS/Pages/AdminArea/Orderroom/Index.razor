@@ -1,0 +1,69 @@
+﻿@page "/admin/orderroom/index"
+@page "/admin/orderroom"
+@layout Layout_Admin
+
+<PageTitle>Danh sách đặt phòng</PageTitle>
+<div class="main-content">
+    <RadzenText Style="color:darkviolet" TextStyle="TextStyle.DisplayH4" TextAlign="TextAlign.Center"  Text="Danh sách các đơn đặt phòng"></RadzenText>
+    <div class="section__content section__content--p30">
+        <RadzenDataGrid EmptyText="Không có dữ liệu, vui lòng kiểm tra lại" Data="@orderrooms" FilterMode="FilterMode.Simple" AllowFiltering="true" TItem="Orderroom" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Center" AllowSorting="true" 
+            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" PageSizeOptions="@pageSizeOptions" PageSize="5" PageSizeText="mẫu tin/trang" ShowPagingSummary="@showPagerSummary" PagingSummaryFormat="@pagingSummaryFormat" Page="@OnPage">
+            <Columns>
+                <RadzenDataGridColumn TItem="Orderroom" Property="UserPhoneNavigation.UserName" Title="Người đặt">
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="Orderroom"Title="Ngày đặt">
+                    <Template Context="data">
+                        @hotelService.FormatDateVN(data.OrderroomDate.ToString())
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="Orderroom" Title="Ngày nhận phòng">
+                    <Template Context="data">
+                        @hotelService.FormatDateVN(data.OrderroomDatestart.ToString())
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="Orderroom" Title="Ngày trả phòng">
+                    <Template Context="data">
+                        @hotelService.FormatDateVN(data.OrderroomDateend.ToString())
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="Orderroom" Title="Tổng tiền">
+                    <Template Context="data">
+                        @hotelService.FormatVND((int)data.OrderroomTotalprice)
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="Orderroom" Title="">
+                    <Template Context="data">
+                        <RadzenButton Icon="gavel" Text="Xem DS" Click="() => ShowOrderroomDetailPopup(data.OrderroomId)"></RadzenButton>
+                    </Template>
+                </RadzenDataGridColumn>
+            </Columns>
+        </RadzenDataGrid>
+    </div>
+</div>
+
+@code {
+    List<Orderroom> orderrooms = new List<Orderroom>();
+
+    OrderroomService orderroomService = new OrderroomService();
+    HotelService hotelService = new HotelService();
+    //Phân trang
+    string pagingSummaryFormat = "Trang hiển thị {0}/{1} (tổng cộng {2} mẫu tin)";
+
+    IEnumerable<int> pageSizeOptions = new int[] { 5, 10, 15, 20 };
+    bool showPagerSummary = true;
+
+    void OnPage(PagerEventArgs args)
+    {
+        StateHasChanged();
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        orderrooms = await orderroomService.GetAllOrderroomReceipts();
+    }
+    protected async void ShowOrderroomDetailPopup(int id)
+    {
+        await DialogService.OpenAsync<AdminArea.OrderroomDetail.Index>("",
+             new Dictionary<string, object>() { { "id", id } },
+             new DialogOptions() { Width = "800px", Height = "500px", Resizable = true, Draggable = true });
+    }
+}

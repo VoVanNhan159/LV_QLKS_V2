@@ -62,6 +62,10 @@ namespace LV_QLKS.Service
         {
             return ((double)price).ToString("C0", CultureInfo.CreateSpecificCulture("vi-VN"));
         }
+        public string FormatDateVN(string date)
+        {
+            return DateTime.Parse(date).ToString("dd, MMMM, yyyy", new System.Globalization.CultureInfo("vi-VN"));
+        }
         public string GetUrlHotelDetail(int id)
         {
             return "/HotelDetail/" + id;

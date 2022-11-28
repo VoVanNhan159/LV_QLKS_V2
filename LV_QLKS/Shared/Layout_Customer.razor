@@ -245,18 +245,22 @@
     public string name;
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        try{
-            if (await sessionStorage.GetItemAsync<string>("customer_phone") == null && await sessionStorage.GetItemAsync<string>("customer_name") == null)
-            {
-                this.DialogService.Close();
-                NavigationManager.NavigateTo("/");
-            }
-            name = await sessionStorage.GetItemAsync<string>("customer_name");
-            StateHasChanged();
-        }
-        catch(Exception ex)
+        if (firstRender)
         {
-            Console.WriteLine(ex.ToString());
+            try
+            {
+                if (await sessionStorage.GetItemAsync<string>("customer_phone") == null && await sessionStorage.GetItemAsync<string>("customer_name") == null)
+                {
+                    this.DialogService.Close();
+                    NavigationManager.NavigateTo("/");
+                }
+                name = await sessionStorage.GetItemAsync<string>("customer_name");
+                StateHasChanged();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
         }
     }
     protected async void Logout()
@@ -264,7 +268,7 @@
         var confirmationResult = await this.DialogService.Confirm("Bạn có chắc đăng xuất không?", "Thông báo", new ConfirmOptions { OkButtonText = "Xác nhận", CancelButtonText = "Trở về" });
         if (confirmationResult == true)
         {
-            sessionStorage.ClearAsync();
+            await sessionStorage.ClearAsync();
             NavigationManager.NavigateTo("/");
         }
     }

@@ -104,21 +104,24 @@
             StateHasChanged();
         }
     }
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            phone = await sessionStorage.GetItemAsync<string>("owner_phone");
+            owner = await userService.GetUser(phone);
+            listOrderrooms = await orderroomService.GetAllOrderroomOfOwner(owner.UserPhone);
+            StateHasChanged();
+        }
+        catch(Exception ex)
+        {
+            Console.WriteLine(ex.ToString());
+        }
+    }
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if(firstRender){
-            try
-            {
-                phone = await sessionStorage.GetItemAsync<string>("owner_phone");
-                owner = await userService.GetUser(phone);
-                var orderroomsTemp = await orderroomService.GetAllOrderroomOfOwner(owner.UserPhone);
-                listOrderrooms.AddRange(orderroomsTemp.Where(odt=>odt.OrderroomStatus != "3").ToList());
-                StateHasChanged();
-            }
-            catch(Exception ex)
-            {
-                Console.WriteLine(ex.ToString());
-            }
+            
         }
 
     }

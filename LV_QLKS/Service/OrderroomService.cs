@@ -16,6 +16,11 @@ namespace LV_QLKS.Service
         {
             return await Http.GetFromJsonAsync<List<Orderroom>>(baseurl);
         }
+        public async Task<List<Orderroom>> GetAllOrderroomReceipts()
+        {
+            var orderrooms = await Http.GetFromJsonAsync<List<Orderroom>>(baseurl);
+            return orderrooms.Where(od=>od.OrderroomStatus != "3").ToList();
+        }
         public async Task<List<Orderroom>> GetAllOrderromOfUser(string phone)
         {
             return await Http.GetFromJsonAsync<List<Orderroom>>(baseurl + "/GetAllOrderromOfUser/" + phone);

@@ -310,7 +310,7 @@
         var confirmationResult = await this.DialogService.Confirm("Bạn có chắc đăng xuất không?", "Thông báo", new ConfirmOptions { OkButtonText = "Xác nhận", CancelButtonText = "Trở về" });
         if (confirmationResult == true)
         {
-            sessionStorage.ClearAsync();
+            await sessionStorage.ClearAsync();
             NavigationManager.NavigateTo("/");
         }
     }

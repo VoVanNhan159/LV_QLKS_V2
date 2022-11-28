@@ -42,6 +42,9 @@ namespace LV_QLKS_API.Controllers
                 return NotFound();
             }
             var room = await _context.Rooms
+                .Include(r=>r.Floor)
+                .Include(r=>r.Tor)
+                .Include(r=>r.Hotel)
                 .Where(r => r.Hotel.UserPhone == phone).ToListAsync();
             
             if (room == null)
