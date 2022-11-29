@@ -413,9 +413,9 @@
                 mail.Body += "<p>Khách sạn: " + room.Hotel.HotelName + "</p>";
                 mail.Body += "<p>Địa chỉ: " + hotelService.GetAddressHotel(room.Hotel.HotelId) + "</p>";
                 mail.Body += "<p>Phòng đặt: " + room.RoomName + "</p>";
-                mail.Body += "<p>Ngày đặt: " + orderroom.OrderroomDate + "</p>";
-                mail.Body += "<p>Ngày nhận phòng: " + orderroom.OrderroomDatestart + "</p>";
-                mail.Body += "<p>Ngày trả phòng: " + orderroom.OrderroomDateend + "</p>";
+                mail.Body += "<p>Ngày đặt: " + hotelService.FormatDateVN(orderroom.OrderroomDate.ToString()) + "</p>";
+                mail.Body += "<p>Ngày nhận phòng: " + hotelService.FormatDateVN(orderroom.OrderroomDatestart.ToString()) + "</p>";
+                mail.Body += "<p>Ngày trả phòng: " + hotelService.FormatDateVN(orderroom.OrderroomDateend.ToString()) + "</p>";
                 mail.Body += "<p>Tổng tiền: " + hotelService.FormatVND((int)orderroom.OrderroomTotalprice) + "</p>";
                 mail.Body += "<p>Trạng thái thanh toán: Thanh toán khi nhận phòng</p>";
 

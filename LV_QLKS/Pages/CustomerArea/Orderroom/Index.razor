@@ -3,6 +3,7 @@
 @using ShareModel;
 @using ShareModel.Custom
 @using Microsoft.AspNetCore.SignalR.Client
+@using System.Net.Mail
 <PageTitle>Danh sách đơn đặt phòng</PageTitle>
 <div class="main-content">
     <div class="section__content section__content--p30">
@@ -92,7 +93,7 @@
                             }
                             </td>
                             <td>
-                            @if(item.OrderroomStatus == "1")
+                            @if(item.OrderroomStatus == "1" && (DateTime.Today - item.OrderroomDate).Value.TotalDays <=3 )
                             {
                                 <button @onclick="() => DeleteOrderroom(item.OrderroomId)">
                                     <i class="fa fa-trash" aria-hidden="true"></i>
@@ -163,8 +164,8 @@
                 listOrderroomOrderroomdetailRoom.Add(orderroomOrderroomdetailRoom);
             }
             hubConnection = new HubConnectionBuilder()
-            .WithUrl(NavigationManager.ToAbsoluteUri("/HotelBrHub"))
-            .Build();
+                                    .WithUrl(NavigationManager.ToAbsoluteUri("/HotelBrHub"))
+                                    .Build();
             await hubConnection.StartAsync();
             StateHasChanged();
 
@@ -213,9 +214,12 @@
         var confirmationResult = await this.DialogService.Confirm("Bạn có chắc muốn hủy đặt phòng không? Sau khi xác nhận sẽ không thể hoàn tác", "Thông báo", new ConfirmOptions { OkButtonText = "Xác nhận", CancelButtonText = "Trở về" });
         if (confirmationResult == true)
         {
+            var orderroom = await orderroomService.GetOrderrom(id);
+            var orderroomdetails = await orderroomdetailService.GetAllOrderromDetailOfOrderrom(orderroom.OrderroomId);
             var res = await orderroomService.DeleteOrderrom(id);
             if(res == 1)
             {
+                SendMail(orderroom,orderroomdetails);
                 if (IsConnected)
                     await SendMessage();
                 NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Thành công", Detail = "Hủy đặt phòng thành công", Duration = 4000 });
@@ -223,5 +227,48 @@
                 NavigationManager.NavigateTo("/orderroom/index");
             }
         }
+    }
+    private async void SendMail(Orderroom orderroom, List<Orderroomdetail> orderroomdetails)
+    {
+        try
+        {
+            var room = await roomService.GetRoom(orderroomdetails.First().RoomId);
+            using (MailMessage mail = new MailMessage())
+            {
+                mail.From = new MailAddress("vovannhan2727bc@outlook.com");
+                mail.To.Add(customer.UserEmail);
+                mail.Subject = "Xác nhận hủy đặt phòng";
+                mail.Body = "Kính chào khách hàng: " + customer.UserName.ToUpper();
+                mail.Body += "<p>Bạn đã hủy đặt phòng thành công:<p/>";
+                mail.Body += "<p>Khách sạn: " + room.Hotel.HotelName + "</p>";
+                mail.Body += "<p>Địa chỉ: " + hotelService.GetAddressHotel(room.Hotel.HotelId) + "</p>";
+                foreach (var item in orderroomdetails)
+                {
+                    mail.Body += "<p>Phòng đặt: " + item.Room.RoomName + "</p>";
+                }
+                mail.Body += "<p>Ngày đặt: " + hotelService.FormatDateVN(orderroom.OrderroomDate.ToString()) + "</p>";
+                mail.Body += "<p>Ngày nhận phòng: " + hotelService.FormatDateVN(orderroom.OrderroomDatestart.ToString()) + "</p>";
+                mail.Body += "<p>Ngày trả phòng: " + hotelService.FormatDateVN(orderroom.OrderroomDateend.ToString()) + "</p>";
+                mail.Body += "<p>Tổng tiền: " + hotelService.FormatVND((int)orderroom.OrderroomTotalprice) + "</p>";
+                mail.Body += "<p>Trạng thái: Hủy đặt phòng thành công</p>";
+
+                mail.Body += "<p>Xin cảm chân thành ơn quý khách hàng đã tin tưởng và sử dụng dịch vụ của chúng tôi</p>";
+
+                mail.Body += "<br>Trân trọng,<br>";
+                mail.IsBodyHtml = true;
+
+                using (SmtpClient smtp = new SmtpClient("smtp.office365.com", 587))
+                {
+                    smtp.Credentials = new System.Net.NetworkCredential("vovannhan2727bc@outlook.com", "8vxzX$PS123");
+                    smtp.EnableSsl = true;
+                    smtp.Send(mail);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            throw;
+        }
+
     }
 }

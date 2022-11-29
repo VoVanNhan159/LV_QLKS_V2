@@ -609,6 +609,12 @@
                 {
                     user = await userService.GetUser(phone);
                 }
+                var code = await sessionStorage.GetItemAsync<string>("code");
+                if(code != null)
+                {
+                    await sessionStorage.RemoveItemAsync("code");
+                    NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Thông báo", Detail = "Bạn đã hủy đặt phòng", Duration = 4000 });
+                }
             }
             catch(Exception ex){
                 Console.WriteLine(ex.ToString());
@@ -699,7 +705,7 @@
                (
                    "Đăng nhập để đặt phòng",
                       new Dictionary<string, object>() {},
-                      new DialogOptions() { ShowTitle = true, Width = "450px", Height = "", Resizable = true, Draggable = true, AutoFocusFirstElement = true }
+                      new DialogOptions() { ShowTitle = true, Width = "1000px", Height = "400px", Resizable = true, Draggable = true, AutoFocusFirstElement = true }
                );
             if (phone != null)
             {
@@ -709,6 +715,7 @@
         else
         {
             await sessionStorage.SetItemAsync("room_id", room_id);
+            await sessionStorage.SetItemAsync("hotel_id", idTemp);
             if(dayStartFilter!= null && dayEndFilter != null){
                 if(dayStartFilter.Month < 10)
                 {
