@@ -164,8 +164,12 @@
                 listOrderroomOrderroomdetailRoom.Add(orderroomOrderroomdetailRoom);
             }
             hubConnection = new HubConnectionBuilder()
-                                    .WithUrl(NavigationManager.ToAbsoluteUri("/HotelBrHub"))
-                                    .Build();
+                        .WithUrl(NavigationManager.ToAbsoluteUri("/HotelBrHub"))
+                        .Build();
+            hubConnection.On("ReceiveMessage", () =>
+            {
+                ReloadData();
+            });
             await hubConnection.StartAsync();
             StateHasChanged();
 
@@ -177,17 +181,36 @@
     }
     //Hub
     private HubConnection hubConnection;
-
     public bool IsConnected => hubConnection.State == HubConnectionState.Connected;
     Task SendMessage() => hubConnection.SendAsync("SendMessage");
     //end hub
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    public async void ReloadData()
     {
-        if(firstRender){
-
+        listOrderroom = await orderroomService.GetAllOrderromOfUser(customer.UserPhone);
+        hotels = await hotelService.GetAllHotel();
+        listOrderroomOrderroomdetailRoom.Clear();
+        @foreach (var item in listOrderroom)
+        {
+            var orderroomOrderroomdetailRoom = new Orderroom_Orderroomdetail_Room();
+            orderroomOrderroomdetailRoom.OrderroomId = item.OrderroomId;
+            orderroomOrderroomdetailRoom.OrderroomDate = item.OrderroomDate;
+            orderroomOrderroomdetailRoom.OrderroomDatestart = item.OrderroomDatestart;
+            orderroomOrderroomdetailRoom.OrderroomDateend = item.OrderroomDateend;
+            orderroomOrderroomdetailRoom.Orderroomdetails = item.Orderroomdetails;
+            orderroomOrderroomdetailRoom.OrderroomTotalprice = item.OrderroomTotalprice;
+            orderroomOrderroomdetailRoom.OrderroomStatus = item.OrderroomStatus;
+            foreach (var odd in item.Orderroomdetails)
+            {
+                var room = await roomService.GetRoom(odd.RoomId);
+                orderroomOrderroomdetailRoom.Rooms.Add(room);
+            }
+            listOrderroomOrderroomdetailRoom.Add(orderroomOrderroomdetailRoom);
         }
-
+        await InvokeAsync(() => {
+            StateHasChanged();
+        });
     }
+
     protected Hotel GetHotelOfOrderroom(Orderroom_Orderroomdetail_Room orderroom)
     {
         foreach (var item in hotels)

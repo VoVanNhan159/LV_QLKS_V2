@@ -16,6 +16,11 @@ namespace LV_QLKS.Service
         {
             return await Http.GetFromJsonAsync<List<User>>(baseurl);
         }
+        public async Task<List<User>> GetAllUserExceptAdmin()
+        {
+            var users = await Http.GetFromJsonAsync<List<User>>(baseurl);
+            return users.Where(u => u.AccountUsernameNavigation.ToaId != 1).ToList();
+        }
         public async Task<User> AddUser(User user)
         {
             var response = await Http.PostAsJsonAsync(baseurl + "/", user);

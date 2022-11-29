@@ -28,7 +28,9 @@ namespace LV_QLKS_API.Controllers
           {
               return NotFound();
           }
-            return await _context.Users.ToListAsync();
+            return await _context.Users
+                .Include(u=>u.AccountUsernameNavigation)
+                .ToListAsync();
         }
 
         // GET: api/Users/5

@@ -1,5 +1,6 @@
 ﻿@page "/owner/orderroom/index"
 @layout Layout_Owner
+@using Microsoft.AspNetCore.SignalR.Client
 @using ShareModel;
 @using ShareModel.Custom
 <PageTitle>Danh sách đơn đặt phòng</PageTitle>
@@ -104,6 +105,11 @@
             StateHasChanged();
         }
     }
+    //start hub
+    private HubConnection hubConnection;
+    public bool IsConnected => hubConnection.State == HubConnectionState.Connected;
+    Task SendMessage() => hubConnection.SendAsync("SendMessage");
+    //end hub
     protected override async Task OnInitializedAsync()
     {
         try
@@ -111,12 +117,29 @@
             phone = await sessionStorage.GetItemAsync<string>("owner_phone");
             owner = await userService.GetUser(phone);
             listOrderrooms = await orderroomService.GetAllOrderroomOfOwner(owner.UserPhone);
+            hubConnection = new HubConnectionBuilder()
+                .WithUrl(NavigationManager.ToAbsoluteUri("/HotelBrHub"))
+                .Build();
+            hubConnection.On("ReceiveMessage", () =>
+            {
+                ReloadData();
+            });
+            await hubConnection.StartAsync();
             StateHasChanged();
         }
         catch(Exception ex)
         {
             Console.WriteLine(ex.ToString());
         }
+    }
+    protected async void ReloadData()
+    {
+        phone = await sessionStorage.GetItemAsync<string>("owner_phone");
+        owner = await userService.GetUser(phone);
+        listOrderrooms = await orderroomService.GetAllOrderroomOfOwner(owner.UserPhone);
+        await InvokeAsync(() => {
+            StateHasChanged();
+        });
     }
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
