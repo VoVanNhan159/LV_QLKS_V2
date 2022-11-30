@@ -2,6 +2,8 @@
 @using LV_QLKS.Service
 @using System.Globalization
 @using Microsoft.AspNetCore.SignalR.Client
+@using Quartz
+@using Quartz.Impl
 @using ShareModel
 @layout Layout_Hotel
 <PageTitle>Trang chủ</PageTitle>
@@ -98,7 +100,7 @@
             }
         </div>
     </div>
-
+    <div id="google_translate_element"></div>
 </div>
 @code{
     public readonly string UrlPluginFB = "https://localhost:7129";
@@ -148,7 +150,7 @@
         {
             await GetMaxPercentDiscountOfHotel(item.HotelId);
         }
-        await InvokeAsync(() => {
+        await this.InvokeAsync(() => {
             StateHasChanged();
         });
     }
@@ -216,4 +218,5 @@
         }
         return res;
     }
+    
 }
