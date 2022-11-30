@@ -11,5 +11,6 @@ namespace ShareModel.Custom
         public string AccountUsername { get; set; } = null!;
         public int ToaId { get; set; }
         public string? AccountPassword { get; set; }
+        public bool? AccountStatus { get; set; }
     }
 }

@@ -1,21 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace ShareModel
+namespace ShareModel.Custom
 {
-    public partial class Account
+    public class Account_Admin
     {
-        public Account()
-        {
-            Users = new HashSet<User>();
-        }
-
         public string AccountUsername { get; set; } = null!;
         public int ToaId { get; set; }
         public string? AccountPassword { get; set; }
         public bool? AccountStatus { get; set; }
 
         public virtual Typeofaccount Toa { get; set; } = null!;
-        public virtual ICollection<User> Users { get; set; }
+        public virtual User User { get; set; }
     }
 }

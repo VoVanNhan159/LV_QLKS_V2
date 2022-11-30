@@ -9,6 +9,23 @@ namespace LV_QLKS.Service
     {
         HttpClient Http = new HttpClient();
         string baseurl = "https://localhost:7282/api/Accounts";
+        public async Task<List<Account_Admin>> GetAllAccount()
+        {
+            List<Account_Admin> account_Admins = new List<Account_Admin>();
+            var accounts = await Http.GetFromJsonAsync<List<Account>>(baseurl);
+            foreach(var acc in accounts)
+            {
+                Account_Admin account_Admin = new Account_Admin();
+                account_Admin.ToaId = acc.ToaId;
+                account_Admin.Toa = acc.Toa;
+                account_Admin.AccountPassword  = acc.AccountPassword;
+                account_Admin.AccountStatus = acc.AccountStatus;
+                account_Admin.AccountUsername = acc.AccountUsername;
+                account_Admin.User = acc.Users.First();
+                account_Admins.Add(account_Admin);
+            }
+            return account_Admins;
+        }
         public async Task<Account> GetAccount(string id, string pwd)
         {
             return await Http.GetFromJsonAsync<Account>(baseurl + "/GetAccountLogin?id=" + id + "&pwd=" + pwd);

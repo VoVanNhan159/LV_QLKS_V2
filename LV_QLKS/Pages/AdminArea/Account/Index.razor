@@ -1,0 +1,79 @@
+﻿@page "/admin/account/index"
+@using System.Globalization
+@using Microsoft.AspNetCore.SignalR.Client
+@using ShareModel.Custom
+@layout Layout_Admin
+<PageTitle>Danh sách tài khoản</PageTitle>
+<div class="main-content">
+    <RadzenText Style="color:darkviolet" TextStyle="TextStyle.DisplayH4" TextAlign="TextAlign.Center"  Text="Danh sách tài khoản"></RadzenText>
+    <div class="section__content section__content--p30">
+        <RadzenDataGrid EmptyText="Không có dữ liệu, vui lòng kiểm tra lại" Data="@account_Admins" FilterMode="FilterMode.Simple" AllowFiltering="true" TItem="Account_Admin" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Center" AllowSorting="true" 
+            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" PageSizeOptions="@pageSizeOptions" PageSize="5" PageSizeText="mẫu tin/trang" ShowPagingSummary="@showPagerSummary" PagingSummaryFormat="@pagingSummaryFormat" Page="@OnPage">
+            <Columns>
+                <RadzenDataGridColumn TItem="Account_Admin" Property="AccountUsername" Title="Tên đăng nhập">
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="Account_Admin" Property="User.UserName" Title="Tên người dùng">
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="Account_Admin" Property="Toa.ToaPower" Title="Quyền">
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="Account_Admin" Title="">
+                    <Template Context="data">
+                        <RadzenRadioButtonList Change="() => UpdateAcc(data)" @bind-Value=data.AccountStatus Orientation="Orientation.Horizontal" TValue="bool?">
+                            <Items>
+                                <RadzenRadioButtonListItem Text="Kích hoạt" Value="true" TValue="bool?" />
+                                <RadzenRadioButtonListItem Text="Tạm khóa" Value="false" TValue="bool?" />
+                            </Items>
+                        </RadzenRadioButtonList>
+                    </Template>
+                </RadzenDataGridColumn>
+            </Columns>
+        </RadzenDataGrid>
+    </div>
+</div>
+
+@code {
+    List<Account_Admin> account_Admins = new List<Account_Admin>();
+
+    AccountService accountService = new AccountService();
+    HotelService hotelService = new HotelService();
+
+
+    //Phân trang
+    string pagingSummaryFormat = "Trang hiển thị {0}/{1} (tổng cộng {2} mẫu tin)";
+
+    IEnumerable<int> pageSizeOptions = new int[] { 5, 10, 15, 20 };
+    bool showPagerSummary = true;
+
+    void OnPage(PagerEventArgs args)
+    {
+        StateHasChanged();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        account_Admins = await accountService.GetAllAccount();
+        StateHasChanged();
+    }
+
+    public async void ReloadData()
+    {
+        account_Admins = await accountService.GetAllAccount();
+        await this.InvokeAsync(() => {
+            StateHasChanged();
+        });
+    }
+    protected async void UpdateAcc(Account_Admin account)
+    {
+        Account_Custom account_Custom = new Account_Custom();
+        account_Custom.AccountUsername = account.AccountUsername;
+        account_Custom.AccountPassword = account.AccountPassword;
+        account_Custom.ToaId = account.ToaId;
+        account_Custom.AccountStatus = account.AccountStatus;
+        var res = await accountService.UpdateAccount(account_Custom);
+        if (res != null)
+        {
+            ReloadData();
+            NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Thành công", Detail = "Cập nhật thành công", Duration = 4000 });
+        }
+    }
+}

@@ -75,7 +75,7 @@
             else
             {
                 newAcc = await accountService.GetAccount(acc.AccountUsername, accountService.Encrypt(acc.AccountPassword));
-                if(newAcc.AccountUsername != null)
+                if(newAcc.AccountUsername != null && newAcc.AccountStatus == true)
                 {
                     var role = newAcc.Toa.ToaPower;
                     var phone = newAcc.AccountUsername;
@@ -135,6 +135,10 @@
 
                     NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Thành công", Detail = "Đăng nhập thành công", Duration = 4000 });
                     this.DialogService.Close(phone);
+                }
+                else if(newAcc.AccountStatus == false)
+                {
+                    NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Thông báo", Detail = "Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên để được giúp đỡ.", Duration = 5000 });
                 }
                 else
                 {

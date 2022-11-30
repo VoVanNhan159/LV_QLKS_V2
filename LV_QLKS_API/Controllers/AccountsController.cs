@@ -29,7 +29,11 @@ namespace LV_QLKS_API.Controllers
           {
               return NotFound();
           }
-            return await _context.Accounts.ToListAsync();
+          return await _context.Accounts
+                .Include(ac=>ac.Users)
+                .Include(ac=>ac.Toa)
+                .Where(ac => ac.ToaId != 1)
+                .ToListAsync();
         }
 
         // GET: api/Accounts/5
@@ -59,6 +63,7 @@ namespace LV_QLKS_API.Controllers
             accountTemp.ToaId = account.ToaId;
             accountTemp.AccountUsername = account.AccountUsername;
             accountTemp.AccountPassword = account.AccountPassword;
+            accountTemp.AccountStatus = account.AccountStatus;
 
             if (id != account.AccountUsername)
             {

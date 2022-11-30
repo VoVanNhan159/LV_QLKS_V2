@@ -67,6 +67,8 @@ namespace ShareModel
                     .HasMaxLength(50)
                     .HasColumnName("ACCOUNT_PASSWORD");
 
+                entity.Property(e => e.AccountStatus).HasColumnName("ACCOUNT_STATUS");
+
                 entity.Property(e => e.ToaId).HasColumnName("TOA_ID");
 
                 entity.HasOne(d => d.Toa)
@@ -369,13 +371,13 @@ namespace ShareModel
                     .HasColumnName("ID");
 
                 entity.HasOne(d => d.Hotel)
-                    .WithMany(p => p.HotelServiceCss)
+                    .WithMany(p => p.HotelServices)
                     .HasForeignKey(d => d.HotelId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_HOTEL_SE_HOTEL_SER_HOTEL");
 
                 entity.HasOne(d => d.Service)
-                    .WithMany(p => p.HotelServiceCss)
+                    .WithMany(p => p.HotelServices)
                     .HasForeignKey(d => d.ServiceId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_HOTEL_SE_HOTEL_SER_SERVICE");
