@@ -89,30 +89,78 @@
                             <div class="row">
                                             @foreach (var item in listRoom)
                                             {
-                                                    <div class="payment-price" style="margin-top: 0px;">
-                                                    <div class="col-lg-5" style="padding-left: none;">
-                                                        <ul style="list-style: none;padding: 25px;">
-                                                            <li>
-                                                                <span class="span-custom">Phòng:</span>
-                                                                @item.RoomName
-                                                            </li>
-                                                            <li>
-                                                                <span class="span-custom">Số lượng phòng:</span>
-                                                                Tối đa @item.Tor.TorCapacity người lớn
-                                                            </li>
-                                                        </ul>
-                                                    </div>
-                                                    <div class="col-lg-5">
-                                                        <div class="total-trip" style="padding: 0px; width: max-content;">
-                                                            <p style="border-top: 0px;">
-                                                                Giá: <ins>@hotelService.FormatVND((int)item.Tor.TorPrice) đồng<small>/đêm</small>(giảm @GetPercentOfRoom(item)%) * @totalDay</ins>
-                                                                
-                                                            </p><p style="border-top: 0px;">
-                                                                = <ins>@hotelService.FormatVND(GetPriceAfterMinus(item) * (int)totalDay)</ins>
-                                                            </p>
+                                                <div class="payment-price" style="margin-top: 0px;">
+                                                        <div class="col-lg-5" style="padding-left: none;">
+                                                            <ul style="list-style: none;padding: 25px;">
+                                                                <li>
+                                                                    <span class="span-custom">Phòng:</span>
+                                                                    @item.RoomName
+                                                                </li>
+                                                                <li>
+                                                                    <span class="span-custom">Số lượng phòng:</span>
+                                                                    Tối đa @item.Tor.TorCapacity người lớn
+                                                                </li>
+                                                            </ul>
                                                         </div>
-                                                    </div>  
-                                                </div>
+                                                        <div class="col-lg-5">
+                                                            <figure>
+                                                                @{
+                                                                    try{
+                                                                        var url = imageService.GetURLImage(item.ImageRooms.FirstOrDefault().ImageId);
+                                                                            <img style="width:50%;height:50%;" src="/images/@url" alt="@url">
+                                                                    }
+                                                                    catch(Exception ex)
+                                                                    {
+                                                                        Console.WriteLine(ex.ToString());
+                                                                    }
+                                                                }
+                                                            </figure>
+                                                            @if(GetPercentOfRoom(item) > 0){
+                                                                <div class="total-trip" style="padding: 0px; width: max-content;">
+                                                                    @foreach (var discountdetail in discountdetails)
+                                                                    {
+                                                                        double priceDiscount = 0;
+                                                                        double priceNotDiscount = 0;
+                                                                        if(discountdetail.RoomId == item.RoomId){
+                                                                            if(discountdetail.Discount.DiscountDateend > orderroom.OrderroomDatestart && orderroom.OrderroomDatestart > discountdetail.Discount.DiscountDatestart && orderroom.OrderroomDateend > discountdetail.Discount.DiscountDateend)
+                                                                            {
+                                                                                var countDayDiscount = (discountdetail.Discount.DiscountDateend - orderroom.OrderroomDatestart).Value.TotalDays;
+                                                                                var countDayNotDiscount = (orderroom.OrderroomDateend - discountdetail.Discount.DiscountDateend).Value.TotalDays;
+                                                                                priceDiscount += countDayDiscount * (double)GetPriceAfterMinus(item);
+                                                                                priceNotDiscount += countDayNotDiscount * (double)GetPriceAfterMinus(item);
+                                                                                <p style="border-top: 0px;">
+                                                                                    Giá từ @hotelService.FormatShortDateVN(orderroom.OrderroomDatestart.ToString()) đến @hotelService.FormatShortDateVN(discountdetail.Discount.DiscountDateend.ToString()) : <br /><ins>@hotelService.FormatVND((int)GetPriceAfterMinus(item))<small>/đêm</small>(giảm @GetPercentOfRoom(item)%) * @countDayDiscount</ins>
+                                                                                </p>
+                                                                                <p style="border-top: 0px;">
+                                                                                    Giá từ @hotelService.FormatShortDateVN(discountdetail.Discount.DiscountDateend.ToString()) đến @hotelService.FormatShortDateVN(orderroom.OrderroomDateend.ToString()) : <br /><ins>@hotelService.FormatVND((int)item.Tor.TorPrice)<small>/đêm</small> * @countDayNotDiscount</ins>
+                                                                                </p>
+                                                                            }
+                                                                            else if(discountdetail.Discount.DiscountDateend >= orderroom.OrderroomDateend && orderroom.OrderroomDatestart >= discountdetail.Discount.DiscountDatestart)
+                                                                            {
+                                                                                var countDayDiscount = (discountdetail.Discount.DiscountDateend - orderroom.OrderroomDatestart).Value.TotalDays;
+                                                                                var countDayNotDiscount = (orderroom.OrderroomDateend - discountdetail.Discount.DiscountDateend).Value.TotalDays;
+                                                                                priceDiscount += countDayDiscount * (double)GetPriceAfterMinus(item);
+                                                                                priceNotDiscount += countDayNotDiscount * (double)GetPriceAfterMinus(item);
+                                                                                <p style="border-top: 0px;">
+                                                                                    Giá:<ins style="text-decoration: line-through;">@hotelService.FormatVND((int)item.Tor.TorPrice)<small>/đêm</small></ins>
+                                                                                </p>
+                                                                                <p style="border-top: 0px;">
+                                                                                    Giá:<ins>@hotelService.FormatVND((int)GetPriceAfterMinus(item))<small>/đêm</small>(giảm @GetPercentOfRoom(item)%) * @countDayDiscount</ins>
+                                                                                </p>
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                </div>
+                                                            }
+                                                            else{
+                                                                <div class="total-trip" style="padding: 0px; width: max-content;">
+                                                                    <p style="border-top: 0px;">
+                                                                        Giá: <ins>@hotelService.FormatVND(GetPriceAfterMinus(item))<small>/đêm</small>* @totalDay</ins>
+                                                                    </p>
+                                                                </div>
+                                                            }
+                                                        </div>
+                                                    </div>
                                             }
                                         </div>
                             <div class="section colm colm6 total-trip" style="padding-top: 20px;padding-bottom: 10px;font-size: large;">
@@ -140,7 +188,21 @@
     }
     else
     {
-        <p>Đang tải ...</p>
+        <div style="padding-top: 9em;text-align-last: center;">
+                <svg class="lds-typing" width="80px"  height="80px"  xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid" style="background: none;"><circle cx="24.5" cy="48.4263" r="6" fill="#e15b64">
+                  <animate attributeName="cy" calcMode="spline" keySplines="0 0.5 0.5 1;0.5 0 1 0.5;0.5 0.5 0.5 0.5" repeatCount="indefinite" values="62.5;37.5;62.5;62.5" keyTimes="0;0.25;0.5;1" dur="1s" begin="-0.5s"></animate>
+                </circle> <circle cx="41.5" cy="62.5" r="6" fill="#f47e60">
+                  <animate attributeName="cy" calcMode="spline" keySplines="0 0.5 0.5 1;0.5 0 1 0.5;0.5 0.5 0.5 0.5" repeatCount="indefinite" values="62.5;37.5;62.5;62.5" keyTimes="0;0.25;0.5;1" dur="1s" begin="-0.375s"></animate>
+                </circle> <circle cx="58.5" cy="62.5" r="6" fill="#f8b26a">
+                  <animate attributeName="cy" calcMode="spline" keySplines="0 0.5 0.5 1;0.5 0 1 0.5;0.5 0.5 0.5 0.5" repeatCount="indefinite" values="62.5;37.5;62.5;62.5" keyTimes="0;0.25;0.5;1" dur="1s" begin="-0.25s"></animate>
+                </circle> <circle cx="75.5" cy="62.5" r="6" fill="#abbd81">
+                  <animate attributeName="cy" calcMode="spline" keySplines="0 0.5 0.5 1;0.5 0 1 0.5;0.5 0.5 0.5 0.5" repeatCount="indefinite" values="62.5;37.5;62.5;62.5" keyTimes="0;0.25;0.5;1" dur="1s" begin="-0.125s"></animate>
+                </circle>
+                </svg>
+            </div>
+            <div style="text-align-last: center;">
+                <p>Bạn chưa có đơn đặt phòng nào trong giỏ hàng</p>    
+            </div>
     }
 </div>
 
@@ -179,6 +241,10 @@
     //Tổng tiền đặt phòng
     private double totalPrice = 0;
     private double totalDay;
+    double priceDiscount = 0;
+    double priceNotDiscount = 0;
+    double countDayDiscount = 0;
+    double countDayNotDiscount = 0;
 
     private string addressHotel = "";
     private string urlImageRoom = "";
@@ -232,7 +298,7 @@
         int percent = 0;
         foreach (var item in discountdetails)
         {
-            if(item.RoomId == room.RoomId)
+            if(item.RoomId == room.RoomId && (item.Discount.DiscountDateend > orderroom.OrderroomDatestart))
                 if (percent <= item.Percent)
                     percent = (int)item.Percent;
         }
@@ -245,7 +311,7 @@
         int percent = 0;
         foreach (var item in discountdetails)
         {
-            if(item.RoomId == room.RoomId)
+            if(item.RoomId == room.RoomId && (item.Discount.DiscountDateend > orderroom.OrderroomDatestart))
                 if (percent <= item.Percent)
                     percent = (int)item.Percent;
         }
@@ -297,16 +363,43 @@
 
     }
 
-    protected void CalTotalPrice()
+
+    protected async void CalTotalPrice()
     {
-        totalDay = (dayEndFilter - dayStartFilter).TotalDays;
-        foreach (var item in listRoom)
+        int countDiscount = 0;
+
+        //tính giá khuyến mãi không trùng hết với ngày khuyến mãi
+        foreach (var discountdetail in discountdetails)
         {
-            totalPrice += totalDay * (double)GetPriceAfterMinus(item);
+            var room = await roomService.GetRoom(discountdetail.RoomId);
+            priceDiscount = 0;
+            priceNotDiscount = 0;
+
+            foreach (var item in listRoom)
+            {
+                if(item.RoomId == discountdetail.RoomId && discountdetail.Discount.DiscountDateend > dayStartFilter && dayStartFilter > discountdetail.Discount.DiscountDatestart && dayEndFilter > discountdetail.Discount.DiscountDateend)
+                {
+                    countDayDiscount = (discountdetail.Discount.DiscountDateend - dayStartFilter).Value.TotalDays;
+                    countDayNotDiscount = (dayEndFilter - discountdetail.Discount.DiscountDateend).Value.TotalDays;
+                    priceDiscount += countDayDiscount * (double)GetPriceAfterMinus(room);
+                    priceNotDiscount += countDayNotDiscount * (double)room.Tor.TorPrice;
+                    totalPrice += priceDiscount + priceNotDiscount;
+                    totalDay = countDayDiscount + countDayNotDiscount;
+                    countDiscount++;
+                }
+            }
+        }
+        //tính giá khuyến mãi không trùng hết với ngày khuyến mãi
+        if(countDiscount == 0)
+        {
+            totalDay = (dayEndFilter - dayStartFilter).TotalDays;
+            foreach (var item in listRoom)
+            {
+                totalPrice += totalDay * (double)GetPriceAfterMinus(item);
+            }
         }
         StateHasChanged();
     }
-
     private void QuatityChange(string value)
     {
         quantity = value;
@@ -350,7 +443,7 @@
                 // 1 là thanh toán tiền khi nhận phòng
                 // 2 là thanh toán trực tuyến
                 await sessionStorage.SetItemAsStringAsync("orderroom_id", orderroom.OrderroomId.ToString());
-                await JS.InvokeVoidAsync("open", paymentUrl, "_blank");
+                await JS.InvokeVoidAsync("open", paymentUrl, "_self");
                 paying = true;
             }
             else if (tt == 1)
@@ -413,10 +506,31 @@
                 mail.Body += "<p>Chúng tôi xin xác nhận lại thông tin đặt phòng như sau:<p/>";
                 mail.Body += "<p>Khách sạn: " + room.Hotel.HotelName + "</p>";
                 mail.Body += "<p>Địa chỉ: " + hotelService.GetAddressHotel(room.Hotel.HotelId) + "</p>";
+                mail.Body += "<table style=\"border: 1px solid black; border-collapse: collapse\">";
+
+                mail.Body += "<thead>";
+                mail.Body += "<tr>";
+                mail.Body += "<th style=\"border:1px solid black\">Phòng</th>";
+                mail.Body += "<th style=\"border:1px solid black\">Loại phòng</th>";
+                mail.Body += "<th style=\"border:1px solid black\">Đơn giá</th>";
+                mail.Body += "</tr>";
+                mail.Body += "</thead>";
+
+                mail.Body += "<tbody>";
                 foreach (var item in orderroomdetails)
                 {
-                    mail.Body += "<p>Phòng đặt: " + item.Room.RoomName + "</p>";
+                    var roomSendMail = await roomService.GetRoom(item.RoomId);
+                    mail.Body += "<tr>";
+                    mail.Body += "<td style=\"border:1px solid black\">" + roomSendMail.RoomName + "</td>";
+                    mail.Body += "<td style=\"border:1px solid black\">" + roomSendMail.Tor.TorName + "</td>";
+                    mail.Body += "<td style=\"border:1px solid black\">" + roomSendMail.Tor.TorPrice + "</td>";
+                    mail.Body += "</tr>";
                 }
+
+                mail.Body += "<tbody>";
+
+                mail.Body += "</table>";
+
                 mail.Body += "<p>Ngày đặt: " + hotelService.FormatDateVN(orderroom.OrderroomDate.ToString()) + "</p>";
                 mail.Body += "<p>Ngày nhận phòng: " + hotelService.FormatDateVN(orderroom.OrderroomDatestart.ToString()) + "</p>";
                 mail.Body += "<p>Ngày trả phòng: " + hotelService.FormatDateVN(orderroom.OrderroomDateend.ToString()) + "</p>";

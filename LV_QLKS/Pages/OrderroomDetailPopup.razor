@@ -94,10 +94,30 @@
                                                                 }
                                                             </figure>
                                                             @if(GetPercentOfRoom(item) > 0){
-                                                                <div class="total-trip" style="padding: 0px; width: max-content;">
+                                                                <div class="total-trip" style="padding: 0px;padding-left: 20px; width: max-content;">
                                                                     <p style="border-top: 0px;text-decoration: line-through;">
                                                                         Giá: <ins>@hotelService.FormatVND((int)item.Tor.TorPrice)<small>/đêm</small></ins>
                                                                     </p>
+                                                                    @foreach (var discountdetail in discountdetails)
+                                                                    {
+                                                                        if(discountdetail.RoomId == item.RoomId){
+                                                                            double priceDiscount = 0;
+                                                                            double priceNotDiscount = 0;
+                                                                            if(discountdetail.Discount.DiscountDateend > orderroom.OrderroomDatestart && orderroom.OrderroomDatestart > discountdetail.Discount.DiscountDatestart)
+                                                                            {
+                                                                                var countDayDiscount = (discountdetail.Discount.DiscountDateend - orderroom.OrderroomDatestart).Value.TotalDays;
+                                                                                var countDayNotDiscount = (orderroom.OrderroomDateend - discountdetail.Discount.DiscountDateend).Value.TotalDays;
+                                                                                priceDiscount += countDayDiscount * (double)GetPriceAfterMinus(item);
+                                                                                priceNotDiscount += countDayNotDiscount * (double)GetPriceAfterMinus(item);
+                                                                                <p style="border-top: 0px;">
+                                                                                    Giá từ @hotelService.FormatDateVN(orderroom.OrderroomDatestart.ToString()) đến @hotelService.FormatDateVN(discountdetail.Discount.DiscountDateend.ToString()) : <ins>@hotelService.FormatVND((int)priceDiscount)<small>/đêm</small>(giảm @GetPercentOfRoom(item)%)</ins>
+                                                                                </p>
+                                                                                <p style="border-top: 0px;">
+                                                                                    Giá từ @hotelService.FormatDateVN(discountdetail.Discount.DiscountDateend.ToString()) đến @hotelService.FormatDateVN(orderroom.OrderroomDateend.ToString()) : <ins>@hotelService.FormatVND((int)item.Tor.TorPrice)<small>/đêm</small></ins>
+                                                                                </p>
+                                                                            }
+                                                                        }
+                                                                    }
                                                                     <p style="border-top: 0px;">
                                                                         Giá: <ins>@hotelService.FormatVND(GetPriceAfterMinus(item))<small>/đêm</small></ins>
                                                                     </p>
@@ -118,7 +138,7 @@
                                                 }
                                                 else{
                                                     <div class="payment-price" style="margin-top: 0px;">
-                                                        <div class="col-lg-5" style="padding-left: none;">
+                                                        <div class="col-lg-4" style="padding-left: none;">
                                                             <ul style="list-style: none;padding: 25px;">
                                                                 <li>
                                                                     <span class="span-custom">Phòng:</span>
@@ -130,12 +150,12 @@
                                                                 </li>
                                                             </ul>
                                                         </div>
-                                                        <div class="col-lg-5">
+                                                        <div class="col-lg-6">
                                                             <figure>
                                                                 @{
                                                                     try{
                                                                         var url = imageService.GetURLImage(item.ImageRooms.FirstOrDefault().ImageId);
-                                                                            <img style="width:50%;height:50%;" src="/images/@url" alt="@url">
+                                                                            <img src="/images/@url" alt="@url">
                                                                     }
                                                                     catch(Exception ex)
                                                                     {
@@ -144,23 +164,45 @@
                                                                 }
                                                             </figure>
                                                             @if(GetPercentOfRoom(item) > 0){
-                                                                <div class="total-trip" style="padding: 0px; width: max-content;">
+                                                                <div class="total-trip" style="padding: 0px;padding-left: 20px; width: max-content;">
                                                                     <p style="border-top: 0px;text-decoration: line-through;">
                                                                         Giá: <ins>@hotelService.FormatVND((int)item.Tor.TorPrice)<small>/đêm</small></ins>
                                                                     </p>
                                                                     <p style="border-top: 0px;">
-                                                                        Giá: <ins>@hotelService.FormatVND(GetPriceAfterMinus(item))<small>/đêm</small></ins>
+                                                                        Giá: <ins>@hotelService.FormatVND(GetPriceAfterMinus(item))<small>/đêm</small>(giảm @GetPercentOfRoom(item)%)</ins>
                                                                     </p>
+                                                                    @foreach (var discountdetail in discountdetails)
+                                                                    {
+                                                                        double priceDiscount = 0;
+                                                                        double priceNotDiscount = 0;
+                                                                        if(discountdetail.RoomId == item.RoomId){
+                                                                            if(discountdetail.Discount.DiscountDateend > orderroom.OrderroomDatestart && orderroom.OrderroomDatestart > discountdetail.Discount.DiscountDatestart && orderroom.OrderroomDateend > discountdetail.Discount.DiscountDateend)
+                                                                            {
+                                                                                var countDayDiscount = (discountdetail.Discount.DiscountDateend - orderroom.OrderroomDatestart).Value.TotalDays;
+                                                                                var countDayNotDiscount = (orderroom.OrderroomDateend - discountdetail.Discount.DiscountDateend).Value.TotalDays;
+                                                                                priceDiscount += countDayDiscount * (double)GetPriceAfterMinus(item);
+                                                                                priceNotDiscount += countDayNotDiscount * (double)GetPriceAfterMinus(item);
+                                                                                <p style="border-top: 0px;">
+                                                                                    Giá từ @hotelService.FormatShortDateVN(orderroom.OrderroomDatestart.ToString()) đến @hotelService.FormatShortDateVN(discountdetail.Discount.DiscountDateend.ToString()) : <ins>@hotelService.FormatVND((int)GetPriceAfterMinus(item))<small>/đêm</small>(giảm @GetPercentOfRoom(item)%)</ins>
+                                                                                </p>
+                                                                                <p style="border-top: 0px;">
+                                                                                    Giá từ @hotelService.FormatShortDateVN(discountdetail.Discount.DiscountDateend.ToString()) đến @hotelService.FormatShortDateVN(orderroom.OrderroomDateend.ToString()) : <ins>@hotelService.FormatVND((int)item.Tor.TorPrice)<small>/đêm</small></ins>
+                                                                                </p>
+                                                                            }
+                                                                        }
+                                                                    }
                                                                 </div>
                                                             }
                                                             else{
-                                                                <div class="total-trip" style="padding: 0px; width: max-content;">
+                                                                <div class="total-trip" style="padding: 0px;padding-left: 20px; width: max-content;">
                                                                     <p style="border-top: 0px;">
                                                                         Giá: <ins>@hotelService.FormatVND(GetPriceAfterMinus(item))<small>/đêm</small></ins>
                                                                     </p>
                                                                 </div>
                                                             }
                                                         </div>  
+                                                        <br />
+                                                        <br />
                                                         <div class="col-lg-2" style="text-align-last: center;padding:25px">
                                                         <button class="btn btn-suscess" @onclick="()=> DeleteOrderroomDetail(item.RoomId)"><i class="fa fa-trash" aria-hidden="true"></i></button>  
                                                         </div>
@@ -210,6 +252,7 @@
     DiscountdetailService discountdetailService = new DiscountdetailService();
 
     List<Discountdetail> discountdetails = new List<Discountdetail>();
+    List<Discountdetail> discountdetailDates = new List<Discountdetail>();
     ShareModel.Hotel hoTel = new ShareModel.Hotel();
     List<ShareModel.Room> listRoom = new List<ShareModel.Room>();
     User user = new User();
@@ -228,6 +271,10 @@
     private string addressHotel = "";
     private string torPrice = "0";
 
+    protected override async Task OnInitializedAsync()
+    {
+        discountdetails = await discountdetailService.GetAllDiscountdetailActive();
+    }
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
@@ -263,7 +310,7 @@
                     hoTel = listRoom.First().Hotel;
                     addressHotel = hotelService.GetAddressHotel(hoTel.HotelId);
                 }
-                discountdetails = await discountdetailService.GetAllDiscountdetailActive();
+                discountdetailDates = await discountdetailService.GetAllDiscountdetailActive();
                 orderrooms = await orderroomService.GetAllOrderrom();
                 orderroomdetails = await orderroomDetailService.GetAllOrderromDetail();
                 StateHasChanged();
@@ -379,7 +426,7 @@
         }
         orderroomCustom.OrderroomStatus = orderroom.OrderroomStatus;
         orderroomCustom.UserPhone = orderroom.UserPhone;
-        CalTotalPrice(orderroomCustom);
+        await CalTotalPrice(orderroomCustom);
         orderroomCustom.OrderroomTotalprice = (int)totalPrice;
         var res = await orderroomService.UpdateOrderroomAfterPayment(orderroomCustom);
         if(res.OrderroomId == orderroom.OrderroomId)
@@ -389,7 +436,7 @@
                 orderroom.OrderroomDateend = orderroom.OrderroomDatestart.Value.AddDays(1);
             }
         }
-        discountdetails = discountdetailService.GetAllDiscountdetailActiveDate((DateTime)orderroom.OrderroomDatestart, (DateTime)orderroom.OrderroomDateend).Result;
+        discountdetailDates = discountdetailService.GetAllDiscountdetailActiveDate((DateTime)orderroom.OrderroomDatestart, (DateTime)orderroom.OrderroomDateend).Result;
         StateHasChanged();
     }
     protected async void DayEndChange()
@@ -401,45 +448,74 @@
         orderroomCustom.OrderroomDateend = orderroom.OrderroomDateend;
         orderroomCustom.OrderroomStatus = orderroom.OrderroomStatus;
         orderroomCustom.UserPhone = orderroom.UserPhone;
-        CalTotalPrice(orderroomCustom);
+        await CalTotalPrice(orderroomCustom);
         orderroomCustom.OrderroomTotalprice = (int)totalPrice;
         var res = await orderroomService.UpdateOrderroomAfterPayment(orderroomCustom);
-        discountdetails = discountdetailService.GetAllDiscountdetailActiveDate((DateTime)orderroomCustom.OrderroomDatestart, (DateTime)orderroomCustom.OrderroomDateend).Result;
+        discountdetailDates = discountdetailService.GetAllDiscountdetailActiveDate((DateTime)orderroomCustom.OrderroomDatestart, (DateTime)orderroomCustom.OrderroomDateend).Result;
         StateHasChanged();
     }
     //Get tỉ lệ khuyến mãi
     public int GetPercentOfRoom(Room room)
     {
         int percent = 0;
-        foreach (var item in discountdetails)
+        foreach (var item in discountdetailDates)
         {
-            if(item.RoomId == room.RoomId)
+            if(item.RoomId == room.RoomId && (item.Discount.DiscountDateend > orderroom.OrderroomDatestart))
                 if (percent <= item.Percent)
                     percent = (int)item.Percent;
         }
         return percent;
+
     }
     //Get giá sau khi khuyến mãi
     public int GetPriceAfterMinus(Room room)
     {
         int res = 0;
         int percent = 0;
-        foreach (var item in discountdetails)
+        foreach (var item in discountdetailDates)
         {
-            if(item.RoomId == room.RoomId)
+            if(item.RoomId == room.RoomId && (item.Discount.DiscountDateend > orderroom.OrderroomDatestart))
                 if (percent <= item.Percent)
                     percent = (int)item.Percent;
         }
         res = (int)room.Tor.TorPrice / 100 * (100 - percent);
         return res;
     }
-    protected void CalTotalPrice(Orderroom_Custom orderroom_Custom)
+    protected async Task CalTotalPrice(Orderroom_Custom orderroom_Custom)
     {
         totalPrice = 0;
-        totalDay = (orderroom_Custom.OrderroomDateend - orderroom_Custom.OrderroomDatestart).Value.TotalDays;
-        foreach (var item in listRoom)
+        int countDiscount = 0;
+        //tính giá khuyến mãi không trùng hết với ngày khuyến mãi
+        foreach (var discountdetail in discountdetails)
         {
-            totalPrice += totalDay * (double)GetPriceAfterMinus(item);
+            var orderroomdetails = await orderroomDetailService.GetAllOrderromDetailOfOrderrom(orderroom_Custom.OrderroomId);
+            foreach (var item in orderroomdetails)
+            {
+                if(item.RoomId == discountdetail.RoomId)
+                {
+                    var room = await roomService.GetRoom(item.RoomId);
+                    double priceDiscount = 0;
+                    double priceNotDiscount = 0;
+                    if(discountdetail.Discount.DiscountDateend > orderroom.OrderroomDatestart && orderroom.OrderroomDatestart > discountdetail.Discount.DiscountDatestart && orderroom.OrderroomDateend > discountdetail.Discount.DiscountDateend)
+                    {
+                        var countDayDiscount = (discountdetail.Discount.DiscountDateend - orderroom_Custom.OrderroomDatestart).Value.TotalDays;
+                        var countDayNotDiscount = (orderroom_Custom.OrderroomDateend - discountdetail.Discount.DiscountDateend).Value.TotalDays;
+                        priceDiscount += countDayDiscount * (double)GetPriceAfterMinus(room);
+                        priceNotDiscount += countDayNotDiscount * (double)room.Tor.TorPrice;
+                        totalPrice += priceDiscount + priceNotDiscount;
+                        countDiscount++;
+                    }
+                }
+            }
+        }
+        //tính giá khuyến mãi không trùng hết với ngày khuyến mãi
+        if(countDiscount == 0)
+        {
+            totalDay = (orderroom_Custom.OrderroomDateend - orderroom_Custom.OrderroomDatestart).Value.TotalDays;
+            foreach (var item in listRoom)
+            {
+                totalPrice += totalDay * (double)GetPriceAfterMinus(item);
+            }
         }
         StateHasChanged();
     }

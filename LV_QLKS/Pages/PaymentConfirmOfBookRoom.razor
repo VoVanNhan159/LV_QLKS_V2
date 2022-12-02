@@ -219,6 +219,7 @@
         try
         {
             var room = await roomService.GetRoom(orderroomdetail.RoomId);
+            user = await userService.GetUser(orderroom.UserPhone);
             using (MailMessage mail = new MailMessage())
             {
                 mail.From = new MailAddress("vovannhan2727bc@outlook.com");
@@ -270,10 +271,30 @@
                 mail.Body += "<p>Chúng tôi xin xác nhận lại thông tin đặt phòng như sau:<p/>";
                 mail.Body += "<p>Khách sạn: " + room.Hotel.HotelName + "</p>";
                 mail.Body += "<p>Địa chỉ: " + hotelService.GetAddressHotel(room.Hotel.HotelId) + "</p>";
+                mail.Body += "<table class=\"table table-striped\" style=\"border: 1px solid black; border-collapse: collapse;width:300px;\">";
+
+                mail.Body += "<thead>";
+                mail.Body += "<tr>";
+                mail.Body += "<th style=\"border:1px solid black\">Phòng</th>";
+                mail.Body += "<th style=\"border:1px solid black\">Loại phòng</th>";
+                mail.Body += "<th style=\"border:1px solid black\">Đơn giá</th>";
+                mail.Body += "</tr>";
+                mail.Body += "</thead>";
+
+                mail.Body += "<tbody>";
                 foreach (var item in orderroomdetails)
                 {
-                    mail.Body += "<p>Phòng đặt: " + item.Room.RoomName + "</p>";
+                    var roomSendMail = await roomService.GetRoom(item.RoomId);
+                    mail.Body += "<tr>";
+                    mail.Body += "<td style=\"border:1px solid black\">" + roomSendMail.RoomName + "</td>";
+                    mail.Body += "<td style=\"border:1px solid black\">" + roomSendMail.Tor.TorName + "</td>";
+                    mail.Body += "<td style=\"border:1px solid black\">" + roomSendMail.Tor.TorPrice + "</td>";
+                    mail.Body += "</tr>";
                 }
+
+                mail.Body += "<tbody>";
+
+                mail.Body += "</table>";
                 mail.Body += "<p>Ngày đặt: " + orderroom.OrderroomDate + "</p>";
                 mail.Body += "<p>Ngày nhận phòng: " + orderroom.OrderroomDatestart + "</p>";
                 mail.Body += "<p>Ngày trả phòng: " + orderroom.OrderroomDateend + "</p>";

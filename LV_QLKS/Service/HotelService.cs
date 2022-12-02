@@ -66,6 +66,10 @@ namespace LV_QLKS.Service
         {
             return DateTime.Parse(date).ToString("dd, MMMM, yyyy", new System.Globalization.CultureInfo("vi-VN"));
         }
+        public string FormatShortDateVN(string date)
+        {
+            return DateTime.Parse(date).ToString("dd/MM/yyyy", new System.Globalization.CultureInfo("vi-VN"));
+        }
         public string GetUrlHotelDetail(int id)
         {
             return "/HotelDetail/" + id;

@@ -36,7 +36,7 @@ namespace LV_QLKS_API.Controllers
             {
                 if(item.DiscountDateend >= DateTime.Now)
                 {
-                    var discountDetailsTemp = await _context.Discountdetails.Where(dd=>dd.DiscountId == item.DiscountId).ToListAsync();
+                    var discountDetailsTemp = await _context.Discountdetails.Include(dd=>dd.Room).Include(dd=>dd.Discount).Where(dd=>dd.DiscountId == item.DiscountId).ToListAsync();
                     discountDetails.AddRange(discountDetailsTemp);
                 }
             }
@@ -66,7 +66,7 @@ namespace LV_QLKS_API.Controllers
             {
                 if (item.DiscountDatestart <= dateStart && item.DiscountDateend >= dateEnd)
                 {
-                    var discountDetailsTemp = await _context.Discountdetails.Where(dd => dd.DiscountId == item.DiscountId).ToListAsync();
+                    var discountDetailsTemp = await _context.Discountdetails.Include(dd=>dd.Discount).Where(dd => dd.DiscountId == item.DiscountId).ToListAsync();
                     discountDetails.AddRange(discountDetailsTemp);
                 }
             }

@@ -45,7 +45,23 @@ namespace LV_QLKS.Service
             var discounts = _context.Discounts.ToList();
             foreach (var item in discounts)
             {
-                if (item.DiscountDatestart <= dateStart && item.DiscountDateend >= dateEnd)
+                if ((item.DiscountDatestart <= dateStart && item.DiscountDateend >= dateEnd) || item.DiscountDatestart <= dateStart && item.DiscountDateend >= dateStart)
+                {
+                    var discountDetailsTemp = _context.Discountdetails.Where(dd => dd.DiscountId == item.DiscountId).ToList();
+                    discountDetails.AddRange(discountDetailsTemp);
+                }
+            }
+            return discountDetails;
+        }
+        //Lấy tất cả discoutdetail khi ngày bắt đầu nằm ở giữa
+        public async Task<List<Discountdetail>> GetAllDiscountdetailActiveDay(DateTime dateStart)
+        {
+            LV_QLKSContext _context = new LV_QLKSContext();
+            List<Discountdetail> discountDetails = new List<Discountdetail>();
+            var discounts = _context.Discounts.ToList();
+            foreach (var item in discounts)
+            {
+                if (item.DiscountDatestart <= dateStart && item.DiscountDateend >= dateStart)
                 {
                     var discountDetailsTemp = _context.Discountdetails.Where(dd => dd.DiscountId == item.DiscountId).ToList();
                     discountDetails.AddRange(discountDetailsTemp);
