@@ -74,7 +74,7 @@
                                                     Điểm đến
                                                 </div>
                                                 <div class="row-md-7">
-                                                    <RadzenTextBox class="w-100" Placeholder="Nhập điểm đến của bạn" @bind-Value=destination></RadzenTextBox>
+                                                    <RadzenTextBox class="w-100" Placeholder="Tên khách sạn | Điểm đến" AutoComplete=true @bind-Value=destination></RadzenTextBox>
                                                 </div>
                                             </div>
                                             <div class="col-lg-4" style="border-left: outset;">
@@ -144,7 +144,7 @@
                 <div class="title-wrap">
                     <div class="container">
                         <div class="travel-title float-left">
-                            <h2>Danh sách các điểm đến thú vị</h2>
+                            <h2>Danh sách khách sạn theo tỉnh</h2>
                         </div>
                     </div>
                 </div>
@@ -162,11 +162,11 @@
                                 <div class="col-md-4 col-lg-3">
                                     <div class="intro-filter">
                                         <div class="intro">
-                                            <p>
+                                            <p style="color:black">
                                                 <small>Với</small><br>
                                                 <span>@provincesDestination.Count/@provinces.Count</span> Tỉnh/Thành phố
                                             </p>
-                                            <p>
+                                            <p style="color:black">
                                                 <small>Và</small><br>
                                                 <span>@hotelActives.Count</span> khách sạn
                                             </p>

@@ -192,10 +192,13 @@
             await JS.InvokeVoidAsync("eval", $@"document.getElementById(""passWordOne"").focus()");
             NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Thông báo", Detail = "Mật khẩu không khớp", Duration = 4000 });
         }
-        else if(customer.UserId.Length != 12 && customer.UserId.ToString().Substring(0,1) != "0")
+        else if(customer.UserId == "")
         {
-            await JS.InvokeVoidAsync("eval", $@"document.getElementById(""UserId"").focus()");
-            NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Thông báo", Detail = "Vui lòng nhập số CCCD hợp lệ", Duration = 4000 });
+            if(customer.UserId.ToString().Substring(0,1) != "0")
+            {
+                await JS.InvokeVoidAsync("eval", $@"document.getElementById(""UserId"").focus()");
+                NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Thông báo", Detail = "Vui lòng nhập số CCCD hợp lệ", Duration = 4000 });
+            }
         }
         else
         {

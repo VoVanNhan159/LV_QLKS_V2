@@ -249,31 +249,57 @@ namespace LV_QLKS_API.Controllers
 
             return list;
         }
+        //Khách sạn còn hạn đăng tin
+        [HttpGet("GetAllHotelIsActive")]
+        public async Task<List<Hotel>> GetAllHotelIsActive()
+        {
+            var hotels = new List<Hotel>();
+            var hotelsTemp = await _context.Hotels.Include(h => h.Ward).ToListAsync();
+            var priceListBRs = await _context.Pricelistbrs.ToListAsync();
+            var hotel = new List<Hotel>();
+            foreach (var item in hotelsTemp)
+            {
+                var image = _context.ImageHotels.Where(i => i.HotelId == item.HotelId).FirstOrDefault();
+                var hotelAdd = new Hotel();
+                hotelAdd = item;
+                hotelAdd.ImageHotels.Add(image);
+                hotel.Add(hotelAdd);
+            }
+
+            var businessregistrations = await _context.Businessregistrations.Include(br => br.Hotel).ToListAsync();
+            foreach (var item in businessregistrations)
+            {
+                var priceListBR = priceListBRs.Single(plbr => plbr.PricelistbrId == item.PricelistbrId);
+                if (DateTime.Parse(item.BrDate.ToString()).AddMonths((int)priceListBR.PricelistbrMonth) >= DateTime.Now)
+                    hotels.Add(item.Hotel);
+            }
+
+            return hotels;
+        }
         //tìm phòng theo tỉnh, ngày, số lượng
         [HttpGet("GetListRoomFillter")]
         public List<Room> GetListRoomFillter(string provinceName, DateTime dayStart, DateTime dayEnd, int capacity)
         {
-            HotelsController hotelsController = new HotelsController(_context);
-            ProvincesController provincesController = new ProvincesController(_context);
             List<Province> provinces = new List<Province>();
+            List<District> districts = new List<District>();
             List<Hotel> hotels = new List<Hotel>();
-            var hotelsTemp = hotelsController.GetAllHotelIsActive().Result;
-            var provincesTemp = provincesController.GetProvinces().Result.Value.ToList();   
-            string[] provinceNames = provinceName.Split(' ');
-            foreach (var item in provinceNames)
-            {
-                foreach (var province in provincesTemp)
-                {
-                    if (RemoveSign4VietnameseString(province.ProvinceName).ToLower().Contains(RemoveSign4VietnameseString(item).ToLower()))
-                    {
-                        provinces.Add(province);
-                    }
-                }
-            }
+            var hotelsTemp = GetAllHotelIsActive().Result;
+            var provincesTemp = _context.Provinces.ToList();   
+            var districtsTemp = _context.Districts.ToList();   
+
+            provinces.AddRange(provincesTemp.Where(pv => RemoveSign4VietnameseString(pv.ProvinceName).ToLower().Contains(RemoveSign4VietnameseString(provinceName).ToLower())));
+            districts.AddRange(districtsTemp.Where(dt => RemoveSign4VietnameseString(dt.DistrictName).ToLower().Contains(RemoveSign4VietnameseString(provinceName).ToLower())));
             foreach (var hotel in hotelsTemp)
             {
-                if (provinces.Select(p => p.ProvinceId).Contains(hotel.ProvinceId))
+                if (provinces.Select(p => p.ProvinceId).Contains(hotel.ProvinceId) || districts.Select(d => d.DistrictId).Contains(hotel.DistrictId))
                     hotels.Add(hotel);
+                if (RemoveSign4VietnameseString(hotel.HotelName).ToLower().Contains(RemoveSign4VietnameseString(provinceName).ToLower()))
+                {
+                    if(!hotels.Any(h=>h.HotelId == hotel.HotelId))
+                    {
+                        hotels.Add(hotel);
+                    }
+                }
             }
 
             var listRoomOfHotel = _context.Rooms.Include(r => r.Tor).Where(r => hotels.Select(h=>h.HotelId).Contains(r.HotelId)).ToList();
