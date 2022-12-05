@@ -10,7 +10,9 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.ResponseCompression;
+using Microsoft.EntityFrameworkCore;
 using Radzen;
+using ShareModel;
 using System.Security.Claims;
 using Tewr.Blazor.FileReader;
 var builder = WebApplication.CreateBuilder(args);
@@ -60,6 +62,9 @@ builder.Services.AddCors(options =>
         "LV_QLKS",
         builder => builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
 });
+
+builder.Services.AddDbContext<LV_QLKSContext>(option =>
+                option.UseSqlServer(builder.Configuration.GetConnectionString("QLKSDatabase")));
 
 //Add Radzen
 builder.Services.AddScoped<DialogService>();

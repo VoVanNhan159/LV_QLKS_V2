@@ -13,12 +13,6 @@
 @layout Layout_HotelDetail
 <PageTitle>Chi tiết khách sạn</PageTitle>
 
-@*<link rel="stylesheet" href="/home/css/library/font-awesome.min.css">
-    <link rel="stylesheet" href="/home/css/library/bootstrap.min.css">
-    <link rel="stylesheet" href="/home/css/library/jquery-ui.min.css">
-    <link rel="stylesheet" href="/home/css/library/owl.carousel.css">
-    <!-- End Library CSS -->
-    <link rel="stylesheet" href="/home/css/style.css">*@
 @if (id > 0)
 {
                         <!-- Header Detail -->
@@ -161,7 +155,7 @@
 
                                 <div class="col-lg-7">
                                     <h2>Tại sao bạn nên chọn khách sạn này?</h2>
-                                    @if(hotelServiceCss.Count > 0)
+                                    @if(hotelServiceCss != null)
                                     {
                                         foreach (var item in hotelServiceCss.Select((value, i) => new { i, value }))
                                         {
@@ -938,24 +932,6 @@
                                     NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Thành công", Detail = "Thêm vào giỏ thành công", Duration = 4000 });
                                 }
                             }
-                            else if(confirmationResult != true)
-                            {
-                                OrderroomDetail_Custom orderroomdetail = new OrderroomDetail_Custom();
-                                orderroomdetail.OrderroomId = orderroomCheck.OrderroomId;
-                                orderroomdetail.RoomId = room.RoomId;
-
-                                var odcheckcustom = new Orderroom_Custom();
-                                odcheckcustom.OrderroomId = orderroomCheck.OrderroomId;
-                                odcheckcustom.OrderroomStatus = "3";
-                                odcheckcustom.OrderroomTotalprice = orderroomCheck.OrderroomTotalprice;
-
-                                var ressod = await orderroomService.UpdateOrderroomAfterPayment(odcheckcustom);
-                                var resodd = await orderroomDetailService.AddOrderroomdetail(orderroomdetail);
-
-                                if(resodd.RoomId != null){
-                                    NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Thành công", Detail = "Thêm vào giỏ thành công", Duration = 4000 });
-                                }
-                            }
                         }
                         else
                         {
@@ -1103,6 +1079,6 @@
     {
         await DialogService.OpenAsync<OwnerArea.Room.Description>("",
             new Dictionary<string, object>() { { "id", id } },
-            new DialogOptions() { Width = "700px", Height = "570px", Resizable = true, Draggable = true });
+            new DialogOptions() { Width = "700px", Height = "300px", Resizable = true, Draggable = true });
     }
 }

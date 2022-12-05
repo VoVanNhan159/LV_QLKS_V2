@@ -70,16 +70,6 @@
     private HubConnection hubConnection;
     protected override async Task OnInitializedAsync()
     {
-        try
-            {
-                var phone = await sessionStorage.GetItemAsync<string>("owner_phone");
-                owner = await userService.GetUser(phone);
-                rooms = await roomService.GetAllRoomOfOwner(owner.UserPhone);
-            }
-            catch(Exception ex)
-            {
-                Console.Write(ex.ToString());
-            }
         hubConnection = new HubConnectionBuilder()
             .WithUrl(NavigationManager.ToAbsoluteUri("/HotelBrHub"))
             .Build();
@@ -93,7 +83,10 @@
     {
         if (firstRender)
         {
-            
+            var phone = await sessionStorage.GetItemAsync<string>("owner_phone");
+            owner = await userService.GetUser(phone);
+            rooms = await roomService.GetAllRoomOfOwner(owner.UserPhone);
+            StateHasChanged();
         }
     }
     protected async void ReloadData()

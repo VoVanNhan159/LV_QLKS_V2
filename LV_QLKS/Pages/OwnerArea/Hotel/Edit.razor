@@ -105,9 +105,12 @@
             hotel.HotelStatus = hotelTemp.HotelStatus;
             services = await serviceService.GetAllServiceOfOwner(owner.UserPhone);
             hotelServiceCss = await hotelServiceService.GetAllHotelServiceOfHotel(hotel.HotelId);
-            foreach (var item in hotelServiceCss)
+            if(hotelServiceCss != null)
             {
-                multipleValuesChip.Add(item.ServiceId);
+                foreach (var item in hotelServiceCss)
+                {
+                    multipleValuesChip.Add(item.ServiceId);
+                }
             }
             StateHasChanged();
         }
@@ -117,7 +120,7 @@
         if(multipleValuesChip != null)
         {
             multipleValuesChip.Clear();
-            var str = value is IEnumerable<int> ? string.Join(", ", (IEnumerable<int>)value) : value;
+            var str = value is IEnumerable<int> ? string.Join(",", (IEnumerable<int>)value) : value;
             var temp = str.ToString().Split(",");
             if(temp.Length > 0)
             {

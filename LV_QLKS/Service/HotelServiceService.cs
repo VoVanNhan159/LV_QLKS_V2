@@ -18,7 +18,9 @@ namespace LV_QLKS.Service
                 {
                     return null;
                 }
-                var service = await _context.HotelServiceCss.Where(s => s.HotelId == id).ToListAsync();
+                var service = await _context.HotelServiceCss
+                    .Include(hsc=>hsc.Service)
+                    .Where(s => s.HotelId == id).ToListAsync();
 
                 if (service == null)
                 {

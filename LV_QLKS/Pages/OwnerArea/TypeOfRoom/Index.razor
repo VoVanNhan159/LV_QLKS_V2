@@ -23,56 +23,6 @@
                 </RadzenDataGridColumn>
             </Columns>
         </RadzenDataGrid>
-        @*<table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>
-                        STT
-                    </th>
-                    <th>
-                        Tên phòng
-                    </th>
-                    <th>
-                        Giá
-                    </th>
-                    <th>
-                        Sức chứa
-                    </th>
-                    <th>
-
-                    </th>
-                </tr>
-            </thead>
-            <tbody> 
-                @if (typeofrooms.Count > 0)
-                {
-                    int stt = 1;
-                    foreach (var item in typeofrooms)
-                    {
-                        <tr>
-                            <td>
-                                @stt
-                                @{
-                                    stt++;
-                                }
-                            </td>
-                            <td>
-                                @item.TorName
-                            </td>
-                            <td>
-                                @hotelService.FormatVND((int)item.TorPrice) đồng/<small>đêm</small>
-                            </td>
-                            <td>
-                                @item.TorCapacity
-                            </td>
-                            <td>
-                                <button style="color:blue" @onclick="()=>ShowEditPopup(item.TorId)"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></button>
-                            </td>
-                        </tr>
-                    }
-                }
-            </tbody>
-        </table>*@
     </div>
 </div>
 

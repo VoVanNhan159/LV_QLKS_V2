@@ -277,7 +277,7 @@
                 mail.Body += "<tr>";
                 mail.Body += "<th style=\"border:1px solid black\">Phòng</th>";
                 mail.Body += "<th style=\"border:1px solid black\">Loại phòng</th>";
-                mail.Body += "<th style=\"border:1px solid black\">Đơn giá</th>";
+                mail.Body += "<th style=\"border:1px solid black\">Sức chứa</th>";
                 mail.Body += "</tr>";
                 mail.Body += "</thead>";
 
@@ -288,7 +288,7 @@
                     mail.Body += "<tr>";
                     mail.Body += "<td style=\"border:1px solid black\">" + roomSendMail.RoomName + "</td>";
                     mail.Body += "<td style=\"border:1px solid black\">" + roomSendMail.Tor.TorName + "</td>";
-                    mail.Body += "<td style=\"border:1px solid black\">" + roomSendMail.Tor.TorPrice + "</td>";
+                    mail.Body += "<td style=\"border:1px solid black\">" + roomSendMail.Tor.TorCapacity + " người</td>";
                     mail.Body += "</tr>";
                 }
 

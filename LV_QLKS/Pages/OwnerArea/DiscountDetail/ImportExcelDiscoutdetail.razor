@@ -7,7 +7,7 @@
     <div class="form-group">
         <label for="exampleInputEmail1">Vui lòng chọn file CTKM cần Import</label>
         <br />
-        <InputFile OnChange="@LoadFiles" />
+        <InputFile OnChange="LoadFiles" />
         <label for="exampleInputEmail1">Bạn có thể tải xuống danh sách mẫu </label>
         <button @onclick=ExportFileExcel>
             <i class="fa fa-download" aria-hidden="true"></i>tại đây
@@ -89,16 +89,6 @@
                                 if (col == 1) discountDetail_Custom.DiscountId = int.Parse(value);
                                 if (col == 2) discountDetail_Custom.RoomId = int.Parse(value);
                                 if (col == 3) discountDetail_Custom.Percent = int.Parse(value);
-                                //if (col == 4) room_Custom.HotelId = int.Parse(value);
-                                //if (col == 5) room_Custom.RoomName = value;
-                                //if (col == 6) room_Custom.RoomDescription = value;
-                                //if (col == 7)
-                                //{
-                                //    if (value.ToString().ToLower() == "true")
-                                //        room_Custom.RoomStatus = true;
-                                //    else
-                                //        room_Custom.RoomStatus = false;
-                                //}
                             }   
                         }
                         discountDetail_Customs.Add(discountDetail_Custom);
@@ -115,7 +105,11 @@
         int countCheckAdd = 0;
         int countCheckUpdate = 0;
         int countCheckError = 0;
-        int minIdOfDiscount = discountdetails.Min(dc => dc.DiscountId);
+        int minIdOfDiscount = 0;
+        if(discountdetails.Count > 0)
+        {
+            minIdOfDiscount = discountdetails.Min(dc => dc.DiscountId);
+        }
         List<DiscountDetail_Custom> discountDetail_CustomsReturn = new List<DiscountDetail_Custom>();
         foreach (var item in discountDetail_Customs)
         {

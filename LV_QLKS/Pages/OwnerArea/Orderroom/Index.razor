@@ -110,13 +110,22 @@
     public bool IsConnected => hubConnection.State == HubConnectionState.Connected;
     Task SendMessage() => hubConnection.SendAsync("SendMessage");
     //end hub
-    protected override async Task OnInitializedAsync()
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        try
+        if (firstRender)
         {
             phone = await sessionStorage.GetItemAsync<string>("owner_phone");
             owner = await userService.GetUser(phone);
             listOrderrooms = await orderroomService.GetAllOrderroomOfOwner(owner.UserPhone);
+            StateHasChanged(); 
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
             hubConnection = new HubConnectionBuilder()
                 .WithUrl(NavigationManager.ToAbsoluteUri("/HotelBrHub"))
                 .Build();
@@ -134,19 +143,10 @@
     }
     protected async void ReloadData()
     {
-        phone = await sessionStorage.GetItemAsync<string>("owner_phone");
-        owner = await userService.GetUser(phone);
         listOrderrooms = await orderroomService.GetAllOrderroomOfOwner(owner.UserPhone);
         await InvokeAsync(() => {
             StateHasChanged();
         });
-    }
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if(firstRender){
-            
-        }
-
     }
 
     protected async void ShowOrderroomDetailPopup(int id)

@@ -24,7 +24,7 @@
                                     <div class="bg-light rounded d-flex align-items-center justify-content-between p-4">
                                         <i class="fa fa-shopping-cart fa-3x text-primary"></i>
                                         <div class="ms-3">
-                                            <p class="mb-2">Tổng số lượng giỏ hàng</p>
+                                            <p class="mb-2">Số giỏ hàng có phòng của bạn</p>
                                             <h5 class="mb-0">@orderroomCarts.Count</h5>
                                         </div>
                                     </div>
@@ -285,10 +285,6 @@
     HotelService hotelService = new HotelService();
     OrderroomService orderroomService = new OrderroomService();
 
-    protected override async Task OnInitializedAsync()
-    {
-
-    }
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)

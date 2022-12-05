@@ -93,6 +93,7 @@ namespace LV_QLKS_API.Controllers
                 return NotFound();
             }
             var hotel = await _context.Hotels
+                .Include(h=>h.UserPhoneNavigation)
                 .Include(h => h.ImageHotels).SingleOrDefaultAsync(h => h.HotelId == id);
 
             if (hotel == null)

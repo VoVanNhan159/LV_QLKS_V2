@@ -54,11 +54,11 @@
                                                         int temph = (int)starTemph;
                                                         for(int i = 0; i < temph; i++)
                                                         {
-                                                                            <i class="glyphicon glyphicon-star"></i>
+                                                                                    <i class="glyphicon glyphicon-star"></i>
                                                         }
                                                         if(starTemph - (double) temph > 0)
                                                         {
-                                                                             <i class="glyphicon glyphicon-star half"></i>
+                                                                                     <i class="glyphicon glyphicon-star half"></i>
                                                         }
                                                     }
                                                 </span>
@@ -97,7 +97,7 @@
                                                 <figure>
                                                     @{
                                                         try{
-                                                                <img src="/images/@urlImageRoom" alt="@urlImageRoom">
+                                                                        <img src="/images/@urlImageRoom" alt="@urlImageRoom">
                                                         }
                                                         catch(Exception ex)
                                                         {
@@ -127,7 +127,7 @@
                                             </RadzenRadioButtonList>
                                         <br />
                                         <div class="section colm colm6" style="padding-bottom:10px;">
-                                            <input type="checkbox" value=@isChecked @onchange=CheckTerms/> Tôi đồng ý với <a style="font-style:italic">"Chính sách và điều khoản dịch vụ"</a>
+                                            <input type="checkbox" value=@isChecked @onchange=CheckTerms/> Tôi đồng ý với <a @onclick="ShowPolicy" style="font-style:italic;color:blue;cursor:pointer">"Chính sách và điều khoản dịch vụ"</a>
                                         </div>
                                         <div class="form-footer">
                                             <input type="submit" class="btn btn-success" value="Xác nhận đặt phòng" @onclick=BookRoomOrder disabled="@disable"/>
@@ -439,5 +439,14 @@
             throw;
         }
 
+    }
+    public async void ShowPolicy()
+    {
+        await DialogService.OpenAsync<Policy>
+        (
+             "Chính sách và điều khoản sử dụng",
+             new Dictionary<string, object>() {},
+             new DialogOptions() { ShowTitle = true, Width = "750px", Height = "200px", Resizable = true, Draggable = true, AutoFocusFirstElement = true }
+        );
     }
 }

@@ -2,6 +2,7 @@
 @using System.Globalization
 @using Microsoft.AspNetCore.SignalR.Client
 @using ShareModel.Custom
+@using System.Net.Mail
 @layout Layout_Admin
 <PageTitle>Danh sách tài khoản</PageTitle>
 <div class="main-content">
@@ -36,6 +37,7 @@
 
     AccountService accountService = new AccountService();
     HotelService hotelService = new HotelService();
+    UserService userService = new UserService();
 
 
     //Phân trang
@@ -73,7 +75,42 @@
         if (res != null)
         {
             ReloadData();
+            if(res.AccountStatus == false)
+            {
+                SendMail(res);
+            }
             NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Thành công", Detail = "Cập nhật thành công", Duration = 4000 });
         }
+    }
+    private async void SendMail(Account account)
+    {
+        var user = await userService.GetUser(account.AccountUsername);
+        try
+        {
+            using (MailMessage mail = new MailMessage())
+            {
+                mail.From = new MailAddress("vovannhan2727bc@outlook.com");
+                mail.To.Add(user.UserEmail);
+                mail.Subject = "Thông báo tài khoản của bạn đã bị tạm khóa";
+                mail.Body = "Kính chào khách hàng: " + user.UserName.ToUpper();
+                mail.Body += "<p>Chúng tôi đã tạm khóa tài khoản của bạn<p/>";
+                mail.Body += "<p>Vui lòng liên hệ với quản trị viên để được hỗ trợ</p>";
+
+                mail.Body += "<br>Trân trọng,<br>";
+                mail.IsBodyHtml = true;
+
+                using (SmtpClient smtp = new SmtpClient("smtp.office365.com", 587))
+                {
+                    smtp.Credentials = new System.Net.NetworkCredential("vovannhan2727bc@outlook.com", "8vxzX$PS123");
+                    smtp.EnableSsl = true;
+                    smtp.Send(mail);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            throw;
+        }
+
     }
 }

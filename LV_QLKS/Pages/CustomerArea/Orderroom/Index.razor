@@ -141,6 +141,30 @@
     {
         try
         {
+            hubConnection = new HubConnectionBuilder()
+                        .WithUrl(NavigationManager.ToAbsoluteUri("/HotelBrHub"))
+                        .Build();
+            hubConnection.On("ReceiveMessage", () =>
+            {
+                ReloadData();
+            });
+            await hubConnection.StartAsync();
+
+        }
+        catch(Exception ex)
+        {
+            Console.WriteLine(ex.ToString());
+        }
+    }
+    //Hub
+    private HubConnection hubConnection;
+    public bool IsConnected => hubConnection.State == HubConnectionState.Connected;
+    Task SendMessage() => hubConnection.SendAsync("SendMessage");
+    //end hub
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
             phone = await sessionStorage.GetItemAsync<string>("customer_phone");
             customer = await userService.GetUser(phone);
             listOrderroom = await orderroomService.GetAllOrderromOfUser(customer.UserPhone);
@@ -163,27 +187,9 @@
 
                 listOrderroomOrderroomdetailRoom.Add(orderroomOrderroomdetailRoom);
             }
-            hubConnection = new HubConnectionBuilder()
-                        .WithUrl(NavigationManager.ToAbsoluteUri("/HotelBrHub"))
-                        .Build();
-            hubConnection.On("ReceiveMessage", () =>
-            {
-                ReloadData();
-            });
-            await hubConnection.StartAsync();
             StateHasChanged();
-
-        }
-        catch(Exception ex)
-        {
-            Console.WriteLine(ex.ToString());
         }
     }
-    //Hub
-    private HubConnection hubConnection;
-    public bool IsConnected => hubConnection.State == HubConnectionState.Connected;
-    Task SendMessage() => hubConnection.SendAsync("SendMessage");
-    //end hub
     public async void ReloadData()
     {
         listOrderroom = await orderroomService.GetAllOrderromOfUser(customer.UserPhone);
