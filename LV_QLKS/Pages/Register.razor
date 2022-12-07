@@ -85,6 +85,7 @@
     protected override async Task OnInitializedAsync()
     {
         acc.ToaId = 2;
+        acc.AccountStatus = true;
         typeofaccounts = await typeOfAccountService.GetAllTypeOfAccount();
     }
 
@@ -133,6 +134,11 @@
                     {
                         await JS.InvokeVoidAsync("eval", $@"document.getElementById(""form3Example3"").focus()");
                         NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Thông báo", Detail = "Số điện thoại đã được đăng ký, vui lòng chọn số điện thoại khác", Duration = 4000 });
+                    }
+                    else if(acc.AccountUsername.Length != 10)
+                    {
+                        await JS.InvokeVoidAsync("eval", $@"document.getElementById(""form3Example3"").focus()");
+                        NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Thông báo", Detail = "Vui lòng nhập số điện thoại hợp lệ", Duration = 4000 });
                     }
                     else
                     {

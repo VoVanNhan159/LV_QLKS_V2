@@ -5,7 +5,7 @@
 <div>
     <div class="section__content section__content--p30">
         <button class="btn btn-success" @onclick="()=>ShowCreateDialog()">Thêm chi tiết</button>
-        <button class="btn btn-success" @onclick="()=>ShowImportDialog()">Thêm bằng file Excel</button>
+        <button class="btn btn-success" @onclick="()=>ShowImportDialog(id)">Thêm bằng file Excel</button>
         <br />
         <br />
         <table class="table table-striped">
@@ -173,11 +173,11 @@
         }
         StateHasChanged();
     }
-    protected async void ShowImportDialog()
+    protected async void ShowImportDialog(int id)
     {
         var res = await DialogService.OpenAsync<OwnerArea.DiscountDetail.ImportExcelDiscoutdetail>("",
-            new Dictionary<string, object>() { },
-            new DialogOptions() { Width = "600px", Height = "300px", Resizable = true, Draggable = true });
+            new Dictionary<string, object>() { { "id", id } },
+            new DialogOptions() { Width = "600px", Height = "250px", Resizable = true, Draggable = true });
         if(res != null)
         {
             foreach (var item in res)
@@ -210,7 +210,7 @@
                 { "DiscountId", discountdetail.DiscountId },
                 { "RoomId", discountdetail.RoomId} 
             },
-            new DialogOptions() { Width = "700px", Height = "570px", Resizable = true, Draggable = true });
+            new DialogOptions() { Width = "700px", Height = "450px", Resizable = true, Draggable = true });
         if(res != null)
         {
             discountdetails.Remove(discountdetail);

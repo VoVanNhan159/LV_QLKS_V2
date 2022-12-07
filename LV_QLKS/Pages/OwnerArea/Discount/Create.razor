@@ -52,14 +52,18 @@
     DiscountService discountService = new DiscountService();
     UserService userService = new UserService();
 
+    protected override void OnInitialized()
+    {
+        discount_Custom.DiscountDatestart = DateTime.Now;
+        discount_Custom.DiscountDateend = DateTime.Now.AddDays(1);
+    }
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
             var phone = await sessionStorage.GetItemAsync<string>("owner_phone");
             owner = await userService.GetUser(phone);
-            discount_Custom.DiscountDatestart = DateTime.Now;
-            discount_Custom.DiscountDateend = DateTime.Now.AddDays(1);
             StateHasChanged();
         }
     }

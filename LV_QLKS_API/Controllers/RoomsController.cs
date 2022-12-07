@@ -101,12 +101,12 @@ namespace LV_QLKS_API.Controllers
           {
               return NotFound();
           }
-            var room = _context.Rooms
+            var room = await _context.Rooms
                 .Include(r=>r.Hotel)
                 .Include(r=>r.Floor)
                 .Include(r=>r.Tor)
                 .Include(r=>r.ImageRooms)
-                .Where(r=>r.RoomId == id).SingleOrDefault();
+                .FirstAsync(r=>r.RoomId == id);
 
             if (room == null)
             {

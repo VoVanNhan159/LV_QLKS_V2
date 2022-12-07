@@ -57,7 +57,7 @@ namespace LV_QLKS_API.Controllers
             {
                 return null;
             }
-            var imageHotel = _context.ImageHotels.Where(ih => ih.HotelId == id).ToList();
+            var imageHotel = await _context.ImageHotels.Where(ih => ih.HotelId == id).ToListAsync();
 
             if (imageHotel == null)
             {

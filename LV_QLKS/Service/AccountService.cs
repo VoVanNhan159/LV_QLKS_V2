@@ -47,6 +47,7 @@ namespace LV_QLKS.Service
             }
             catch(Exception ex)
             {
+                Console.Write(ex.ToString());
                 return null;
             }
         }

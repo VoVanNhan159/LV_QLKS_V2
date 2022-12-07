@@ -50,7 +50,7 @@ namespace LV_QLKS_API.Controllers
             {
                 return NotFound();
             }
-            var hotelTemp = _context.Hotels.Where(h => h.UserPhone == ownerid).ToList();
+            var hotelTemp = await _context.Hotels.Where(h => h.UserPhone == ownerid).ToListAsync();
 
             var hotel = new List<Hotel>();
             foreach (var item in hotelTemp)

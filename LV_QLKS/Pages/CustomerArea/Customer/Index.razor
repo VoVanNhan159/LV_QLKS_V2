@@ -13,9 +13,6 @@
                         Họ và tên
                     </th>
                     <th>
-                        Số điện thoại
-                    </th>
-                    <th>
                         Ngày sinh
                     </th>
                     <th>
@@ -35,9 +32,6 @@
                     <tr>
                         <td>
                             @customer.UserName
-                        </td>
-                        <td>
-                            @customer.UserPhone
                         </td>
                         <td>
                             @DateTime.Parse(date).ToString("dd, MMMM, yyyy", new System.Globalization.CultureInfo("vi-VN"))

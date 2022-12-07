@@ -211,6 +211,7 @@
             var toa = await typeOfAccountService.GetTypeOfAccount(account_Custom.ToaId);
             account_Custom.Toa = toa;
             account_Custom.AccountUsername = customer.UserPhone;
+            account_Custom.AccountStatus = true;
             account_Custom.AccountPassword = accountService.Encrypt(passWordOne);
             if((await CheckAccInDB(account_Custom.AccountUsername)) == false)
             {

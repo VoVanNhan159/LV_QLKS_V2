@@ -97,12 +97,12 @@ namespace LV_QLKS.Service
             return null;
         }
         //Export
-        public async Task<byte[]> ExportRoomToExcel(string phone)
+        public async Task<byte[]> ExportRoomToExcel(int id)
         {
             var discountdetails = new List<Discountdetail>();
             try
             {
-                discountdetails = await GetAllDiscountdetailActiveOfOwner(phone);
+                discountdetails = await GetAllDiscountdetailOfDiscount(id);
             }
             catch (Exception ex)
             {
@@ -115,9 +115,6 @@ namespace LV_QLKS.Service
             {
                 var workSheet = package.Workbook.Worksheets.Add("Sheet1");
 
-                // simple way
-                //workSheet.Cells.LoadFromCollection(rooms, true);
-
                 // mutual
                 workSheet.Row(1).Height = 20;
                 workSheet.Row(1).Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
@@ -125,21 +122,12 @@ namespace LV_QLKS.Service
                 workSheet.Cells[1, 1].Value = "Mã khuyến mãi";
                 workSheet.Cells[1, 2].Value = "Mã phòng";
                 workSheet.Cells[1, 3].Value = "Tỉ lệ khuyến mãi";
-                //workSheet.Cells[1, 4].Value = "Mã khách sạn";
-                //workSheet.Cells[1, 5].Value = "Tên phòng";
-                //workSheet.Cells[1, 6].Value = "Mô tả";
-                //workSheet.Cells[1, 7].Value = "Trạng thái (TRUE: đang sử dụng, FALSE: Tạm ngưng sử dụng)";
-
                 int recordIndex = 2;
                 foreach (var item in discountdetails)
                 {
                     workSheet.Cells[recordIndex, 1].Value = item.DiscountId;
                     workSheet.Cells[recordIndex, 2].Value = item.RoomId;
                     workSheet.Cells[recordIndex, 3].Value = item.Percent;
-                    //workSheet.Cells[recordIndex, 4].Value = item.HotelId;
-                    //workSheet.Cells[recordIndex, 5].Value = item.RoomName;
-                    //workSheet.Cells[recordIndex, 6].Value = item.RoomDescription;
-                    //workSheet.Cells[recordIndex, 7].Value = item.RoomStatus;
                     recordIndex++;
                 }
 

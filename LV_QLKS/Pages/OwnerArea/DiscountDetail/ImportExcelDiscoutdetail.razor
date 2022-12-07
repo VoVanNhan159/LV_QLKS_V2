@@ -27,6 +27,8 @@
     </div>
 </div>
 @code {
+    [Parameter]
+    public int id{ get; set; }
     DiscountdetailService discountdetailService = new DiscountdetailService();
     DiscountDetail_Custom discountDetail_Custom = new DiscountDetail_Custom();
     List<Discountdetail> discountdetails = new List<Discountdetail>();
@@ -54,13 +56,12 @@
     }
     protected async void ExportFileExcel()
     {
-        var excelBytes = await discountdetailService.ExportRoomToExcel(phone);
+        var excelBytes = await discountdetailService.ExportRoomToExcel(id);
         var fileName = "Danh sách chi tiết khuyến mãi";
         JS.InvokeVoidAsync("saveAsFile", $"{fileName}_{DateTime.Now.ToString("yyyyMMdd_HHmmss")}.xlsx", Convert.ToBase64String(excelBytes));
     }
     private async Task LoadFiles(InputFileChangeEventArgs e)
     {
-        int countDis = 0;
         foreach (var file in e.GetMultipleFiles(1))
         {
             try

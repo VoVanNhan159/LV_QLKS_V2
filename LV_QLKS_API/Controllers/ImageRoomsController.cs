@@ -40,7 +40,7 @@ namespace LV_QLKS_API.Controllers
           {
               return null;
           }
-            var imageRoom = _context.ImageRooms.Where(ir=>ir.RoomId == id).ToList();
+            var imageRoom = await _context.ImageRooms.Where(ir=>ir.RoomId == id).ToListAsync();
 
             if (imageRoom == null)
             {
