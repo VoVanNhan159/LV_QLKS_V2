@@ -124,9 +124,12 @@ else
     protected int StarTemp = 0;
     List<Customerreview> customerreviews = new List<Customerreview>();
     CustomerReview_Custom customerReview_Custom = new CustomerReview_Custom();
+    List<Room> rooms = new List<Room>();
+    List<Hotel> hotels = new List<Hotel>();
 
     CustomerReviewService customerReviewService = new CustomerReviewService();
-
+    RoomService roomService = new RoomService();
+    HotelService hotelService = new HotelService();
     //start hub
     private HubConnection hubConnection;
     protected override async Task OnInitializedAsync()
@@ -188,11 +191,12 @@ else
         var res = await customerReviewService.AddCustomerreviewOfRoom(customerReview_Custom);
         if(res != null)
         {
+            await CheckStarOfHotel();
             if (IsConnected)
                 await SendMessage();
-                this.DialogService.Close(0);
+            this.DialogService.Close(0);
         }
-        
+
     }
     protected async void UpdateReview()
     {
@@ -203,6 +207,40 @@ else
         customerReview_Custom.CrDate = DateTime.Now;
         var res = await customerReviewService.UpdateCustomerreviewOfRoom(customerReview_Custom);
         if(res != null)
+        {
+            await CheckStarOfHotel();
+            if (IsConnected)
+                await SendMessage();
             this.DialogService.Close(1);
+        }
+
+    }
+    protected async Task CheckStarOfHotel()
+    {
+        hotels = await hotelService.GetAllHotel();
+        foreach (var item in hotels)
+        {
+            var resCusHotel = await customerReviewService.GetAllCustomerReviewOfHotel(item.HotelId);
+            if(resCusHotel.Where(r=>r.CrStar == 1).Count() == 1)
+            {
+                UpdateHotel(item);
+            }
+        }
+    }
+    protected async void UpdateHotel(Hotel hotelre)
+    {
+        var hotelTemp = await hotelService.GetHotel(hotelre.HotelId);
+        Hotel_Custom hotel = new Hotel_Custom();
+        hotel.HotelId = hotelTemp.HotelId;
+        hotel.ProvinceId = hotelTemp.ProvinceId;
+        hotel.DistrictId = hotelTemp.DistrictId;
+        hotel.WardId = hotelTemp.WardId;
+        hotel.HotelName = hotelTemp.HotelName;
+        hotel.HotelAddress = hotelTemp.HotelAddress;
+        hotel.HotelX = hotelTemp.HotelX;
+        hotel.HotelY = hotelTemp.HotelY;
+        hotel.UserPhone = hotelTemp.UserPhone;
+        hotel.HotelStatus = false;
+        await hotelService.UpdateHotel(hotel);
     }
 }

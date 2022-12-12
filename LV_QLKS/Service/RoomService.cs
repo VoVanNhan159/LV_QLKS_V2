@@ -33,6 +33,10 @@ namespace LV_QLKS.Service
         {
             return await Http.GetFromJsonAsync<List<Room>>(baseurl + "/GetAllRoomOfOwner/" + phone);
         }
+        public async Task<List<Room>> GetAllRoomStatisticOfOwner(string phone)
+        {
+            return await Http.GetFromJsonAsync<List<Room>>(baseurl + "/GetAllRoomStatisticOfOwner/" + phone);
+        }
         public async Task<List<Room>> GetAllRoomOfFloorOfHotel(int hotelId, int floorId)
         {
             return await Http.GetFromJsonAsync<List<Room>>(baseurl + "/GetAllRoomOfFloorOfHotel/" + hotelId + "/" + floorId);

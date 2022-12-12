@@ -42,11 +42,29 @@
                                 @GetTypeofroom(item.Room.TorId).TorCapacity người
                             </td>
                         </tr>
+                        <RadzenRadioButtonList Change="() => ConfirmPay()" @bind-Value=status Orientation="Orientation.Horizontal" TValue="int">
+                            <Items>
+                                @if(status != 1){
+                                    <RadzenRadioButtonListItem Text="Chưa xác nhận" Value="4" TValue="int" />
+                                }
+                                <RadzenRadioButtonListItem Text="Đã xác nhận" Value="1" TValue="int" />
+                                @if(status == 1){
+                                    <RadzenRadioButtonListItem Text="Đã thanh toán" Value="2" TValue="int" />
+                                }
+                                
+                            </Items>
+                        </RadzenRadioButtonList>
+                        <br />
+                        <br />
+                            @if(status == 4)
+                            {
+                                <button @onclick="() => DeleteOrderroom(item.OrderroomId)">
+                                     <i class="fa fa-trash" aria-hidden="true"></i>
+                                     Hủy đặt phòng
+                                </button>
+                            }
                     }
-                    <br />
-                    @if(orderroom.OrderroomStatus == "1"){
-                        <RadzenButton Click="ConfirmDelete" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Primary" Text="Xác nhận thanh toán"></RadzenButton>
-                    }
+                    
                 }
             </tbody>
         </table>
@@ -59,6 +77,7 @@
     [Parameter]
     public int id { get; set; }
 
+    int status = 0;
     Orderroom orderroom = new Orderroom();
     List<Orderroomdetail> orderroomdetails = new List<Orderroomdetail>();
     List<Typeofroom> typeofrooms = new List<Typeofroom>();
@@ -90,6 +109,7 @@
             try
             {
                 orderroom = await orderroomService.GetOrderrom(id);
+                status = int.Parse(orderroom.OrderroomStatus);
                 orderroomdetails = await orderroomDetailService.GetAllOrderromDetailOfOrderrom(id);
                 typeofrooms = await typeOfRoomService.GetAllTypeOfRoom();
                 floors = await floorService.GetAllFloor();
@@ -102,6 +122,23 @@
         }
 
     }
+    protected async void DeleteOrderroom(int id)
+    {
+        var confirmationResult = await this.DialogService.Confirm("Bạn có chắc muốn hủy đặt phòng không? Sau khi xác nhận sẽ không thể hoàn tác", "Thông báo", new ConfirmOptions { OkButtonText = "Xác nhận", CancelButtonText = "Trở về" });
+        if (confirmationResult == true)
+        {
+            var orderroom = await orderroomService.GetOrderrom(id);
+            var orderroomdetails = await orderroomDetailService.GetAllOrderromDetailOfOrderrom(orderroom.OrderroomId);
+            var res = await orderroomService.DeleteOrderrom(id);
+            if(res == 1)
+            {
+                if (IsConnected)
+                    await SendMessage();
+                NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Thành công", Detail = "Hủy đặt phòng thành công", Duration = 4000 });
+            }
+        }
+    }
+
     protected Typeofroom GetTypeofroom(int id)
     {
         foreach (var item in typeofrooms)
@@ -141,15 +178,13 @@
         orderroomCustom.OrderroomDatestart = orderroom.OrderroomDatestart;
         orderroomCustom.OrderroomDateend = orderroom.OrderroomDateend;
         orderroomCustom.UserPhone = orderroom.UserPhone;
-        orderroomCustom.OrderroomStatus = "2";
+        orderroomCustom.OrderroomStatus = $"{status}";
         orderroomCustom.OrderroomTotalprice = orderroom.OrderroomTotalprice;
         var res = await orderroomService.UpdateOrderroomAfterPayment(orderroomCustom);
         if(res != null)
         {
             SendMail(orderroomCustom);
-            if (IsConnected)
-                await SendMessage();
-            NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Thành công", Detail = "Xác nhận thanh toán thành công", Duration = 4000 });
+            NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Thành công", Detail = "Xác nhận thành công", Duration = 4000 });
             this.DialogService.Close(res);
         }
     }

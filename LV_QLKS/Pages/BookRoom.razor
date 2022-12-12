@@ -384,7 +384,7 @@
         orderroom.OrderroomTotalprice = int.Parse(await sessionStorage.GetItemAsync<string>("vnp_Amount"));
         orderroom.UserPhone = user.UserPhone;
         orderroom.UserPhoneNavigation = user;
-        orderroom.OrderroomStatus = "1";//thành công
+        orderroom.OrderroomStatus = "4";//thành công
         var resod = await orderroomService.AddOrderroom(orderroom);
         if(resod != null)
         {

@@ -52,6 +52,40 @@
                         <br/>
                         <br/>
                         <RadzenCard>
+                            <div class="container">
+                                <div class="row">
+                                    <RadzenText TextStyle="TextStyle.H5" TagName="TagName.H4" Class="my-4">
+                                        Tần suất đặt phòng
+                                    </RadzenText>
+                                    <div class="col-sm-12 col-lg-6 offset-lg-3 my-5">
+                                        <RadzenCard Class="w-100 mb-4" Style="display: flex; align-items: center; gap: 0.5rem" >
+                                            <RadzenCheckBox @bind-Value="@showDataLabels" Name="dataLabels"></RadzenCheckBox>
+                                            <RadzenLabel Text="Hiện số lượng phòng được đặt" For="dataLabels" />
+                                            <RadzenNumeric onkeydown="return false" @bind-Value="@yearRoomValue" Class="w-25" Max="DateTime.Today.Year" Name="year" TValue="int" Change="YearRoomChange"></RadzenNumeric>
+                                            <RadzenLabel Visible=monthCheck Text="Chọn năm" For="year" />
+                                        </RadzenCard>
+                                        @if(dataItems.Count > 0){
+                                            <RadzenChart>
+                                                <RadzenDonutSeries Data="@dataItems" CategoryProperty="StrName" ValueProperty="Value">
+                                                    <ChildContent>
+                                                        <RadzenSeriesDataLabels Visible="@showDataLabels" />
+                                                    </ChildContent>
+                                                    <TitleTemplate>
+                                                        <div class="rz-donut-content">
+                                                            <div>Năm @yearRoomValue</div> 
+                                                        </div>
+                                                    </TitleTemplate>
+                                                </RadzenDonutSeries>
+                                            </RadzenChart>
+                                        }
+                                        else{
+                                            <div>Không có đơn đặt nào trong năm @yearRoomValue</div>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </RadzenCard>
+                        <RadzenCard>
                             <RadzenText TextStyle="TextStyle.H5" TagName="TagName.H4" Class="my-4">
                             Thống kê doanh thu
                         </RadzenText>
@@ -271,7 +305,9 @@
     int monthValue = 1;
     int quarterValue = 1;
     int yearValue = DateTime.Today.Year;
-
+    // Giá trị thống kê đặt phòng
+    int monthRoomValue = 1;
+    int yearRoomValue = DateTime.Today.Year;
 
     bool smooth = true;
     bool showDataLabels = false;
@@ -287,6 +323,43 @@
     HotelService hotelService = new HotelService();
     OrderroomService orderroomService = new OrderroomService();
 
+    class DataItem
+    {
+        public int Month { get; set; }
+        public int Year { get; set; }
+        public double Value { get; set; }
+        public string StrName { get; set; }
+    }
+
+    async void YearRoomChange()
+    {
+        dataItems.Clear();
+        var orderroom = await orderroomService.GetAllInvokeOfOwner(owner.UserPhone);
+        orderroom = orderroom.Where(od => od.OrderroomDatestart.Value.Year == yearRoomValue).ToList();
+        foreach (var item in orderroom)
+        {
+            DataItem dataItem = new DataItem();
+            dataItem.Month = item.OrderroomDatestart.Value.Month;
+            dataItem.Year = item.OrderroomDatestart.Value.Year;
+            dataItem.Value = item.Orderroomdetails.Count;
+            dataItem.StrName = $"Tháng {dataItem.Month}-{dataItem.Year}";
+            if(dataItems.Any(dis=>dis.Month == dataItem.Month && dis.Year == dataItem.Year)){
+                var temp = dataItems.FirstOrDefault(dis => dis.Month == dataItem.Month && dis.Year == dataItem.Year);
+                temp.Value += dataItem.Value;
+                var tempp = temp;
+                dataItems.Remove(temp);
+                dataItems.Add(tempp);
+            }
+            else
+            {
+                dataItems.Add(dataItem);
+            }
+        }
+        StateHasChanged();
+    }
+
+    List<DataItem> dataItems = new List<DataItem>();
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
@@ -294,7 +367,7 @@
             phone = await sessionStorage.GetItemAsync<string>("owner_phone");
             owner = await userService.GetUser(phone);
             hotels = await hotelService.GetAllHotelOfOwner(owner.UserPhone);
-            orderrooms = await orderroomService.GetAllOrderroomOfOwner(owner.UserPhone);
+            orderrooms = await orderroomService.GetAllInvokeOfOwner(owner.UserPhone);
             foreach (var item in orderrooms)
             {
                 if (item.OrderroomStatus == "3")
@@ -314,6 +387,30 @@
                 }
             }
             valueOfYears = valueOfYears.OrderBy(vom=>vom.year).ThenBy(vom => vom.month).ToList();
+
+            //Thống kê tần suất đặt phòng
+            dataItems.Clear();
+            var orderroom = await orderroomService.GetAllInvokeOfOwner(owner.UserPhone);
+            orderroom = orderroom.Where(od => od.OrderroomDatestart.Value.Year == yearRoomValue).ToList();
+            foreach (var item in orderroom)
+            {
+                DataItem dataItem = new DataItem();
+                dataItem.Month = item.OrderroomDatestart.Value.Month;
+                dataItem.Year = item.OrderroomDatestart.Value.Year;
+                dataItem.Value = item.Orderroomdetails.Count;
+                dataItem.StrName = $"Tháng {dataItem.Month}-{dataItem.Year}";
+                if(dataItems.Any(dis=>dis.Month == dataItem.Month && dis.Year == dataItem.Year)){
+                    var temp = dataItems.FirstOrDefault(dis => dis.Month == dataItem.Month && dis.Year == dataItem.Year);
+                    temp.Value += dataItem.Value;
+                    var tempp = temp;
+                    dataItems.Remove(temp);
+                    dataItems.Add(tempp);
+                }
+                else
+                {
+                    dataItems.Add(dataItem);
+                }
+            }
             StateHasChanged();
         }
     }

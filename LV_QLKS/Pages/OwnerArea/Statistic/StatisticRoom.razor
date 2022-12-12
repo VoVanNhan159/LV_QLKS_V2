@@ -1,0 +1,311 @@
+﻿@page "/owner/statisticroom/index"
+@using System.Globalization
+@using LV_QLKS.Pages.OwnerArea.Hotel
+@using Microsoft.AspNetCore.SignalR.Client
+@layout Layout_Owner
+<PageTitle>Danh sách phòng</PageTitle>
+
+<div class="main-content">
+    <RadzenText Style="color:darkviolet" TextStyle="TextStyle.DisplayH4" TextAlign="TextAlign.Center"  Text="Thống kê phòng"></RadzenText>
+    <div class="section__content section__content--p30">
+        <div class="col">
+            <div class="row">
+                <div class="col-lg-4">
+                    Khách sạn
+                        @if(hotels.Count > 0)
+                        {
+                            <select class="form-control" @bind="hotelId">
+                                @foreach (var item in hotels)
+                                {
+                                    <option value="@item.HotelId">@item.HotelName</option>
+                                }
+                            </select>
+                        }
+                </div>
+                <div class="col-lg-4">
+                    <div class="row">
+                        <div class="col-lg-6">
+                            Ngày bắt đầu
+                            <RadzenDatePicker Class="w-100" @bind-Value="dayStartFilter" DateFormat="dd/MM/yyyy" onkeydown="return false" style="display: block"/>
+                        </div>
+                        <div class="col-lg-6">
+                            Ngày kết thúc
+                            <RadzenDatePicker Class="w-100" @bind-Value="dayEndFilter" DateFormat="dd/MM/yyyy" Min="dayStartFilter.AddDays(1)" Max="DateTime.Today" onkeydown="return false" style="display: block"/>  
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <RadzenRadioButtonList @bind-Value=checkBook Orientation="Orientation.Vertical" TValue="int">
+                                <Items>
+                                    <RadzenRadioButtonListItem Text="Được đặt" Value="1" TValue="int" />
+                                    <RadzenRadioButtonListItem Text="Không đặt" Value="2" TValue="int" />
+                                </Items>
+                            </RadzenRadioButtonList>
+                        </div>
+                        <div class="col-lg-3">
+                            <br />
+                            <RadzenButton Text="Tìm" Click="FillterRoom"></RadzenButton>
+                        </div>
+                        <div class="col-lg-3">
+                            <br />
+                            <RadzenButton Text="Xóa lọc" Click="ClearFillterRoom"></RadzenButton>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Khách sạn</th>
+                    <th>
+                        Phòng
+                    </th>
+                    <th>
+                        Số lần được đặt
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @if(rooms.Count > 0)
+                {
+                    @if(checkBook == 1 && keyValueCountRooms.Count > 0){
+                        foreach (var item in rooms)
+                        {
+                            <tr>
+                                <td>
+                                    @item.Hotel.HotelName
+                                </td>
+                                <td>
+                                    @item.RoomName
+                                </td>
+                                <td>
+                                   @keyValueCountRooms[item.RoomId]
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        foreach (var item in rooms)
+                        {
+                            <tr>
+                                <td>
+                                    @item.Hotel.HotelName
+                                </td>
+                                <td>
+                                    @item.RoomName
+                                </td>
+                            
+                                <td>
+                                   
+                                </td>
+                            </tr>
+                        }
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+@code {
+    //Điều kiện lọc
+    DateTime dayStartFilter = new DateTime();
+    DateTime dayEndFilter = new DateTime();
+    int hotelId = 0;
+    int checkBook = 1;
+
+    //Khai báo các biến
+    List<Room> rooms = new List<Room>();
+    List<ShareModel.Hotel> hotels = new List<ShareModel.Hotel>();
+    ShareModel.User owner = new ShareModel.User();
+    List<Floor> floors = new List<Floor>();
+    List<Typeofroom> typeofrooms = new List<Typeofroom>();
+    List<Orderroom> orderrooms = new List<Orderroom>();
+    List<Orderroomdetail> orderroomdetails = new List<Orderroomdetail>();
+
+    //Khai báo các service
+    HotelService hotelService = new HotelService();
+    UserService userService = new UserService();
+    RoomService roomService = new RoomService();
+    FloorService floorService = new FloorService();
+    TypeOfRoomService typeOfRoomService = new TypeOfRoomService();
+    OrderroomService orderroomService = new OrderroomService();
+    OrderroomDetailService orderroomDetailService = new OrderroomDetailService();
+    Dictionary<int, int> keyValueCountRooms = new Dictionary<int, int>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        dayStartFilter = DateTime.Today;
+        dayEndFilter = DateTime.Today.AddDays(1);
+    }
+
+    protected async Task FillterRoom()
+    {
+        if(hotelId == 0){
+            NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Thông báo", Detail = "Vui lòng chọn khách sạn", Duration = 4000 });
+        }
+        else{
+            if(checkBook == 1){
+                keyValueCountRooms.Clear();
+                rooms.Clear();
+                orderrooms = await orderroomService.GetAllOrderroomStatisticOfOwner(owner.UserPhone);
+                orderrooms = orderrooms.Where(od => od.OrderroomDatestart.Value.Date >= dayStartFilter && od.OrderroomDatestart.Value.Date <= dayEndFilter).ToList();
+                foreach (var orderroom in orderrooms)
+                {
+                    foreach (var item in orderroom.Orderroomdetails.Select(r=>r.Room))
+                    {
+                        if(item.HotelId == hotelId){
+                            if (!rooms.Select(r => r.RoomId).Contains(item.RoomId))
+                            {
+                                rooms.Add(item);
+                                keyValueCountRooms[item.RoomId] = 1;
+                            }
+                            else
+                            {
+                                keyValueCountRooms[item.RoomId] += 1;
+                            }
+                        }
+                    }
+                }
+            }
+            else
+            {
+                keyValueCountRooms.Clear();
+                rooms.Clear();
+                orderrooms = await orderroomService.GetAllOrderroomStatisticOfOwner(owner.UserPhone);
+                orderrooms = orderrooms.Where(od => od.OrderroomDatestart.Value.Date >= dayStartFilter && od.OrderroomDatestart.Value.Date <= dayEndFilter).ToList();
+                if(orderrooms.Count > 0)
+                {
+                    foreach (var orderroom in orderrooms)
+                    {
+                        foreach (var item in orderroom.Orderroomdetails.Select(r=>r.Room))
+                        {
+                            if(item.HotelId == hotelId){
+                                if (!rooms.Select(r => r.RoomId).Contains(item.RoomId))
+                                {
+                                    rooms.Add(item);
+                                }
+                            }
+                        }
+                    }
+                }
+                var roomsTemp = await roomService.GetAllRoomOfOwner(owner.UserPhone);
+                var roomsRes = new List<Room>();
+                foreach (var item in roomsTemp)
+                {
+                    if(item.HotelId == hotelId){
+                        if (!rooms.Select(r => r.RoomId).Contains(item.RoomId))
+                        {
+                            roomsRes.Add(item);
+                        }
+                    }
+                }
+                rooms = roomsRes.ToList();
+            }
+            StateHasChanged();
+        }
+    }
+    protected async void ClearFillterRoom()
+    {
+        checkBook = 1;
+        keyValueCountRooms.Clear();
+        rooms.Clear();
+        orderrooms = await orderroomService.GetAllOrderroomStatisticOfOwner(owner.UserPhone);
+        foreach (var orderroom in orderrooms)
+            {
+                foreach (var item in orderroom.Orderroomdetails.Select(r=>r.Room))
+                {
+                    if (!rooms.Select(r => r.RoomId).Contains(item.RoomId))
+                    {
+                        rooms.Add(item);
+                        keyValueCountRooms[item.RoomId] = 1;
+                    }
+                    else
+                    {
+                        keyValueCountRooms[item.RoomId] += 1;
+                    }
+                }
+            }
+        StateHasChanged();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var phone = await sessionStorage.GetItemAsync<string>("owner_phone");
+            owner = await userService.GetUser(phone);
+            orderrooms = await orderroomService.GetAllOrderroomStatisticOfOwner(owner.UserPhone);
+            foreach (var orderroom in orderrooms)
+            {
+                foreach (var item in orderroom.Orderroomdetails.Select(r=>r.Room))
+                {
+                    if (!rooms.Select(r => r.RoomId).Contains(item.RoomId))
+                    {
+                        rooms.Add(item);
+                        keyValueCountRooms[item.RoomId] = 1;
+                    }
+                    else
+                    {
+                        keyValueCountRooms[item.RoomId] += 1;
+                    }
+                }
+            }
+            hotels = await hotelService.GetAllHotelOfOwner(owner.UserPhone);
+            StateHasChanged();
+        }
+    }
+
+    protected string GetAddressHotel(int hotel_id)
+    {
+        return hotelService.GetAddressHotel(hotel_id);
+    }
+    protected async void ShowEditRoom(int id)
+    {
+        var res = await DialogService.OpenAsync<OwnerArea.Room.Edit>("",
+             new Dictionary<string, object>() { { "id", id } },
+             new DialogOptions() { Width = "700px", Height = "500px", Resizable = true, Draggable = true });
+        if(res == true)
+        {
+            NavigationManager.NavigateTo("/room/create");
+            NavigationManager.NavigateTo("/room/index");
+        }
+    }
+    protected Typeofroom GetTypeofroom(Room item)
+    {
+        foreach(var tor in typeofrooms)
+        {
+            if(tor.TorId == item.TorId)
+            {
+                return tor;
+            }
+        }
+        return null;
+    }
+    protected Hotel GetHotel(Room item)
+    {
+        foreach(var hotel in hotels)
+        {
+            if(hotel.HotelId == item.HotelId)
+            {
+                return hotel;
+            }
+        }
+        return null;
+    }
+    protected Floor GetFloor(Room item)
+    {
+        foreach(var floor in floors)
+        {
+            if(floor.FloorId == item.FloorId)
+            {
+                return floor;
+            }
+        }
+        return null;
+    }
+}

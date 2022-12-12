@@ -27,6 +27,7 @@ namespace WebApplication1.Controllers
         {
             return await _context.Orderrooms
                 .Include(od=>od.UserPhoneNavigation)
+                .Include(od=>od.Orderroomdetails)
                 .ToListAsync();
         }
 

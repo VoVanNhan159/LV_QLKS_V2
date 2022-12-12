@@ -26,10 +26,10 @@
                                 </div>
                                 <div class="col-sm-6 col-xl-3">
                                     <div class="bg-light rounded d-flex align-items-center justify-content-between p-4">
-                                        <i class="fa fa-shopping-cart fa-3x text-primary"></i>
+                                        <i class="fa fa-home fa-3x text-primary"></i>
                                         <div class="ms-3">
-                                            <p class="mb-2">Tổng số lượng đơn đặt phòng</p>
-                                            <h5 class="mb-0">@orderroomReceipts.Count</h5>
+                                            <p class="mb-2">Tổng số lượng khách sạn</p>
+                                            <h5 class="mb-0">@hotels.Count</h5>
                                         </div>
                                     </div>
                                 </div>
@@ -55,6 +55,40 @@
                         </div>
                         <br/>
                         <br/>
+                        <RadzenCard>
+                            <div class="container">
+                                <div class="row">
+                                    <RadzenText TextStyle="TextStyle.H5" TagName="TagName.H4" Class="my-4">
+                                        Tần suất đặt phòng
+                                    </RadzenText>
+                                    <div class="col-sm-12 col-lg-6 offset-lg-3 my-5">
+                                        <RadzenCard Class="w-100 mb-4" Style="display: flex; align-items: center; gap: 0.5rem" >
+                                            <RadzenCheckBox @bind-Value="@showDataLabels" Name="dataLabels"></RadzenCheckBox>
+                                            <RadzenLabel Text="Hiện số lượng phòng được đặt" For="dataLabels" />
+                                            <RadzenNumeric onkeydown="return false" @bind-Value="@yearRoomValue" Class="w-25" Max="DateTime.Today.Year" Name="year" TValue="int" Change="YearRoomChange"></RadzenNumeric>
+                                            <RadzenLabel Visible=monthCheck Text="Chọn năm" For="year" />
+                                        </RadzenCard>
+                                        @if(dataItems.Count > 0){
+                                            <RadzenChart>
+                                                <RadzenDonutSeries Data="@dataItems" CategoryProperty="StrName" ValueProperty="Value">
+                                                    <ChildContent>
+                                                        <RadzenSeriesDataLabels Visible="@showDataLabels" />
+                                                    </ChildContent>
+                                                    <TitleTemplate>
+                                                        <div class="rz-donut-content">
+                                                            <div>Năm @yearRoomValue</div> 
+                                                        </div>
+                                                    </TitleTemplate>
+                                                </RadzenDonutSeries>
+                                            </RadzenChart>
+                                        }
+                                        else{
+                                            <div>Không có đơn đặt nào trong năm @yearRoomValue</div>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </RadzenCard>
                         <RadzenCard>
                             <RadzenText TextStyle="TextStyle.H5" TagName="TagName.H4" Class="my-4">
                             Thống kê doanh thu Website
@@ -272,11 +306,14 @@
     bool quarterCheck = false;
     bool yearCheck = false;
 
-    //Lưu các giá trị cần thống kê
+    //Lưu các giá trị cần thống kê Doanh thu
     int monthValue = 1;
     int quarterValue = 1;
     int yearValue = DateTime.Today.Year;
 
+    // Giá trị thống kê đặt phòng
+    int monthRoomValue = 1;
+    int yearRoomValue = DateTime.Today.Year;
 
     bool smooth = true;
     bool showDataLabels = false;
@@ -293,6 +330,44 @@
     HotelService hotelService = new HotelService();
     OrderroomService orderroomService = new OrderroomService();
     BusinessregistrationService businessregistrationService = new BusinessregistrationService();
+
+    class DataItem
+    {
+        public int Month { get; set; }
+        public int Year { get; set; }
+        public double Value { get; set; }
+        public string StrName { get; set; }
+    }
+
+    async void YearRoomChange()
+    {
+        dataItems.Clear();
+        var orderroom = await orderroomService.GetAllOrderrom();
+        orderroom = orderroom.Where(od => od.OrderroomStatus == "2"
+        && od.OrderroomDatestart.Value.Year == yearRoomValue).ToList();
+        foreach (var item in orderroom)
+        {
+            DataItem dataItem = new DataItem();
+            dataItem.Month = item.OrderroomDatestart.Value.Month;
+            dataItem.Year = item.OrderroomDatestart.Value.Year;
+            dataItem.Value = item.Orderroomdetails.Count;
+            dataItem.StrName = $"Tháng {dataItem.Month}-{dataItem.Year}";
+            if(dataItems.Any(dis=>dis.Month == dataItem.Month && dis.Year == dataItem.Year)){
+                var temp = dataItems.FirstOrDefault(dis => dis.Month == dataItem.Month && dis.Year == dataItem.Year);
+                temp.Value += dataItem.Value;
+                var tempp = temp;
+                dataItems.Remove(temp);
+                dataItems.Add(tempp);
+            }
+            else
+            {
+                dataItems.Add(dataItem);
+            }
+        }
+        StateHasChanged();
+    }
+
+    List<DataItem> dataItems = new List<DataItem>();
 
     protected override async Task OnInitializedAsync()
     {
@@ -319,6 +394,32 @@
             }
         }
         valueOfYears = valueOfYears.OrderBy(vom=>vom.year).ThenBy(vom => vom.month).ToList();
+
+        //Thống kê tần suất đặt phòng
+        dataItems.Clear();
+        var orderroom = await orderroomService.GetAllOrderrom();
+        orderroom = orderroom.Where(od => od.OrderroomStatus == "2"
+        && od.OrderroomDatestart.Value.Year == yearRoomValue).ToList();
+        foreach (var item in orderroom)
+        {
+            DataItem dataItem = new DataItem();
+            dataItem.Month = item.OrderroomDatestart.Value.Month;
+            dataItem.Year = item.OrderroomDatestart.Value.Year;
+            dataItem.Value = item.Orderroomdetails.Count;
+            dataItem.StrName = $"Tháng {dataItem.Month}-{dataItem.Year}";
+            if(dataItems.Any(dis=>dis.Month == dataItem.Month && dis.Year == dataItem.Year)){
+                var temp = dataItems.FirstOrDefault(dis => dis.Month == dataItem.Month && dis.Year == dataItem.Year);
+                temp.Value += dataItem.Value;
+                var tempp = temp;
+                dataItems.Remove(temp);
+                dataItems.Add(tempp);
+            }
+            else
+            {
+                dataItems.Add(dataItem);
+            }
+        }
+        StateHasChanged();
     }
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -327,6 +428,7 @@
             phone = await sessionStorage.GetItemAsync<string>("admin_phone");
             if(phone != null)
                 admin = await userService.GetUser(phone);
+            StateHasChanged();
         }
     }
 

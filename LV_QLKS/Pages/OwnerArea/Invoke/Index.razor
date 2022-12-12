@@ -1,17 +1,17 @@
-﻿@page "/owner/orderroom/index"
+﻿@page "/owner/invoke/index"
 @layout Layout_Owner
 @using Microsoft.AspNetCore.SignalR.Client
 @using ShareModel;
 @using ShareModel.Custom
-<PageTitle>Danh sách đơn đặt phòng</PageTitle>
+<PageTitle>Danh sách hóa đơn</PageTitle>
 <div class="main-content">
-    <RadzenText Style="color:darkviolet" TextStyle="TextStyle.DisplayH4" TextAlign="TextAlign.Center"  Text="Danh sách đơn đặt phòng"></RadzenText>
+    <RadzenText Style="color:darkviolet" TextStyle="TextStyle.DisplayH4" TextAlign="TextAlign.Center"  Text="Danh sách hóa đơn"></RadzenText>
     <div class="section__content section__content--p30">
         <RadzenDataGrid EmptyText="Không có dữ liệu, vui lòng kiểm tra lại" Data="@listOrderrooms" TItem="Orderroom" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Center" AllowSorting="true" 
             FilterMode="FilterMode.Simple" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" PageSizeOptions="@pageSizeOptions" PageSize="5" PageSizeText="mẫu tin/trang" ShowPagingSummary="@showPagerSummary" PagingSummaryFormat="@pagingSummaryFormat" Page="@OnPage">
             <Columns>
                 <RadzenDataGridColumn TItem="Orderroom" Property="UserPhoneNavigation.UserName" Title="Tên khách hàng" />
-                <RadzenDataGridColumn Width="10%" Property="UserPhone" TItem="Orderroom" Title="SĐT" />
+                <RadzenDataGridColumn Width="30%" Property="UserPhone" TItem="Orderroom" Title="SĐT" />
                 <RadzenDataGridColumn TItem="Orderroom" Title="Tên khách sạn">
                     <Template Context="data">
                         @data.Orderroomdetails.First().Room.Hotel.HotelName
@@ -27,7 +27,7 @@
                         @hotelService.FormatVND((int)data.OrderroomTotalprice)
                     </Template>
                 </RadzenDataGridColumn>
-                <RadzenDataGridColumn TItem="Orderroom" Title="Trạng thái">
+@*                <RadzenDataGridColumn TItem="Orderroom" Title="Trạng thái">
                     <Template Context="data">
                         @if(data.OrderroomStatus == "1")
                         {
@@ -44,10 +44,10 @@
                         }
                             
                     </Template>
-                </RadzenDataGridColumn>
+                </RadzenDataGridColumn>*@
                 <RadzenDataGridColumn Width="10%" TItem="Orderroom">
                     <Template Context="data">
-                        <RadzenButton ButtonStyle="ButtonStyle.Info" Icon="build" Class="m-1" Click=@(() => ShowOrderroomDetailPopup(data.OrderroomId)) />
+                        <RadzenButton ButtonStyle="ButtonStyle.Info" Icon="build" Class="m-1" Click=@(() => ShowInvokeDetailPopup(data.OrderroomId)) />
                     </Template>
                 </RadzenDataGridColumn>
             </Columns>
@@ -121,7 +121,7 @@
         {
             phone = await sessionStorage.GetItemAsync<string>("owner_phone");
             owner = await userService.GetUser(phone);
-            listOrderrooms = await orderroomService.GetAllOrderroomOfOwner(owner.UserPhone);
+            listOrderrooms = await orderroomService.GetAllInvokeOfOwner(owner.UserPhone);
             StateHasChanged(); 
         }
     }
@@ -153,15 +153,10 @@
         });
     }
 
-    protected async void ShowOrderroomDetailPopup(int id)
+    protected async void ShowInvokeDetailPopup(int id)
     {
-        var res = await DialogService.OpenAsync<OwnerArea.OrderroomDetail.Index>("",
+        await DialogService.OpenAsync<OwnerArea.InvokeDetail.Index>("",
              new Dictionary<string, object>() { { "id", id } },
              new DialogOptions() { Width = "800px", Height = "500px", Resizable = true, Draggable = true });
-        if(res != null)
-        {
-            NavigationManager.NavigateTo("/owner/orderroomdetail/"+id);
-            NavigationManager.NavigateTo("/owner/orderroom/index");
-        }
     }
 }

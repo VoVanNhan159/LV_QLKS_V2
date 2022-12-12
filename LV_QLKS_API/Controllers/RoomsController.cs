@@ -33,6 +33,62 @@ namespace LV_QLKS_API.Controllers
             return await _context.Rooms.ToListAsync();
         }
         // GET: api/Rooms/5
+        [HttpGet("GetAllOrderroomStatisticOfOwner/{phone}")]
+        [DisableRequestSizeLimit]
+        public async Task<ActionResult<IEnumerable<Room>>> GetAllOrderroomStatisticOfOwner(string phone)
+        {
+            if (_context.Rooms == null)
+            {
+                return NotFound();
+            }
+            var orderroomsReturn = new List<Orderroom>();
+            var hotels = await _context.Hotels.Where(h => h.UserPhone == phone).ToListAsync();
+            var rooms = await _context.Rooms.Where(r => hotels.Select(h => h.HotelId).Contains(r.HotelId)).Select(r => r.RoomId).ToListAsync();
+            var orderrooms = await _context.Orderrooms.Where(od => od.OrderroomStatus != "3").Include(o => o.UserPhoneNavigation).ToListAsync();
+
+            foreach (var item in orderrooms)
+            {
+                var orderroomdetails = await _context.Orderroomdetails.Include(od => od.Room).Where(od => od.OrderroomId == item.OrderroomId).ToListAsync();
+                foreach (var orderroomdetail in orderroomdetails)
+                {
+                    if (rooms.Contains(orderroomdetail.RoomId))
+                    {
+                        if (!orderroomsReturn.Select(or => or.OrderroomId).Contains(item.OrderroomId))
+                        {
+                            var orderroomTemp = new Orderroom();
+                            orderroomTemp = item;
+                            orderroomTemp.Orderroomdetails = orderroomdetails;
+                            orderroomsReturn.Add(orderroomTemp);
+                        }
+                    }
+                }
+            }
+
+
+
+            var room = new List<Room>();
+
+            foreach(var orderroom in orderroomsReturn)
+            {
+                foreach(var Orderroomdetail in orderroom.Orderroomdetails)
+                {
+                    var roomTemp = await _context.Rooms
+                    .Include(r => r.Floor)
+                    .Include(r => r.Tor)
+                    .Include(r => r.Hotel)
+                    .Include(r=>r.Orderroomdetails)
+                    .FirstAsync(r => r.RoomId == Orderroomdetail.RoomId);
+                    room.Add(roomTemp);
+                }
+            }
+
+            if (room == null)
+            {
+                return NotFound();
+            }
+
+            return room;
+        }
         [HttpGet("GetAllRoomOfOwner/{phone}")]
         [DisableRequestSizeLimit]
         public async Task<ActionResult<IEnumerable<Room>>> GetAllRoomOfOwner(string phone)

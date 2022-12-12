@@ -23,7 +23,7 @@
                     Tổng tiền
                 </th>
                 <th>
-                    Hình thức thanh toán
+                    Trạng thái
                 </th>
                 <th>
                     Chỉ đường
@@ -60,14 +60,19 @@
                                 @hotelService.FormatVND((int)item.OrderroomTotalprice)
                             </td>
                             <td>
-                                @{
-                                    var status = "";
-                                    if(item.OrderroomStatus == "1")
-                                        status = "Thanh toán khi nhận phòng";
-                                    else if(item.OrderroomStatus == "2")
-                                        status = "Thanh toán trực tuyến";
+                                @if(item.OrderroomStatus == "4")
+                                {
+                                    <p style="color:red">Chưa xác nhận</p>
                                 }
-                                @status
+                        
+                                else if(item.OrderroomStatus == "2")
+                                {
+                                    <p style="color:limegreen">Đã thanh toán</p>
+                                } 
+                                else if(item.OrderroomStatus == "1")
+                                {
+                                    <p style="color:orangered">Đã xác nhận</p>
+                                } 
                             </td>
                             <td>
                             @{
@@ -93,7 +98,7 @@
                             }
                             </td>
                             <td>
-                            @if(item.OrderroomStatus == "1" && (DateTime.Today - item.OrderroomDate).Value.TotalDays <=3 )
+                            @if(item.OrderroomStatus == "4" && (DateTime.Today - item.OrderroomDate).Value.TotalDays <=3 )
                             {
                                 <button @onclick="() => DeleteOrderroom(item.OrderroomId)">
                                     <i class="fa fa-trash" aria-hidden="true"></i>

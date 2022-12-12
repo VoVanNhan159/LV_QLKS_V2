@@ -25,9 +25,19 @@ namespace LV_QLKS.Service
         {
             return await Http.GetFromJsonAsync<List<Orderroom>>(baseurl + "/GetAllOrderromOfUser/" + phone);
         }
-        public async Task<List<Orderroom>> GetAllOrderroomOfOwner(string phone)
+        public async Task<List<Orderroom>> GetAllOrderroomStatisticOfOwner(string phone)
         {
             return await Http.GetFromJsonAsync<List<Orderroom>>(baseurl + "/GetAllOrderroomOfOwner/" + phone);
+        }
+        public async Task<List<Orderroom>> GetAllOrderroomOfOwner(string phone)
+        {
+            var res = await Http.GetFromJsonAsync<List<Orderroom>>(baseurl + "/GetAllOrderroomOfOwner/" + phone);
+            return res.Where(od => od.OrderroomStatus == "4" || od.OrderroomStatus == "1").ToList();
+        }
+        public async Task<List<Orderroom>> GetAllInvokeOfOwner(string phone)
+        {
+            var res = await Http.GetFromJsonAsync<List<Orderroom>>(baseurl + "/GetAllOrderroomOfOwner/" + phone);
+            return res.Where(od => od.OrderroomStatus == "2").ToList();
         }
         public async Task<Orderroom> AddOrderroomCustom(Orderroom_Custom orderroom)
         {

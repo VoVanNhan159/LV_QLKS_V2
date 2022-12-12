@@ -489,7 +489,7 @@
         orderroomCustom.OrderroomDatestart = orderroom.OrderroomDatestart;
         orderroomCustom.OrderroomDateend = orderroom.OrderroomDateend;
         orderroomCustom.UserPhone = orderroom.UserPhone;
-        orderroomCustom.OrderroomStatus = "1";
+        orderroomCustom.OrderroomStatus = "4";
         orderroomCustom.OrderroomTotalprice = orderroom.OrderroomTotalprice;
         var res = await orderroomService.UpdateOrderroomAfterPayment(orderroomCustom);
         if(res != null)
