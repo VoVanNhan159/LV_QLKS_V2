@@ -96,6 +96,8 @@
                                             <RadzenCheckBox @bind-Value="@showDataLabels" Name="dataLabels"></RadzenCheckBox>
                                             <RadzenLabel Text="Hiện giá tiền" For="dataLabels" />
                                             <RadzenDropDown AllowClear="true" TValue="int" Class="w-25" Data=@(chooses) TextProperty="name" ValueProperty="value" Change=@(args => OnChange(args)) />
+                                            <RadzenLabel Text="Chọn khách sạn" For="dataLabels" />
+                                            <RadzenDropDown AllowClear="true" TValue="int" Class="w-25" Data=@(hotels) TextProperty="HotelName" ValueProperty="HotelId" Change=@(args => OnHotelChange(args)) />
                                             <RadzenButton Text="Export" Icon="get_app" Click="ExportStatistic"></RadzenButton>
                                             <RadzenNumeric onkeydown="return false" Visible=monthCheck @bind-Value="@monthValue" Class="w-25" Min="1" Max="12" Name="month" TValue="int" Change="MonthChange"></RadzenNumeric>
                                             <RadzenLabel Visible=monthCheck Text="Chọn tháng" For="month" />
@@ -305,6 +307,7 @@
     int monthValue = 1;
     int quarterValue = 1;
     int yearValue = DateTime.Today.Year;
+    int hotelId = 0;
     // Giá trị thống kê đặt phòng
     int monthRoomValue = 1;
     int yearRoomValue = DateTime.Today.Year;
@@ -439,20 +442,46 @@
                 workSheet.Row(1).Height = 20;
                 workSheet.Row(1).Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
                 workSheet.Row(1).Style.Font.Bold = true;
-                workSheet.Cells[1, 1].Value = "Ngày";
-                workSheet.Cells[1, 2].Value = "Tháng";
-                workSheet.Cells[1, 3].Value = "Năm";
-                workSheet.Cells[1, 4].Value = "Giá trị";
-                int recordIndex = 2;
-                foreach (var item in valueOfMonths)
+                if(hotelId > 0)
                 {
-                    if(item.month == monthValue && item.year == yearValue)
+                    var hotel= hotels.First(h=>h.HotelId == hotelId);
+                    workSheet.Cells[1, 1].Value = "Khách sạn";
+                    workSheet.Cells[1, 2].Value = hotel.HotelName;
+
+                    workSheet.Cells[2, 1].Value = "Ngày";
+                    workSheet.Cells[2, 2].Value = "Tháng";
+                    workSheet.Cells[2, 3].Value = "Năm";
+                    workSheet.Cells[2, 4].Value = "Giá trị";
+                    int recordIndex = 3;
+                    foreach (var item in valueOfMonths)
                     {
-                        workSheet.Cells[recordIndex, 1].Value = item.day;
-                        workSheet.Cells[recordIndex, 2].Value = item.month;
-                        workSheet.Cells[recordIndex, 3].Value = item.year;
-                        workSheet.Cells[recordIndex, 4].Value = item.value;
-                        recordIndex++;
+                        if(item.month == monthValue && item.year == yearValue)
+                        {
+                            workSheet.Cells[recordIndex, 1].Value = item.day;
+                            workSheet.Cells[recordIndex, 2].Value = item.month;
+                            workSheet.Cells[recordIndex, 3].Value = item.year;
+                            workSheet.Cells[recordIndex, 4].Value = item.value;
+                            recordIndex++;
+                        }
+                    }
+                }
+                else
+                {
+                    workSheet.Cells[1, 1].Value = "Ngày";
+                    workSheet.Cells[1, 2].Value = "Tháng";
+                    workSheet.Cells[1, 3].Value = "Năm";
+                    workSheet.Cells[1, 4].Value = "Giá trị";
+                    int recordIndex = 2;
+                    foreach (var item in valueOfMonths)
+                    {
+                        if(item.month == monthValue && item.year == yearValue)
+                        {
+                            workSheet.Cells[recordIndex, 1].Value = item.day;
+                            workSheet.Cells[recordIndex, 2].Value = item.month;
+                            workSheet.Cells[recordIndex, 3].Value = item.year;
+                            workSheet.Cells[recordIndex, 4].Value = item.value;
+                            recordIndex++;
+                        }
                     }
                 }
 
@@ -472,92 +501,188 @@
                 workSheet.Row(1).Height = 20;
                 workSheet.Row(1).Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
                 workSheet.Row(1).Style.Font.Bold = true;
-                workSheet.Cells[1, 1].Value = "Quý";
-                workSheet.Cells[1, 2].Value = "Năm";
-                workSheet.Cells[1, 3].Value = "Giá trị";
-                int recordIndex = 2;
-                Dictionary<int, double> keyValuePairValueQuaters = new Dictionary<int, double>();
-                foreach (var item in valueOfYears)
+                if(hotelId > 0)
                 {
-                    int quater = 0;
-                    if(item.month <= 3)
+                    var hotel= hotels.First(h=>h.HotelId == hotelId);
+                    workSheet.Cells[1, 1].Value = "Khách sạn";
+                    workSheet.Cells[1, 2].Value = hotel.HotelName;
+
+                    workSheet.Cells[2, 1].Value = "Quý";
+                    workSheet.Cells[2, 2].Value = "Năm";
+                    workSheet.Cells[2, 3].Value = "Giá trị";
+                    int recordIndex = 3;
+                    Dictionary<int, double> keyValuePairValueQuaters = new Dictionary<int, double>();
+                    foreach (var item in valueOfYears)
                     {
-                        quater = 1;
-                        if(keyValuePairValueQuaters.Count == 0)
+                        int quater = 0;
+                        if(item.month <= 3)
                         {
-                            keyValuePairValueQuaters[quater] = item.value;
-                        }
-                        else{
-                            if(!keyValuePairValueQuaters.ContainsKey(quater))
+                            quater = 1;
+                            if(keyValuePairValueQuaters.Count == 0)
                             {
                                 keyValuePairValueQuaters[quater] = item.value;
                             }
-                            else
+                            else{
+                                if(!keyValuePairValueQuaters.ContainsKey(quater))
+                                {
+                                    keyValuePairValueQuaters[quater] = item.value;
+                                }
+                                else
+                                {
+                                    keyValuePairValueQuaters[quater] += item.value;
+                                }
+                            }
+                        }
+                        else if(item.month > 3 && item.month <= 6)
+                        {
+                            quater = 2;
+                            if(keyValuePairValueQuaters.Count == 0)
                             {
-                                keyValuePairValueQuaters[quater] += item.value;
+                                keyValuePairValueQuaters[quater] = item.value;
+                            }
+                            else{
+                                if(!keyValuePairValueQuaters.ContainsKey(quater))
+                                {
+                                    keyValuePairValueQuaters[quater] = item.value;
+                                }
+                                else
+                                {
+                                    keyValuePairValueQuaters[quater] += item.value;
+                                }
+                            }
+                        }
+                        else if(item.month > 6 && item.month <= 9)
+                        {
+                            quater = 3;
+                            if(keyValuePairValueQuaters.Count == 0)
+                            {
+                                keyValuePairValueQuaters[quater] = item.value;
+                            }
+                            else{
+                                if(!keyValuePairValueQuaters.ContainsKey(quater))
+                                {
+                                    keyValuePairValueQuaters[quater] = item.value;
+                                }
+                                else
+                                {
+                                    keyValuePairValueQuaters[quater] += item.value;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            quater = 4;
+                            if(keyValuePairValueQuaters.Count == 0)
+                            {
+                                keyValuePairValueQuaters[quater] = item.value;
+                            }
+                            else{
+                                if(!keyValuePairValueQuaters.ContainsKey(quater))
+                                {
+                                    keyValuePairValueQuaters[quater] = item.value;
+                                }
+                                else
+                                {
+                                    keyValuePairValueQuaters[quater] += item.value;
+                                }
                             }
                         }
                     }
-                    else if(item.month > 3 && item.month <= 6)
+                    foreach (var item in keyValuePairValueQuaters)
                     {
-                        quater = 2;
-                        if(keyValuePairValueQuaters.Count == 0)
-                        {
-                            keyValuePairValueQuaters[quater] = item.value;
-                        }
-                        else{
-                            if(!keyValuePairValueQuaters.ContainsKey(quater))
-                            {
-                                keyValuePairValueQuaters[quater] = item.value;
-                            }
-                            else
-                            {
-                                keyValuePairValueQuaters[quater] += item.value;
-                            }
-                        }
-                    }
-                    else if(item.month > 6 && item.month <= 9)
-                    {
-                        quater = 3;
-                        if(keyValuePairValueQuaters.Count == 0)
-                        {
-                            keyValuePairValueQuaters[quater] = item.value;
-                        }
-                        else{
-                            if(!keyValuePairValueQuaters.ContainsKey(quater))
-                            {
-                                keyValuePairValueQuaters[quater] = item.value;
-                            }
-                            else
-                            {
-                                keyValuePairValueQuaters[quater] += item.value;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        quater = 4;
-                        if(keyValuePairValueQuaters.Count == 0)
-                        {
-                            keyValuePairValueQuaters[quater] = item.value;
-                        }
-                        else{
-                            if(!keyValuePairValueQuaters.ContainsKey(quater))
-                            {
-                                keyValuePairValueQuaters[quater] = item.value;
-                            }
-                            else
-                            {
-                                keyValuePairValueQuaters[quater] += item.value;
-                            }
-                        }
+                        workSheet.Cells[recordIndex, 1].Value = item.Key;
+                        workSheet.Cells[recordIndex, 2].Value = item.Value;
+                        recordIndex++;
                     }
                 }
-                foreach (var item in keyValuePairValueQuaters)
-                {
-                    workSheet.Cells[recordIndex, 1].Value = item.Key;
-                    workSheet.Cells[recordIndex, 2].Value = item.Value;
-                    recordIndex++;
+                else{
+                    workSheet.Cells[1, 1].Value = "Quý";
+                    workSheet.Cells[1, 2].Value = "Năm";
+                    workSheet.Cells[1, 3].Value = "Giá trị";
+                    int recordIndex = 2;
+                    Dictionary<int, double> keyValuePairValueQuaters = new Dictionary<int, double>();
+                    foreach (var item in valueOfYears)
+                    {
+                        int quater = 0;
+                        if(item.month <= 3)
+                        {
+                            quater = 1;
+                            if(keyValuePairValueQuaters.Count == 0)
+                            {
+                                keyValuePairValueQuaters[quater] = item.value;
+                            }
+                            else{
+                                if(!keyValuePairValueQuaters.ContainsKey(quater))
+                                {
+                                    keyValuePairValueQuaters[quater] = item.value;
+                                }
+                                else
+                                {
+                                    keyValuePairValueQuaters[quater] += item.value;
+                                }
+                            }
+                        }
+                        else if(item.month > 3 && item.month <= 6)
+                        {
+                            quater = 2;
+                            if(keyValuePairValueQuaters.Count == 0)
+                            {
+                                keyValuePairValueQuaters[quater] = item.value;
+                            }
+                            else{
+                                if(!keyValuePairValueQuaters.ContainsKey(quater))
+                                {
+                                    keyValuePairValueQuaters[quater] = item.value;
+                                }
+                                else
+                                {
+                                    keyValuePairValueQuaters[quater] += item.value;
+                                }
+                            }
+                        }
+                        else if(item.month > 6 && item.month <= 9)
+                        {
+                            quater = 3;
+                            if(keyValuePairValueQuaters.Count == 0)
+                            {
+                                keyValuePairValueQuaters[quater] = item.value;
+                            }
+                            else{
+                                if(!keyValuePairValueQuaters.ContainsKey(quater))
+                                {
+                                    keyValuePairValueQuaters[quater] = item.value;
+                                }
+                                else
+                                {
+                                    keyValuePairValueQuaters[quater] += item.value;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            quater = 4;
+                            if(keyValuePairValueQuaters.Count == 0)
+                            {
+                                keyValuePairValueQuaters[quater] = item.value;
+                            }
+                            else{
+                                if(!keyValuePairValueQuaters.ContainsKey(quater))
+                                {
+                                    keyValuePairValueQuaters[quater] = item.value;
+                                }
+                                else
+                                {
+                                    keyValuePairValueQuaters[quater] += item.value;
+                                }
+                            }
+                        }
+                    }
+                    foreach (var item in keyValuePairValueQuaters)
+                    {
+                        workSheet.Cells[recordIndex, 1].Value = item.Key;
+                        workSheet.Cells[recordIndex, 2].Value = item.Value;
+                        recordIndex++;
+                    }
                 }
                 return package.GetAsByteArray();
             }
@@ -575,18 +700,43 @@
                 workSheet.Row(1).Height = 20;
                 workSheet.Row(1).Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
                 workSheet.Row(1).Style.Font.Bold = true;
-                workSheet.Cells[1, 1].Value = "Tháng";
-                workSheet.Cells[1, 2].Value = "Năm";
-                workSheet.Cells[1, 3].Value = "Giá trị";
-                int recordIndex = 2;
-                foreach (var item in valueOfYears)
+
+                if(hotelId > 0)
                 {
-                    if(item.year == yearValue)
+                    var hotel= hotels.First(h=>h.HotelId == hotelId);
+                    workSheet.Cells[1, 1].Value = "Khách sạn";
+                    workSheet.Cells[1, 2].Value = hotel.HotelName;
+
+                    workSheet.Cells[2, 1].Value = "Tháng";
+                    workSheet.Cells[2, 2].Value = "Năm";
+                    workSheet.Cells[2, 3].Value = "Giá trị";
+                    int recordIndex = 3;
+                    foreach (var item in valueOfYears)
                     {
-                        workSheet.Cells[recordIndex, 1].Value = item.month;
-                        workSheet.Cells[recordIndex, 2].Value = item.year;
-                        workSheet.Cells[recordIndex, 3].Value = item.value;
-                        recordIndex++;
+                        if(item.year == yearValue)
+                        {
+                            workSheet.Cells[recordIndex, 1].Value = item.month;
+                            workSheet.Cells[recordIndex, 2].Value = item.year;
+                            workSheet.Cells[recordIndex, 3].Value = item.value;
+                            recordIndex++;
+                        }
+                    }
+                }
+                else
+                {
+                    workSheet.Cells[1, 1].Value = "Tháng";
+                    workSheet.Cells[1, 2].Value = "Năm";
+                    workSheet.Cells[1, 3].Value = "Giá trị";
+                    int recordIndex = 2;
+                    foreach (var item in valueOfYears)
+                    {
+                        if(item.year == yearValue)
+                        {
+                            workSheet.Cells[recordIndex, 1].Value = item.month;
+                            workSheet.Cells[recordIndex, 2].Value = item.year;
+                            workSheet.Cells[recordIndex, 3].Value = item.value;
+                            recordIndex++;
+                        }
                     }
                 }
 
@@ -606,34 +756,72 @@
                 workSheet.Row(1).Height = 20;
                 workSheet.Row(1).Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
                 workSheet.Row(1).Style.Font.Bold = true;
-                workSheet.Cells[1, 1].Value = "Năm";
-                workSheet.Cells[1, 2].Value = "Giá trị";
-                int recordIndex = 2;
-                Dictionary<int, double> keyValuePairValueYears = new Dictionary<int, double>();
-                foreach (var item in valueOfYears)
+                if(hotelId > 0)
                 {
-                    if(keyValuePairValueYears.Count == 0)
+                    var hotel= hotels.First(h=>h.HotelId == hotelId);
+                    workSheet.Cells[1, 1].Value = "Khách sạn";
+                    workSheet.Cells[1, 2].Value = hotel.HotelName;
+
+                    workSheet.Cells[2, 1].Value = "Năm";
+                    workSheet.Cells[2, 2].Value = "Giá trị";
+                    int recordIndex = 3;
+                    Dictionary<int, double> keyValuePairValueYears = new Dictionary<int, double>();
+                    foreach (var item in valueOfYears)
                     {
-                        keyValuePairValueYears[item.year] = item.value;
-                    }
-                    else{
-                        if(!keyValuePairValueYears.ContainsKey(item.year))
+                        if(keyValuePairValueYears.Count == 0)
                         {
                             keyValuePairValueYears[item.year] = item.value;
                         }
-                        else
-                        {
-                            keyValuePairValueYears[item.year] += item.value;
+                        else{
+                            if(!keyValuePairValueYears.ContainsKey(item.year))
+                            {
+                                keyValuePairValueYears[item.year] = item.value;
+                            }
+                            else
+                            {
+                                keyValuePairValueYears[item.year] += item.value;
+                            }
                         }
                     }
+                    foreach (var item in keyValuePairValueYears)
+                    {
+                        workSheet.Cells[recordIndex, 1].Value = item.Key;
+                        workSheet.Cells[recordIndex, 2].Value = item.Value;
+                        recordIndex++;
+                    }
+                    keyValuePairValueYears.Clear();
+
                 }
-                foreach (var item in keyValuePairValueYears)
-                {
-                    workSheet.Cells[recordIndex, 1].Value = item.Key;
-                    workSheet.Cells[recordIndex, 2].Value = item.Value;
-                    recordIndex++;
+                else{
+                    workSheet.Cells[1, 1].Value = "Năm";
+                    workSheet.Cells[1, 2].Value = "Giá trị";
+                    int recordIndex = 2;
+                    Dictionary<int, double> keyValuePairValueYears = new Dictionary<int, double>();
+                    foreach (var item in valueOfYears)
+                    {
+                        if(keyValuePairValueYears.Count == 0)
+                        {
+                            keyValuePairValueYears[item.year] = item.value;
+                        }
+                        else{
+                            if(!keyValuePairValueYears.ContainsKey(item.year))
+                            {
+                                keyValuePairValueYears[item.year] = item.value;
+                            }
+                            else
+                            {
+                                keyValuePairValueYears[item.year] += item.value;
+                            }
+                        }
+                    }
+                    foreach (var item in keyValuePairValueYears)
+                    {
+                        workSheet.Cells[recordIndex, 1].Value = item.Key;
+                        workSheet.Cells[recordIndex, 2].Value = item.Value;
+                        recordIndex++;
+                    }
+                    keyValuePairValueYears.Clear();
                 }
-                keyValuePairValueYears.Clear();
                 return package.GetAsByteArray();
             }
         }
@@ -644,7 +832,16 @@
         valueOfMonths.Clear();
         InitAllList();
         //Thống kê theo tháng
-        foreach (var item in orderroomReceipts)
+        var orderroomReceiptsTemp = new List<Orderroom>();
+        if(hotelId != 0)
+        {
+            orderroomReceiptsTemp = orderroomReceipts.Where(d => d.Orderroomdetails.First().Room.HotelId == hotelId).ToList();
+        }
+        else
+        {
+            orderroomReceiptsTemp = orderroomReceipts;
+        }
+        foreach (var item in orderroomReceiptsTemp)
         {
             if(valueOfMonths.Select(vom=>vom.month).Contains(item.OrderroomDate.Value.Month) && valueOfMonths.Select(vom => vom.year).Contains(item.OrderroomDate.Value.Year))
             {
@@ -680,8 +877,16 @@
     void YearChange()
     {
         valueOfYears.Clear();
-        InitAllList();
-        foreach (var item in orderroomReceipts)
+        InitAllList();var orderroomReceiptsTemp = new List<Orderroom>();
+        if(hotelId != 0)
+        {
+            orderroomReceiptsTemp = orderroomReceipts.Where(d => d.Orderroomdetails.First().Room.HotelId == hotelId).ToList();
+        }
+        else
+        {
+            orderroomReceiptsTemp = orderroomReceipts;
+        }
+        foreach (var item in orderroomReceiptsTemp)
         {
             if(valueOfYears.Select(vom=>vom.month).Contains(item.OrderroomDate.Value.Month) && valueOfYears.Select(vom => vom.year).Contains(item.OrderroomDate.Value.Year))
             {
@@ -721,6 +926,18 @@
                 quarterCheck = false;
             }
 
+    }
+    void OnHotelChange(object value)
+    {
+        if (value != null)
+        {
+            hotelId = int.Parse(value.ToString());
+        }
+        if(monthCheck)
+            MonthChange();
+        else
+            YearChange();
+        
     }
     //Tính doanh thu của tháng
     class ValueOfYear

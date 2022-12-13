@@ -198,7 +198,7 @@
         if (res != null)
         {
             await AddHotelService(res);
-            UploadFileAsync(res);
+            await UploadFileAsync(res);
         }
     }
     protected async Task AddHotelService(Hotel_Custom resHotel)
