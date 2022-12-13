@@ -44,7 +44,7 @@
             <tbody>
                 @foreach (var room in rooms)
                 {
-                    if(room.RoomStatus != false){
+                    if(room.RoomStatus != false && room.HotelId == item.HotelId){
                         <tr>
                             <td class="avai-td-text">
                                 <figure>
@@ -227,14 +227,16 @@ else
             {
                 foreach (var orderroomdetail in orderroomdetails)
                 {
-                    if(orderroomdetail.RoomId == room.RoomId)
+                    if(orderroomdetail.RoomId == room.RoomId && orderroom.OrderroomId == orderroomdetail.OrderroomId)
                     {
-                        if 
-                        (
-                            (dayStartFilter <= orderroom.OrderroomDatestart && dayEndFilter >= orderroom.OrderroomDatestart) ||
-                            (dayStartFilter <= orderroom.OrderroomDatestart && dayEndFilter >= orderroom.OrderroomDateend) ||
-                            (dayStartFilter <= orderroom.OrderroomDatestart && dayEndFilter >= orderroom.OrderroomDatestart && dayEndFilter >= orderroom.OrderroomDatestart && dayEndFilter <= orderroom.OrderroomDateend)
-                        )
+                        //if 
+                        //(
+                        //    (dayStartFilter <= orderroom.OrderroomDatestart && dayEndFilter >= orderroom.OrderroomDatestart) ||
+                        //    (dayStartFilter <= orderroom.OrderroomDatestart && dayEndFilter >= orderroom.OrderroomDateend) ||
+                        //    (dayStartFilter <= orderroom.OrderroomDatestart && dayEndFilter >= orderroom.OrderroomDatestart && dayEndFilter >= orderroom.OrderroomDatestart && dayEndFilter <= orderroom.OrderroomDateend)
+                        //)
+                        //    return true;
+                        if (orderroom.OrderroomDatestart <= DateTime.Today && orderroom.OrderroomDateend > DateTime.Today)
                             return true;
                     }
                 }

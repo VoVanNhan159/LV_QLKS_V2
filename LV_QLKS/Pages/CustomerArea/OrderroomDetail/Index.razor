@@ -44,7 +44,7 @@
                                 @GetTypeofroom(item.Room.TorId).TorCapacity người
                             </td>
                             <td>
-                            @if(orderroom.OrderroomDateend < DateTime.Now){
+                            @if(orderroom.OrderroomDateend < DateTime.Now && orderroom.OrderroomStatus == "2"){
                                 if(GetCustomerreview(item.RoomId) != null)
                                 {
                                    <RadzenButton Text="Sửa đánh giá" Click="() => ShowReviewRoomPopup(item.RoomId, item.OrderroomId)" ButtonStyle="ButtonStyle.Success"></RadzenButton>

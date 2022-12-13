@@ -54,14 +54,14 @@
         if (firstRender)
         {
             pricelistbrs = await pricelistbrService.GetAllPricelistbr();
-            hubConnection = new HubConnectionBuilder()
-                .WithUrl(NavigationManager.ToAbsoluteUri("/HotelBrHub"))
-                .Build();
-            hubConnection.On("ReceiveMessage", () =>
-            {
-                ReloadData();
-            });
-            await hubConnection.StartAsync();
+            //hubConnection = new HubConnectionBuilder()
+            //    .WithUrl(NavigationManager.ToAbsoluteUri("/HotelBrHub"))
+            //    .Build();
+            //hubConnection.On("ReceiveMessage", () =>
+            //{
+            //    ReloadData();
+            //});
+            //await hubConnection.StartAsync();
             StateHasChanged();
         }
     }

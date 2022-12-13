@@ -25,7 +25,9 @@ namespace LV_QLKS_API.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Discountdetail>>> GetDiscountdetails()
         {
-            return await _context.Discountdetails.Include(dd=>dd.Discount).ToListAsync();
+            return await _context.Discountdetails
+                .Include(dd=>dd.Room)
+                .Include(dd=>dd.Discount).ToListAsync();
         }
         [HttpGet("GetAllDiscountdetailActive")]
         public async Task<ActionResult<IEnumerable<Discountdetail>>> GetAllDiscountdetailActive()

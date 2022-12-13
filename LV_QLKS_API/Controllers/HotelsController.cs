@@ -302,7 +302,7 @@ namespace LV_QLKS_API.Controllers
                 hotel.Add(hotelAdd);
             }
 
-            var businessregistrations = await _context.Businessregistrations.Include(br=>br.Hotel).ToListAsync();
+            var businessregistrations = await _context.Businessregistrations.Include(br=>br.Hotel).Where(br=>br.BrStatus == true).ToListAsync();
             foreach(var item in businessregistrations)
             {
                 var priceListBR = priceListBRs.Single(plbr => plbr.PricelistbrId == item.PricelistbrId);

@@ -226,8 +226,8 @@
         {
             if(item.Discount.DiscountDatestart <= orderroom.OrderroomDatestart && item.Discount.DiscountDateend >= orderroom.OrderroomDatestart && item.RoomId == id)
             {
-                tor = GetTypeofroom(item.RoomId);
-                return (tor.TorPrice - (tor.TorPrice / 100 * item.Percent));
+                tor = GetTypeofroom(item.Room.TorId);
+                return (tor.TorPrice - (tor.TorPrice / 100 * item.Percent));//???
             }
         }
         var room = orderroomdetails.First(od => od.RoomId == id).Room;

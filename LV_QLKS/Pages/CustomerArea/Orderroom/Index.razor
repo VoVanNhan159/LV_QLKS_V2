@@ -89,7 +89,7 @@
                                 </button>
                             </td>
                             <td>
-                            @if(item.OrderroomStatus != "1")
+                            @if(item.OrderroomStatus != "1" && item.OrderroomStatus !="4")
                             {
                                 <button @onclick="() => ShowInvoicePopup(item.OrderroomId)">
                                     <i class="fa fa-print" aria-hidden="true"></i>
@@ -142,25 +142,25 @@
     User customer;
     string phone = "";
 
-    protected override async Task OnInitializedAsync()
-    {
-        try
-        {
-            hubConnection = new HubConnectionBuilder()
-                        .WithUrl(NavigationManager.ToAbsoluteUri("/HotelBrHub"))
-                        .Build();
-            hubConnection.On("ReceiveMessage", () =>
-            {
-                ReloadData();
-            });
-            await hubConnection.StartAsync();
+    //protected override async Task OnInitializedAsync()
+    //{
+    //    try
+    //    {
+    //        hubConnection = new HubConnectionBuilder()
+    //                    .WithUrl(NavigationManager.ToAbsoluteUri("/HotelBrHub"))
+    //                    .Build();
+    //        hubConnection.On("ReceiveMessage", () =>
+    //        {
+    //            ReloadData();
+    //        });
+    //        await hubConnection.StartAsync();
 
-        }
-        catch(Exception ex)
-        {
-            Console.WriteLine(ex.ToString());
-        }
-    }
+    //    }
+    //    catch(Exception ex)
+    //    {
+    //        Console.WriteLine(ex.ToString());
+    //    }
+    //}
     //Hub
     private HubConnection hubConnection;
     public bool IsConnected => hubConnection.State == HubConnectionState.Connected;

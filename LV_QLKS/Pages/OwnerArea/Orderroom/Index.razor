@@ -126,25 +126,25 @@
         }
     }
 
-    protected override async Task OnInitializedAsync()
-    {
-        try
-        {
-            hubConnection = new HubConnectionBuilder()
-                .WithUrl(NavigationManager.ToAbsoluteUri("/HotelBrHub"))
-                .Build();
-            hubConnection.On("ReceiveMessage", () =>
-            {
-                ReloadData();
-            });
-            await hubConnection.StartAsync();
-            StateHasChanged();
-        }
-        catch(Exception ex)
-        {
-            Console.WriteLine(ex.ToString());
-        }
-    }
+    //protected override async Task OnInitializedAsync()
+    //{
+    //    try
+    //    {
+    //        hubConnection = new HubConnectionBuilder()
+    //            .WithUrl(NavigationManager.ToAbsoluteUri("/HotelBrHub"))
+    //            .Build();
+    //        hubConnection.On("ReceiveMessage", () =>
+    //        {
+    //            ReloadData();
+    //        });
+    //        await hubConnection.StartAsync();
+    //        StateHasChanged();
+    //    }
+    //    catch(Exception ex)
+    //    {
+    //        Console.WriteLine(ex.ToString());
+    //    }
+    //}
     protected async void ReloadData()
     {
         listOrderrooms = await orderroomService.GetAllOrderroomOfOwner(phone);

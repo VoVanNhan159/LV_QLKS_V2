@@ -79,11 +79,11 @@
                 var address = hotelService.GetAddressHotel(item.HotelId);
                 addressHotels.Add(item.HotelId, address);
             }
-            hubConnection = new HubConnectionBuilder()
-                .WithUrl(NavigationManager.ToAbsoluteUri("/HotelBrHub"))
-                .Build();
-            await hubConnection.StartAsync();
-            StateHasChanged();
+            //hubConnection = new HubConnectionBuilder()
+            //    .WithUrl(NavigationManager.ToAbsoluteUri("/HotelBrHub"))
+            //    .Build();
+            //await hubConnection.StartAsync();
+            //StateHasChanged();
         }
         catch(Exception ex)
         {
